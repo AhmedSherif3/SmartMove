@@ -1,0 +1,53 @@
+# Tells Nginx: "Send engine.smartmove.com here"
+# ==============================================================================
+# SmartMove — Analytics Engine Ingress Routing
+# Routes engine.smartmove.me to the isolated Server 4 processing pods
+# ==============================================================================
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: engine-ingress
+  namespace: smartmove-engine
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    # Allows users to upload large CSV files (up to 100MB) without Nginx dropping the request
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+    nginx.ingress.kubernetes.io/limit-rps: "20"
+spec:
+  rules:
+    # --- The Dedicated Engine Subdomain ---
+    - host: engine.smartmove.me
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: analytics-engine-service
+                port:
+                  number: 8000
+
+    # --- MinIO Public API (Used for File Uploads) ---
+    - host: storage.smartmoveanalytics.me
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: minio-service
+                port:
+                  number: 9000
+
+    # --- MinIO Web Console (For Administration) ---
+    - host: console.smartmoveanalytics.me
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: minio-service
+                port:
+                  number: 9001

@@ -1,0 +1,45 @@
+---
+# 1. Install prerequisites
+- name: Install Wazuh Agent dependencies
+  apt:
+    name:
+      - curl
+      - apt-transport-https
+      - lsb-release
+      - gnupg2
+    state: present
+    update_cache: true
+
+# 2. Add the official Wazuh GPG Security Key
+- name: Add Wazuh GPG key
+  shell: curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import && chmod 644 /usr/share/keyrings/wazuh.gpg
+  args:
+    creates: /usr/share/keyrings/wazuh.gpg
+
+# 3. Add the Wazuh Repository
+- name: Add Wazuh repository
+  apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main"
+    state: present
+    filename: wazuh
+
+# 4. Install the Agent
+- name: Install Wazuh Agent
+  apt:
+    name: wazuh-agent
+    state: present
+    update_cache: true
+
+# 5. Point the Agent to Server 3 (SecOps) over the Tailscale VPN
+- name: Configure Wazuh Manager IP
+  replace:
+    path: /var/ossec/etc/ossec.conf
+    regexp: '<client>\s*<server>\s*<address>.*</address>'
+    replace: '<client>\n    <server>\n      <address>100.99.164.119</address>'
+
+# 6. Start the Security Agent
+- name: Enable and start Wazuh Agent
+  systemd:
+    name: wazuh-agent
+    enabled: true
+    state: restarted

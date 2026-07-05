@@ -1,0 +1,7 @@
+-r base.txt
+gunicorn==23.*
+uvicorn[standard]==0.34.*
+whitenoise==6.9.*
+opentelemetry-instrumentation-celery==0.50b0
+opentelemetry-instrumentation-redis==0.50b0
+opentelemetry-instrumentation-psycopg2==0.50b0

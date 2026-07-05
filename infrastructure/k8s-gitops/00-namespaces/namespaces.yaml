@@ -1,0 +1,57 @@
+# ==============================================================================
+# SmartMove — Enterprise Kubernetes Namespaces
+# ==============================================================================
+
+# ────────────────────────────────────────────────────────────
+# 1. The Main Application Plane (Targets Server 1 & Server 2)
+# ────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: smartmove-prod
+  labels:
+    name: smartmove-prod
+    environment: production
+    tier: application
+    app.kubernetes.io/part-of: smartmove
+
+---
+# ────────────────────────────────────────────────────────────
+# 2. The Analytics Pro Engine Plane (Targets Server 4)
+# ────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: smartmove-engine
+  labels:
+    name: smartmove-engine
+    environment: production
+    tier: analytics
+    app.kubernetes.io/part-of: smartmove
+
+---
+# ────────────────────────────────────────────────────────────
+# 3. The Admin & Data Pipeline (Airflow)
+# ────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: smartmove-admin
+  labels:
+    name: smartmove-admin
+    environment: production
+    tier: data-pipeline
+    app.kubernetes.io/part-of: smartmove
+
+---
+# ────────────────────────────────────────────────────────────
+# 4. The Gateway & Security (Nginx Ingress & CrowdSec)
+# ────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ingress-nginx
+  labels:
+    name: ingress-nginx
+    tier: networking
+    app.kubernetes.io/part-of: smartmove

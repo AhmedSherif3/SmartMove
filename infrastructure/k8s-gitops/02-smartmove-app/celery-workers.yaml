@@ -1,0 +1,102 @@
+# Background task workers
+# ==============================================================================
+# SmartMove — Celery Background Workers
+# Processes async tasks (emails, AI processing, etc.) from the Redis queue
+# ==============================================================================
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: celery-worker
+  namespace: smartmove-prod
+  labels:
+    app.kubernetes.io/name: celery-worker
+    app.kubernetes.io/part-of: smartmove
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: celery-worker
+  template:
+    metadata:
+      labels:
+        app: celery-worker
+        app.kubernetes.io/name: celery-worker
+    spec:
+      containers:
+        - name: celery-worker
+          # Re-uses the backend image to ensure code consistency
+          image: smartmoveacr.azurecr.io/smartmove-backend:latest
+          imagePullPolicy: Always
+          # Overrides the default run command to start Celery
+          command: ["celery", "-A", "config", "worker", "--loglevel=info"]
+          envFrom:
+            - configMapRef:
+                name: smartmove-config
+          env:
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: smartmove-secrets
+                  key: SECRET_KEY
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: smartmove-secrets
+                  key: DB_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: smartmove-secrets
+                  key: DB_PASSWORD
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: smartmove-secrets
+                  key: REDIS_PASSWORD
+            - name: REDIS_URL
+              value: "redis://:$(REDIS_PASSWORD)@$(REDIS_HOST):$(REDIS_PORT)"
+            - name: LEMON_SQUEEZY_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: smartmove-secrets
+                  key: LEMON_SQUEEZY_API_KEY
+            - name: LEMON_SQUEEZY_STORE_ID
+              valueFrom:
+                secretKeyRef:
+                  name: smartmove-secrets
+                  key: LEMON_SQUEEZY_STORE_ID
+            - name: LEMON_SQUEEZY_WEBHOOK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: smartmove-secrets
+                  key: LEMON_SQUEEZY_WEBHOOK_SECRET
+            - name: MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: smartmove-secrets
+                  key: MINIO_ACCESS_KEY
+            - name: MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: smartmove-secrets
+                  key: MINIO_SECRET_KEY
+          resources:
+            requests:
+              cpu: 150m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 1Gi
+
+      # ── The 60% Spillover Logic (Node Affinity) ──
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: tier
+                    operator: NotIn
+                    values:
+                      - overflow

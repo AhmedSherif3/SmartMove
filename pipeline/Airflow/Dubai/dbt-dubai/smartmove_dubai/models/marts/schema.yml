@@ -1,0 +1,57 @@
+version: 2
+
+models:
+  - name: dim_date_dubai
+    columns:
+      - name: date_id
+        tests: [not_null, unique]
+
+  - name: dim_area_dubai
+    columns:
+      - name: area_id
+        tests: [not_null, unique]
+
+  - name: dim_property_dubai
+    columns:
+      - name: property_type_id
+        tests: [not_null, unique]
+
+  - name: dim_procedure_dubai
+    columns:
+      - name: procedure_id
+        tests: [not_null, unique]
+
+  - name: dim_registration_dubai
+    columns:
+      - name: reg_type_id
+        tests: [not_null, unique]
+
+  - name: fact_transactions_dubai
+    columns:
+      - name: transaction_id
+        tests: [not_null, unique]
+      - name: date_id
+        tests:
+          - relationships:
+              to: ref('dim_date_dubai')
+              field: date_id
+      - name: area_id
+        tests:
+          - relationships:
+              to: ref('dim_area_dubai')
+              field: area_id
+      - name: property_type_id
+        tests:
+          - relationships:
+              to: ref('dim_property_dubai')
+              field: property_type_id
+      - name: procedure_id
+        tests:
+          - relationships:
+              to: ref('dim_procedure_dubai')
+              field: procedure_id
+      - name: reg_type_id
+        tests:
+          - relationships:
+              to: ref('dim_registration_dubai')
+              field: reg_type_id

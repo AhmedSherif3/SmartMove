@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartMove — System Status Dashboard</title>
+    <!-- Tailwind CSS CDN for slick enterprise styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col justify-between">
+
+    <!-- Top Navigation Header -->
+    <header class="border-b border-gray-800 bg-gray-900/50 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20">
+                    S
+                </div>
+                <span class="font-semibold text-lg tracking-wide text-white">SmartMove <span class="text-indigo-400 font-normal text-sm">Status</span></span>
+            </div>
+            <a href="http://status.smartmove.me" class="text-xs text-gray-400 hover:text-white transition border border-gray-800 px-3 py-1.5 rounded-md bg-gray-800/30">
+                Refresh Page
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-5xl w-full mx-auto px-4 py-10 flex-grow">
+        
+        <!-- Global Operational Banner (Changes dynamically via JS) -->
+        <div id="global-status-banner" class="mb-10 p-5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center space-x-4 shadow-xl">
+            <div class="w-4 h-4 bg-emerald-500 rounded-full animate-pulse"></div>
+            <div>
+                <h2 id="global-status-text" class="text-lg font-semibold text-emerald-400">All Systems Operational</h2>
+                <p class="text-sm text-gray-400">Our distributed network is running smoothly across all regions.</p>
+            </div>
+        </div>
+
+        <!-- System Groups Layout -->
+        <div class="space-y-8">
+            
+            <!-- 1. CORE APPLICATIONS -->
+            <div>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-4">Core Architecture</h3>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <!-- Control Plane Card -->
+                    <div class="bg-gray-800/40 border border-gray-800 p-5 rounded-xl flex items-center justify-between">
+                        <div class="space-y-1">
+                            <h4 class="font-medium text-white">App Control Plane (Server 1)</h4>
+                            <p class="text-xs text-gray-500">Core deployment and routing tier</p>
+                        </div>
+                        <span id="status-server1" class="px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Operational</span>
+                    </div>
+
+                    <!-- Analytics Pro Engine Card -->
+                    <div class="bg-gray-800/40 border border-gray-800 p-5 rounded-xl flex items-center justify-between">
+                        <div class="space-y-1">
+                            <h4 class="font-medium text-white">Analytics Pro Engine (Server 4)</h4>
+                            <p class="text-xs text-gray-500">Data pipelines and file processing</p>
+                        </div>
+                        <span id="status-server4" class="px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Operational</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. STORAGE & DATA PERFORMANCE -->
+            <div>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-4">Data & Caching Fleet</h3>
+                <div class="grid md:grid-cols-3 gap-4">
+                    <!-- Database Card -->
+                    <div class="bg-gray-800/40 border border-gray-800 p-5 rounded-xl flex flex-col justify-between h-32">
+                        <div>
+                            <h4 class="font-medium text-white text-sm">Database Node (Server 2)</h4>
+                            <p class="text-xs text-gray-500 mt-1">PostgreSQL cluster layers</p>
+                        </div>
+                        <div class="flex items-center justify-between mt-4">
+                            <span class="text-xs text-gray-400">Uptime: 99.98%</span>
+                            <span id="status-server2" class="px-2 py-0.5 text-xs rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Active</span>
+                        </div>
+                    </div>
+
+                    <!-- Observability Cache Card -->
+                    <div class="bg-gray-800/40 border border-gray-800 p-5 rounded-xl flex flex-col justify-between h-32">
+                        <div>
+                            <h4 class="font-medium text-white text-sm">Observability Cache Fleet</h4>
+                            <p class="text-xs text-gray-500 mt-1">VMs 4, 5, 6 (Tempo/Mimir/Loki)</p>
+                        </div>
+                        <div class="flex items-center justify-between mt-4">
+                            <span class="text-xs text-gray-400">RAM Limit: 700MB Cap</span>
+                            <span id="status-caches" class="px-2 py-0.5 text-xs rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Stable</span>
+                        </div>
+                    </div>
+
+                    <!-- Image Optimizer Card -->
+                    <div class="bg-gray-800/40 border border-gray-800 p-5 rounded-xl flex flex-col justify-between h-32">
+                        <div>
+                            <h4 class="font-medium text-white text-sm">Image Optimizer (VM 7)</h4>
+                            <p class="text-xs text-gray-500 mt-1">Asset streaming compressor</p>
+                        </div>
+                        <div class="flex items-center justify-between mt-4">
+                            <span class="text-xs text-gray-400">Response: 45ms</span>
+                            <span id="status-vm7" class="px-2 py-0.5 text-xs rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. SECURITY OPERATIONS -->
+            <div>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-4">Security Operations Center (SOC)</h3>
+                <div class="bg-gray-800/40 border border-gray-800 rounded-xl divide-y divide-gray-800/60">
+                    <!-- Command Center (Server 3) -->
+                    <div class="p-4 flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                            <span class="text-sm font-medium text-white">Wazuh SIEM & Security Center (Server 3)</span>
+                        </div>
+                        <span id="status-server3" class="text-sm text-emerald-400">Operational</span>
+                    </div>
+                    <!-- External Watchdog -->
+                    <div class="p-4 flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                            <span class="text-sm font-medium text-white">External Network Watchdog (VM 3)</span>
+                        </div>
+                        <span id="status-vm3" class="text-sm text-emerald-400">Monitoring</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-800 py-6 bg-gray-950/20 text-center">
+        <p class="text-xs text-gray-500">&copy; 2026 SmartMove Infrastructure. Powered by Nginx, Tailwind, and Uptime Kuma.</p>
+    </footer>
+
+    <!-- Dynamic Status Script -->
+<script>
+    async function fetchSystemMetrics() {
+        try {
+            // 1. Fetch raw data from Uptime Kuma's status page API
+            const response = await fetch('/api/status-page/smartmove');
+            if (!response.ok) throw new Error('Status API offline');
+            const data = await response.json();
+
+            // 2. Map your inventory to Uptime Kuma's internal monitor IDs
+            // (Note: Replace these numbers with your actual monitor IDs from Kuma)
+            const monitorMap = {
+                'status-server1': 1, // Monitor ID for Server 1
+                'status-server2': 2, // Monitor ID for Server 2
+                'status-server3': 3, // Monitor ID for Server 3
+                'status-server4': 4, // Monitor ID for Server 4
+                'status-caches':  5, // Monitor ID for Cache Fleet
+                'status-vm7':     6  // Monitor ID for Image Optimizer
+            };
+
+            let globalOutage = false;
+
+            // 3. Loop through your UI elements and update them dynamically
+            Object.keys(monitorMap).forEach(elementId => {
+                const monitorId = monitorMap[elementId];
+                const monitor = data.publicGroupList.flatMap(g => g.monitorList)
+                                    .find(m => m.id === monitorId);
+
+                const element = document.getElementById(elementId);
+                if (element && monitor) {
+                    // Kuma status 1 means operational/up
+                    if (monitor.status === 1) {
+                        element.className = "px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+                        element.innerText = "Operational";
+                    } else {
+                        element.className = "px-2.5 py-1 text-xs font-medium rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 animate-pulse";
+                        element.innerText = "Degraded";
+                        globalOutage = true;
+                    }
+                }
+            });
+
+            // 4. Update the Master Top Banner if anything is broken
+            const banner = document.getElementById('global-status-banner');
+            const bannerText = document.getElementById('global-status-text');
+            
+            if (globalOutage) {
+                banner.className = "mb-10 p-5 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center space-x-4 shadow-xl";
+                bannerText.className = "text-lg font-semibold text-rose-400";
+                bannerText.innerText = "System Disturbance Detected";
+            } else {
+                banner.className = "mb-10 p-5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center space-x-4 shadow-xl";
+                bannerText.className = "text-lg font-semibold text-emerald-400";
+                bannerText.innerText = "All Systems Operational";
+            }
+
+        } catch (error) {
+            console.error("Kuma integration sync error:", error);
+        }
+    }
+
+    // Run immediately on boot, then poll every 30 seconds
+    fetchSystemMetrics();
+    setInterval(fetchSystemMetrics, 30000);
+</script>
+</body>
+</html>

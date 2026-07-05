@@ -1,0 +1,47 @@
+---
+# 1. Add the Grafana GPG key
+- name: Add Grafana GPG key
+  shell: curl -s https://apt.grafana.com/gpg.key | gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/grafana.gpg --import && chmod 644 /usr/share/keyrings/grafana.gpg
+  args:
+    creates: /usr/share/keyrings/grafana.gpg
+
+# 2. Add the Grafana repository
+- name: Add Grafana repository
+  apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/grafana.gpg] https://apt.grafana.com stable main"
+    state: present
+    filename: grafana
+
+# 3. Install Alloy
+- name: Install Grafana Alloy
+  apt:
+    name: alloy
+    state: present
+    update_cache: true
+
+# 4. Configure Alloy to send metrics to Server 3
+- name: Configure Grafana Alloy
+  copy:
+    dest: /etc/alloy/config.alloy
+    content: |
+      prometheus.exporter.unix "default" { }
+
+      prometheus.scrape "default" {
+        targets    = prometheus.exporter.unix.default.targets
+        forward_to = [prometheus.remote_write.default.receiver]
+      }
+
+      prometheus.remote_write "default" {
+        endpoint {
+          url = "http://100.99.164.119:9090/api/v1/write"
+        }
+      }
+    mode: "0644"
+  notify: restart alloy
+
+# 5. Enable and start the service
+- name: Enable and start Grafana Alloy
+  systemd:
+    name: alloy
+    enabled: true
+    state: started

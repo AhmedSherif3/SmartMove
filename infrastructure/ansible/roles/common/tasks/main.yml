@@ -1,0 +1,42 @@
+# infrastructure/ansible/roles/common/tasks/main.yml
+---
+- name: Update apt cache and upgrade all system packages
+  apt:
+    update_cache: yes
+    upgrade: dist
+    cache_valid_time: 3600
+
+- name: Set system timezone to UTC
+  timezone:
+    name: UTC
+
+- name: Install required baseline packages
+  apt:
+    name:
+      - curl
+      - ufw
+      - fail2ban
+      - apt-transport-https
+      - ca-certificates
+      - software-properties-common
+    state: present
+
+- name: Deploy strict Fail2ban configuration
+  template:
+    src: jail.local.j2
+    dest: /etc/fail2ban/jail.local
+    owner: root
+    group: root
+    mode: "0644"
+  notify: restart fail2ban
+
+- name: Install Tailscale VPN
+  shell: curl -fsSL https://tailscale.com/install.sh | sh
+  args:
+    creates: /usr/bin/tailscale
+
+- name: Ensure UFW firewall allows Tailscale traffic
+  ufw:
+    rule: allow
+    interface: tailscale0
+    direction: in

@@ -1,0 +1,51 @@
+# Tells Nginx: "Send admin.smartmove.com/airflow here"
+# ==============================================================================
+# SmartMove — Admin Pipeline Ingress Routing
+# Routes airflow.smartmoveanalytics.me to the Airflow Webserver
+# ==============================================================================
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: airflow-ingress
+  namespace: smartmove-admin
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/limit-rps: "50"
+spec:
+  rules:
+    # --- England Admin Subdomain ---
+    - host: england.airflow.smartmoveanalytics.me
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: airflow-webserver-england-service
+                port:
+                  number: 8080
+
+    # --- Egypt Admin Subdomain ---
+    - host: egypt.airflow.smartmoveanalytics.me
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: airflow-webserver-egypt-service
+                port:
+                  number: 8081
+
+    # --- Dubai Admin Subdomain ---
+    - host: dubai.airflow.smartmoveanalytics.me
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: airflow-webserver-dubai-service
+                port:
+                  number: 8082

@@ -1,0 +1,44 @@
+# ==============================================================================
+# Prometheus — Enterprise Scrape & Remote-Write Configuration
+# ==============================================================================
+
+global:
+  scrape_interval: 15s
+  scrape_timeout: 10s
+  evaluation_interval: 15s
+
+  # These labels are appended to every metric. Critical for filtering
+  # in Grafana when dealing with multiple environments.
+  external_labels:
+    environment: "production"
+    cluster: "smartmove-soc"
+    region: "frankfurt"
+
+# ── Alertmanager Connection ────────────────────────────────────
+alerting:
+  alertmanagers:
+    - scheme: http
+      timeout: 10s
+      api_version: v2
+      static_configs:
+        - targets:
+            - "alertmanager:9093"
+
+# ── Alert Rules ──────────────────────────────────────────────
+rule_files:
+  - "/etc/prometheus/alert_rules.yml"
+
+# ── Long-Term Storage (Mimir) ────────────────────────────────
+remote_write:
+  - url: http://mimir:9009/api/v1/push
+    # Enterprise Queue Tuning: Prevents memory crashes during metric spikes
+    queue_config:
+      capacity: 10000
+      max_shards: 50
+      max_samples_per_send: 2000
+      batch_send_deadline: 5s
+
+# ── Scrape Targets ───────────────────────────────────────────
+# Imports the external file containing all server targets
+scrape_config_files:
+  - "/etc/prometheus/scrape_configs.yml"

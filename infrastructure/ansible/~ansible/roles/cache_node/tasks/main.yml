@@ -1,0 +1,37 @@
+---
+# We can re-use the utility node's docker installation logic by using an 'include_role'
+# or just re-running the docker install steps. For absolute safety, we declare it explicitly.
+
+- name: Ensure Docker is installed (Cache Nodes)
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    state: present
+
+- name: Create Redis configuration directory
+  file:
+    path: /opt/redis
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: "0755"
+
+- name: Deploy Redis configuration template
+  template:
+    src: redis.conf.j2
+    dest: /opt/redis/redis.conf
+    owner: ubuntu
+    group: ubuntu
+
+- name: Start Redis Cache Container
+  docker_container:
+    name: observability_cache
+    image: redis:7-alpine
+    state: started
+    restart_policy: always
+    network_mode: host
+    volumes:
+      - /opt/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf

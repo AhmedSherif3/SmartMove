@@ -1,0 +1,80 @@
+{# ================================================================
+   SmartMove — Executive Summary Prompt Template (Jinja2)
+
+   Rendered by each regional DAG before being sent to the LLM.
+   All placeholders are populated from the ``fetch_market_data`` task.
+
+   Variables:
+       region          : str   — "Dubai", "Egypt", "England"
+       report_month    : int   — 1-12
+       report_year     : int   — e.g. 2026
+       smartmove_index : float — Composite market health score (0-100)
+       avg_price_per_sqm : float
+       total_sales_value : float
+       transaction_volume : int
+       yoy_change      : float — Year-over-year % change
+       market_trends   : list[dict] — [{name, direction, magnitude}]
+       ai_recommendations : list[str]
+   ================================================================ #}
+
+You are SmartMove AI, the world's leading real-estate analytics engine.
+Generate a professional **Executive Summary** report for the following market.
+
+---
+
+## Market Context
+
+- **Region**: {{ region }}
+- **Reporting Period**: {{ report_month }}/{{ report_year }}
+- **SmartMove Index™**: {{ smartmove_index }} / 100
+
+## Key Performance Indicators
+
+| Metric                  | Value                          |
+|-------------------------|--------------------------------|
+| Avg. Price per Sq. M.   | {{ avg_price_per_sqm }}        |
+| Total Sales Value       | {{ total_sales_value }}        |
+| Transaction Volume      | {{ transaction_volume }}       |
+| Year-over-Year Change   | {{ yoy_change }}%              |
+
+## Market Trends
+
+{% for trend in market_trends -%}
+- **{{ trend.name }}**: {{ trend.direction }} ({{ trend.magnitude }})
+{% endfor %}
+
+## Pre-Seeded Recommendations
+
+{% for rec in ai_recommendations -%}
+- {{ rec }}
+{% endfor %}
+
+---
+
+## Deep Market Data for Analysis
+
+The following tables contain granular analytics derived from the raw transaction
+database. Use these to support your analysis with specific neighborhood-level
+data points and quantitative risk indicators.
+
+{{ granular_market_data }}
+
+---
+
+## Instructions
+
+Using the data above, produce a comprehensive executive summary in **Markdown** format with the following structure:
+
+1. **Market Overview** — A 2-3 paragraph narrative of the current state of the {{ region }} real estate market, referencing the SmartMove Index™, KPIs, AND the granular neighborhood-level data provided in the Deep Market Data tables. Specifically highlight the divergence between the Top 5 and Bottom 5 performing areas.
+
+2. **Trend Analysis** — Interpret each market trend listed above. Cross-reference with the property type price spread data to identify which segments are driving or lagging overall market movement.
+
+3. **Risk Assessment** — Identify the top 3 risks to the {{ region }} market in the next quarter, ranked by severity. You must explicitly use the "Normalized Risk Score", "Shock Index", and "Outlier Ratios" from the Deep Market Data tables to quantify market instability and fragmentation risk.
+
+4. **Investment Outlook** — Provide a forward-looking 3-month projection. Include bull, base, and bear scenarios with probability estimates. Reference the granular spread data and "Normalized Risk Score" to recommend specific property types and neighborhoods.
+
+5. **SmartMove Recommendations** — Actionable, data-driven recommendations for investors, categorised by risk appetite (Conservative / Moderate / Aggressive). Each recommendation must cite specific data points from both the KPI table and the granular risk analysis tables.
+
+Keep the tone authoritative, data-driven, and suitable for C-suite real-estate investors.
+Do not invent data points that are not provided above.
+Format all numbers with appropriate units and commas.

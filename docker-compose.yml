@@ -1,0 +1,326 @@
+# ============================================================
+# SmartMove — Docker Compose (Full Production-Style Stack)
+# Services: App Core, Storage, Security, and Observability
+# Excludes Airflow (Kept isolated)
+# ============================================================
+
+services:
+  # --------------------------------------------------------
+  # PostgreSQL 16 — Primary database
+  # --------------------------------------------------------
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: smartmove-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: smartmove
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d smartmove"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - smartmove-net
+
+  # --------------------------------------------------------
+  # Redis 7 — Celery broker, Channels layer, caching
+  # --------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: smartmove-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - smartmove-net
+
+  # --------------------------------------------------------
+  # Django Backend — API + WebSockets + Admin
+  # --------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: smartmove-backend
+    env_file:
+      - backend/.env
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - SECRET_KEY=smartmove-docker-dev-secret-key-2026
+      - DEBUG=True
+      - ALLOWED_HOSTS=localhost,127.0.0.1,backend
+      - CORS_ALLOW_ALL_ORIGINS=True
+      - CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+      - CSRF_TRUSTED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+      - AUTH_COOKIE_SAMESITE=Lax
+      - AUTH_COOKIE_SECURE=False
+      - DB_NAME=smartmove
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=db
+      - DB_PORT=5432
+      - REDIS_URL=redis://redis:6379
+      - DJANGO_SETTINGS_MODULE=config.settings.development
+      - SENTRY_ENVIRONMENT=development
+      - NEXT_PUBLIC_API_BASE_URL=http://localhost:8000/api
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=smartmove_admin
+      - MINIO_SECRET_KEY=smartmove_password
+      - CLAMAV_REST_URL=http://clamav-rest:9000/scan
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - backend_static:/app/staticfiles
+    networks:
+      - smartmove-net
+
+  # --------------------------------------------------------
+  # Celery Worker — Background task processing
+  # --------------------------------------------------------
+  celery:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: smartmove-celery
+    env_file:
+      - backend/.env
+    restart: unless-stopped
+    command: /opt/venv/bin/celery -A config worker -l info
+    environment:
+      - SECRET_KEY=smartmove-docker-dev-secret-key-2026
+      - DEBUG=True
+      - ALLOWED_HOSTS=localhost,127.0.0.1,backend
+      - DB_NAME=smartmove
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=db
+      - DB_PORT=5432
+      - REDIS_URL=redis://redis:6379
+      - DJANGO_SETTINGS_MODULE=config.settings.development
+      - SENTRY_ENVIRONMENT=development
+      - CORS_ALLOW_ALL_ORIGINS=True
+      - CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+      - CSRF_TRUSTED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+      - AUTH_COOKIE_SAMESITE=Lax
+      - AUTH_COOKIE_SECURE=False
+      - NEXT_PUBLIC_API_BASE_URL=http://localhost:8000/api
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=smartmove_admin
+      - MINIO_SECRET_KEY=smartmove_password
+      - CLAMAV_REST_URL=http://clamav-rest:9000/scan
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/venv/bin/celery -A config status || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    networks:
+      - smartmove-net
+
+  # --------------------------------------------------------
+  # Next.js Frontend — React UI
+  # --------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: smartmove-frontend
+    env_file:
+      - backend/.env
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_BASE_URL=http://localhost:8000/api
+      - NEXT_PUBLIC_SENTRY_ENVIRONMENT=development
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:3000/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    networks:
+      - smartmove-net
+
+  # --------------------------------------------------------
+  # MinIO — User CSV Upload Storage (Engine Node)
+  # --------------------------------------------------------
+  minio:
+    image: minio/minio:latest
+    container_name: smartmove-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: smartmove_admin
+      MINIO_ROOT_PASSWORD: smartmove_password
+    ports:
+      - "9010:9000"
+      - "9011:9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - smartmove-net
+
+  # --------------------------------------------------------
+  # ClamAV — Malware Scanner (SOC Node)
+  # --------------------------------------------------------
+  clamav-rest:
+    image: lokori/clamav-rest:latest
+    container_name: smartmove-clamav
+    restart: unless-stopped
+    ports:
+      - "9015:9000"
+    networks:
+      - smartmove-net
+
+  # --------------------------------------------------------
+  # Redis Exporter — Cache Metrics
+  # --------------------------------------------------------
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: smartmove-redis-exporter
+    restart: unless-stopped
+    environment:
+      REDIS_ADDR: redis://redis:6379
+    ports:
+      - "9121:9121"
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - smartmove-net
+
+  # --------------------------------------------------------
+  # Postgres Exporter — Database Metrics
+  # --------------------------------------------------------
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: smartmove-postgres-exporter
+    restart: unless-stopped
+    environment:
+      DATA_SOURCE_NAME: postgresql://postgres:postgres@db:5432/smartmove?sslmode=disable
+    ports:
+      - "9187:9187"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - smartmove-net
+
+  # --------------------------------------------------------
+  # StatsD Exporter — Airflow Metrics
+  # --------------------------------------------------------
+  statsd-exporter:
+    image: prom/statsd-exporter:latest
+    container_name: smartmove-statsd-exporter
+    restart: unless-stopped
+    ports:
+      - "9125:9125"
+      - "9125:9125/udp"
+      - "9102:9102"
+    networks:
+      - smartmove-net
+
+  # --------------------------------------------------------
+  # Grafana Alloy — Telemetry Agent
+  # --------------------------------------------------------
+  alloy:
+    image: grafana/alloy:latest
+    container_name: smartmove-alloy
+    restart: unless-stopped
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+    env_file:
+      - backend/.env
+    depends_on:
+      - backend
+    ports:
+      - "12345:12345"
+    networks:
+      - smartmove-net
+
+  # --------------------------------------------------------
+  # Prometheus — Local Metric Collection
+  # --------------------------------------------------------
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    container_name: smartmove-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus_data:/prometheus
+    depends_on:
+      - backend
+      - statsd-exporter
+    networks:
+      - smartmove-net
+
+  # --------------------------------------------------------
+  # Grafana — Dashboards
+  # --------------------------------------------------------
+  grafana:
+    image: grafana/grafana:11.1.0
+    container_name: smartmove-grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: smartmove2026
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - smartmove-net
+
+# --------------------------------------------------------
+# Named Volumes & Networks
+# --------------------------------------------------------
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  backend_static:
+    driver: local
+  minio_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+networks:
+  smartmove-net:
+    driver: bridge
+    name: smartmove-core-net

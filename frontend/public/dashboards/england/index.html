@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive England Real Estate Analytics Dashboard — Overview, Investment, Risk & Market Trends across 30M+ transactions.">
+  <title>SmartMove — England Real Estate Dashboard</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
+  <!-- Leaflet.js -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@0.344.0/dist/umd/lucide.js"></script>
+
+  <!-- Dashboard Styles -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ====== LOADING OVERLAY ====== -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Loading dashboard data…</p>
+  </div>
+
+  <div class="dashboard-layout">
+
+    <!-- ====== SIDEBAR ====== -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">
+          <i data-lucide="building-2"></i>
+        </div>
+        <div>
+          <h1>SmartMove</h1>
+          <span class="logo-sub">England Real Estate</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a class="nav-item active" data-page="overview" id="nav-overview">
+          <i data-lucide="layout-dashboard"></i>
+          <span class="nav-label">Overview</span>
+          <span class="nav-badge">30M+</span>
+        </a>
+        <a class="nav-item" data-page="investment" id="nav-investment">
+          <i data-lucide="trending-up"></i>
+          <span class="nav-label">Investment</span>
+        </a>
+        <a class="nav-item" data-page="risk" id="nav-risk">
+          <i data-lucide="shield-alert"></i>
+          <span class="nav-label">Risk</span>
+        </a>
+        <a class="nav-item" data-page="trends" id="nav-trends">
+          <i data-lucide="bar-chart-3"></i>
+          <span class="nav-label">Market Trends</span>
+        </a>
+        
+      </nav>
+
+      <div class="sidebar-footer">
+        <p>SmartMove Analytics<br>Data: 1995 – 2026</p>
+      </div>
+    </aside>
+
+    <!-- ====== MAIN CONTENT ====== -->
+        <main class="main-content">
+
+      <!-- PAGE 1: OVERVIEW -->
+      <section class="page-section active" id="page-overview">
+        <div class="page-header">
+          <h2>Market Overview</h2>
+          <p>A bird's-eye view of England's real estate market across 30,000,000+ transactions from 1995 to 2026.</p>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-icon"><i data-lucide="receipt"></i></div><div class="kpi-label">Total Sales Value</div><div class="kpi-value" id="kpi-ov-value">—</div><div class="kpi-sub">Combined actual worth</div></div>
+          <div class="kpi-card"><div class="kpi-icon"><i data-lucide="banknote"></i></div><div class="kpi-label">Transaction Count</div><div class="kpi-value" id="kpi-ov-total">—</div><div class="kpi-sub">All recorded deals</div></div>
+          <div class="kpi-card"><div class="kpi-icon"><i data-lucide="map-pin"></i></div><div class="kpi-label">Active Areas</div><div class="kpi-value" id="kpi-ov-areas">333</div><div class="kpi-sub">Districts</div></div>
+          <div class="kpi-card"><div class="kpi-icon"><i data-lucide="building"></i></div><div class="kpi-label">Property Types</div><div class="kpi-value" id="kpi-ov-types">4</div><div class="kpi-sub">Categories</div></div>
+        </div>
+        <div class="dubai-grid-overview">
+          <div class="left-col">
+            <div class="chart-card">
+              <div class="chart-header"><div><div class="chart-title">Annual Sales & YOY Growth Rate</div></div></div>
+              <div class="chart-container"><canvas id="chart-ov-volume"></canvas></div>
+            </div>
+            <div class="bottom-row">
+              <div class="map-card">
+                <div class="chart-header"><div><div class="chart-title">Geographic Sales Distribution</div></div></div>
+                <div class="map-container" id="map-overview"></div>
+              </div>
+              <div class="chart-card">
+                <div class="chart-header"><div><div class="chart-title">Sales Breakdown Property Type</div></div></div>
+                <div class="chart-container"><canvas id="chart-ov-proptype"></canvas></div>
+              </div>
+            </div>
+          </div>
+          <div class="right-col">
+            <div class="chart-card" style="height: 100%; display: flex; flex-direction: column;">
+              <div class="chart-header"><div><div class="chart-title">Top Areas by Total Sales</div></div></div>
+              <div class="chart-container" style="flex: 1;"><canvas id="chart-ov-topareas"></canvas></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 2: INVESTMENT -->
+      <section class="page-section" id="page-investment">
+        <div class="page-header">
+          <h2>Investment Analysis</h2>
+          <p>Uncover high-value areas, price trends, and channel dynamics to guide investment strategy.</p>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-icon"><i data-lucide="refresh-cw"></i></div><div class="kpi-label">Liquidity</div><div class="kpi-value" id="kpi-inv-liquidity">—</div><div class="kpi-sub">Transactions per month</div></div>
+          <div class="kpi-card"><div class="kpi-icon"><i data-lucide="trending-up"></i></div><div class="kpi-label">Capital Growth %</div><div class="kpi-value" id="kpi-inv-yoy">—</div><div class="kpi-sub">Avg price/sqm change</div></div>
+          <div class="kpi-card"><div class="kpi-icon"><i data-lucide="calculator"></i></div><div class="kpi-label">Transaction Count</div><div class="kpi-value" id="kpi-inv-count">—</div><div class="kpi-sub">Total deals</div></div>
+          <div class="kpi-card"><div class="kpi-icon"><i data-lucide="search"></i></div><div class="kpi-label">Sum of Value</div><div class="kpi-value" id="kpi-inv-sum">—</div><div class="kpi-sub">Total transacted</div></div>
+        </div>
+        <div class="dubai-grid-investment">
+          <div class="left-col">
+            <div class="chart-card">
+              <div class="chart-header"><div><div class="chart-title">Top Investment Areas Overview</div></div></div>
+              <div class="table-container" style="flex:1; overflow-y:auto; max-height:260px;" id="table-inv-overview"></div>
+            </div>
+            <div class="bottom-row">
+              <div class="chart-card">
+                <div class="chart-header"><div><div class="chart-title">Sales Distribution by Property Type</div></div></div>
+                <div class="chart-container"><canvas id="chart-inv-typeyear"></canvas></div>
+              </div>
+              <div class="map-card">
+                <div class="chart-header"><div><div class="chart-title">Investment Activity Map</div></div></div>
+                <div class="map-container" id="map-investment"></div>
+              </div>
+            </div>
+          </div>
+          <div class="right-col">
+            <div class="chart-card" style="height: 100%; display: flex; flex-direction: column;">
+              <div class="chart-header"><div><div class="chart-title">Top Areas by Capital Growth</div></div></div>
+              <div class="chart-container" style="flex: 1;"><canvas id="chart-inv-expensive"></canvas></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 3: RISK -->
+      <section class="page-section" id="page-risk">
+        <div class="page-header">
+          <h2>Risk Assessment</h2>
+          <p>Monitor market volatility, outlier transactions, and liquidity constraints.</p>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-icon"><i data-lucide="search"></i></div><div class="kpi-label">Outlier Transactions</div><div class="kpi-value" id="kpi-rk-outlier">0.07%</div><div class="kpi-sub">Anomalous price drops</div></div>
+          <div class="kpi-card"><div class="kpi-icon"><i data-lucide="shield"></i></div><div class="kpi-label">Risk Score (England)</div><div class="kpi-value" id="kpi-rk-score">0.01</div><div class="kpi-sub">Systemic risk indicator</div></div>
+          <div class="kpi-card"><div class="kpi-icon"><i data-lucide="thermometer"></i></div><div class="kpi-label">Heat Index</div><div class="kpi-value" id="kpi-rk-heat">798</div><div class="kpi-sub">Market overheating score</div></div>
+          <div class="kpi-card"><div class="kpi-icon"><i data-lucide="refresh-cw"></i></div><div class="kpi-label">Liquidity</div><div class="kpi-value" id="kpi-rk-liquidity">3.21K</div><div class="kpi-sub">Monthly turnover</div></div>
+        </div>
+        <div class="dubai-grid-risk">
+          <div class="chart-card">
+            <div class="chart-header"><div><div class="chart-title">Market Risk Over Time</div></div></div>
+            <div class="chart-container"><canvas id="chart-rk-volatility"></canvas></div>
+          </div>
+          <div class="bottom-row">
+            <div class="map-card">
+              <div class="chart-header"><div><div class="chart-title">Risk Hotspot Map</div></div></div>
+              <div class="map-container" id="map-risk"></div>
+            </div>
+            <div class="chart-card">
+              <div class="chart-header"><div><div class="chart-title">Risk Distribution by Property Type</div></div></div>
+              <div class="chart-container"><canvas id="chart-rk-dropdist"></canvas></div>
+            </div>
+            <div class="chart-card">
+              <div class="chart-header"><div><div class="chart-title">Highest vs Lowest Risk Areas</div></div></div>
+              <div class="chart-container"><canvas id="chart-rk-topdrops"></canvas></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 4: TRENDS -->
+      <section class="page-section" id="page-trends">
+        <div class="page-header">
+          <h2>Market Trends</h2>
+          <p>Analyze long-term momentum, shifting buyer preferences, and emerging asset classes.</p>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-icon"><i data-lucide="activity"></i></div><div class="kpi-label">Price Volatility 6M</div><div class="kpi-value" id="kpi-tr-vol">441</div><div class="kpi-sub">Standard deviation</div></div>
+          <div class="kpi-card"><div class="kpi-icon"><i data-lucide="trending-up"></i></div><div class="kpi-label">YoY Price Growth %</div><div class="kpi-value" id="kpi-tr-yoy">5.19</div><div class="kpi-sub">Annual momentum</div></div>
+          <div class="kpi-card"><div class="kpi-icon"><i data-lucide="refresh-ccw"></i></div><div class="kpi-label">Turnover Velocity</div><div class="kpi-value" id="kpi-tr-velocity">3.21</div><div class="kpi-sub">Avg transactions/day</div></div>
+          <div class="kpi-card"><div class="kpi-icon"><i data-lucide="tag"></i></div><div class="kpi-label">Avg Ticket Size</div><div class="kpi-value" id="kpi-tr-ticket">3.90M</div><div class="kpi-sub">Per property average</div></div>
+        </div>
+        <div class="dubai-grid-trends">
+          <div class="top-row">
+            <div class="chart-card" style="flex:2;">
+              <div class="chart-header"><div><div class="chart-title">Price Per sqm Trend Over Time</div></div></div>
+              <div class="chart-container"><canvas id="chart-tr-price"></canvas></div>
+            </div>
+            <div class="map-card" style="flex:1;">
+              <div class="chart-header"><div><div class="chart-title">Transaction Activity Map</div></div></div>
+              <div class="map-container" id="map-trends"></div>
+            </div>
+          </div>
+          <div class="bottom-row">
+            <div class="chart-card">
+              <div class="chart-header"><div><div class="chart-title">Annual Price Growth by Property Type</div></div></div>
+              <div class="chart-container"><canvas id="chart-tr-usagemix"></canvas></div>
+            </div>
+            <div class="chart-card">
+              <div class="chart-header"><div><div class="chart-title">Off-Plan vs Existing Market Share</div></div></div>
+              <div class="chart-container"><canvas id="chart-tr-offplan"></canvas></div>
+            </div>
+            <div class="chart-card">
+              <div class="chart-header"><div><div class="chart-title">Monthly Price Momentum</div></div></div>
+              <div class="chart-container"><canvas id="chart-tr-momentum"></canvas></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- Dashboard JS -->
+  <script src="data/dashboard_data.js"></script>
+  <script src="app.js?v=20260622"></script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+# ==============================================================================
+# SmartMove — Application ConfigMap
+# Non-sensitive configuration shared across Django and Next.js
+# ==============================================================================
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: smartmove-config
+  namespace: smartmove-prod
+  labels:
+    app.kubernetes.io/part-of: smartmove
+data:
+  # ── Django Core Settings ──
+  DJANGO_SETTINGS_MODULE: "config.settings.production"
+  # Updated to use the .me domain and Tailscale IPs
+  ALLOWED_HOSTS: "*"
+  CORS_ALLOW_ALL_ORIGINS: "True"
+  CORS_ALLOWED_ORIGINS: "https://smartmoveanalytics.me,https://www.smartmoveanalytics.me,https://api.smartmoveanalytics.me,http://smartmoveanalytics.me"
+  CSRF_TRUSTED_ORIGINS: "https://smartmoveanalytics.me,https://www.smartmoveanalytics.me,https://api.smartmoveanalytics.me,http://smartmoveanalytics.me,http://api.smartmoveanalytics.me"
+  AUTH_COOKIE_DOMAIN: ".smartmoveanalytics.me"
+  CSRF_COOKIE_DOMAIN: ".smartmoveanalytics.me"
+
+  # ── Internal Microservices ──
+  CLAMAV_REST_URL: "http://100.99.164.119:9000/scan"
+  MINIO_ENDPOINT: "minio-service:9000"
+
+  # ── External Data Layer (Server 2 via Tailscale) ──
+  DB_HOST: "100.111.232.64"
+  DB_PORT: "6432" # Routing through PgBouncer, not directly to Postgres!
+  DB_NAME: "smartmove_prod"
+  USE_AZURE_DB: "True"
+  REDIS_HOST: "100.111.232.64"
+  REDIS_PORT: "6379"
+
+  # ── MinIO Object Storage ──
+  MINIO_ENDPOINT_URL: "https://storage.smartmoveanalytics.me"
+  MINIO_BUCKET_NAME: "smartmove-data-lake"
+
+  # ── Frontend Settings ──
+  NEXT_PUBLIC_API_BASE_URL: "https://api.smartmoveanalytics.me/api"
+
+  # ── Billing & Subscriptions (Lemon Squeezy) ──
+  LEMON_SQUEEZY_VARIANT_ANALYST: "12345"
+  LEMON_SQUEEZY_VARIANT_ANALYST_PRO_MAX: "12346"
+  LEMON_SQUEEZY_VARIANT_STORAGE_PER_GB: "12347"
+  LEMON_SQUEEZY_VARIANT_STORAGE_5GB: "12348"
+  LEMON_SQUEEZY_VARIANT_STORAGE_9GB: "12349"
+  LEMON_SQUEEZY_VARIANT_REPORT_SINGLE: "12350"
+  LEMON_SQUEEZY_VARIANT_REPORT_ALL: "12351"

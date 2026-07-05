@@ -1,0 +1,42 @@
+# The Nginx K8s gateway (replaces the root nginx folder)
+# ==============================================================================
+# SmartMove — Nginx Ingress Controller (K3s Helm Deployment)
+# This installs the actual Nginx Gateway engine into the cluster.
+# ==============================================================================
+
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: ingress-nginx
+  # The K3s Helm controller specifically watches the kube-system namespace
+  # for these instructions, but it will install Nginx into our targetNamespace.
+  namespace: kube-system
+spec:
+  # The official Kubernetes Nginx repository
+  repo: https://kubernetes.github.io/ingress-nginx
+  chart: ingress-nginx
+  targetNamespace: ingress-nginx
+
+  # Enterprise configuration overrides
+  valuesContent: |-
+    controller:
+      # Ensures the source IP of the user is preserved (critical for CrowdSec to work)
+      service:
+        externalTrafficPolicy: "Local"
+      
+      # Exposes K8s metrics so Server 3 (Prometheus/Alloy) can monitor traffic spikes
+      metrics:
+        enabled: true
+      
+      # Security hardening: drops privileges inside the pod
+      podSecurityContext:
+        runAsNonRoot: true
+      
+      # Allocates dedicated resources to Nginx so it doesn't crash during traffic spikes
+      resources:
+        requests:
+          cpu: 100m
+          memory: 90Mi
+        limits:
+          cpu: 500m
+          memory: 256Mi

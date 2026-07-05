@@ -1,0 +1,19 @@
+---
+# 1. Install K3s Master Node over Tailscale
+- name: Install K3s Master with Traefik disabled
+  shell: curl -sfL https://get.k3s.io | sh -s - server --disable traefik --node-ip {{ ansible_host }} --flannel-iface tailscale0
+  environment:
+    INSTALL_K3S_EXEC: "server"
+  args:
+    creates: /etc/rancher/k3s/k3s.yaml
+
+# 2. Extract the secret Node Token so the workers can join
+- name: Fetch K3s node token for workers
+  slurp:
+    src: /var/lib/rancher/k3s/server/node-token
+  register: node_token
+
+# 3. Save the token to Ansible's temporary memory
+- name: Store node token as a fact
+  set_fact:
+    k3s_node_token: "{{ node_token['content'] | b64decode | trim }}"

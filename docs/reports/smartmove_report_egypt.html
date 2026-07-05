@@ -1,0 +1,247 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+
+:root{
+  --eg-red:#CE1126;
+  --eg-white:#FFFFFF;
+  --eg-black:#000000;
+  --eg-gold:#C09300;
+  --bg:#F2F0E6;
+  --bg-card:#e8e6d8;
+  --bg-deeper:#dedad0;
+}
+
+.sm-page{font-family:'Segoe UI',sans-serif;font-size:13px;background:var(--bg);border:0.5px solid #c8c5b5;border-radius:var(--border-radius-lg);overflow:hidden;color:#000;box-shadow:0 4px 24px rgba(0,0,0,0.13);}
+
+/* ── HEADER — deep crimson dark ── */
+.sm-hdr{background:linear-gradient(135deg,#1a0305 0%,#3d0a0e 60%,#5a0f14 100%);color:#fff;padding:22px 28px 18px;}
+.sm-hdr-top{display:flex;align-items:center;gap:14px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.1);}
+.sm-logo{height:44px;width:auto;object-fit:contain;border-radius:6px;}
+.sm-brand-name{font-size:20px;font-weight:700;color:#fff;margin:0 0 2px;}
+.sm-brand-sub{font-size:11px;color:#fca5a5;}
+
+/* ── REGION BANNER — Egypt flag colors ── */
+.region-banner{
+  border-radius:10px;display:flex;align-items:stretch;margin-bottom:14px;overflow:hidden;
+  box-shadow:0 4px 16px rgba(0,0,0,0.45),inset 0 1px 0 rgba(255,255,255,0.15),inset 0 -1px 0 rgba(0,0,0,0.3);
+  border:1px solid rgba(255,255,255,0.08);
+}
+/* Egypt flag: horizontal red / white / black bands */
+.eg-flag-col{display:flex;flex-direction:column;width:56px;flex-shrink:0;}
+.eg-red{flex:1;background:#CE1126;}
+.eg-white{flex:1;background:#f5f5f5;display:flex;align-items:center;justify-content:center;}
+.eg-black{flex:1;background:#111;}
+/* Eagle of Saladin (simplified gold shape) */
+.eagle{font-size:13px;line-height:1;color:#C09300;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.4));}
+
+.region-center{
+  flex:1;
+  background:linear-gradient(105deg,
+    rgba(206,17,38,0.6) 0%,
+    rgba(61,10,14,0.88) 35%,
+    rgba(26,3,5,0.94) 65%,
+    rgba(0,0,0,0.7) 100%
+  );
+  padding:12px 16px;display:flex;flex-direction:column;justify-content:center;
+}
+.region-label{font-size:9px;color:#fca5a5;letter-spacing:2.5px;text-transform:uppercase;font-weight:700;margin-bottom:4px;}
+.region-name{font-size:24px;font-weight:900;color:#fff;line-height:1;letter-spacing:0.5px;text-shadow:0 2px 8px rgba(0,0,0,0.5);}
+.region-sub{font-size:11px;color:#fca5a5;margin-top:4px;opacity:0.85;}
+
+.region-right{width:10px;background:linear-gradient(to bottom,#111 0%,#333 100%);box-shadow:inset -2px 0 4px rgba(0,0,0,0.4);}
+
+.meta-row{display:flex;justify-content:space-between;align-items:center;}
+.period{font-size:11px;color:#fca5a5;}
+.badge{
+  background:linear-gradient(135deg,#9b0e1e,#CE1126);
+  color:#fff;font-size:10px;font-weight:700;padding:7px 16px;border-radius:6px;
+  display:flex;align-items:center;gap:5px;
+  box-shadow:0 2px 8px rgba(206,17,38,0.45),inset 0 1px 0 rgba(255,255,255,0.2);
+}
+.badge-score{font-size:16px;}
+
+/* ── BODY ── */
+.sm-body{padding:18px 28px 22px;position:relative;background:var(--bg);}
+.wm-wrap{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:0;overflow:hidden;}
+.wm-inner{transform:rotate(-35deg);opacity:0.09;}
+.wm-inner img{width:260px;filter:grayscale(20%);}
+.body-content{position:relative;z-index:1;}
+
+/* ── KPI CARDS — 3D, red accent ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:18px;}
+.kpi{
+  background:linear-gradient(160deg,#eeecdf 0%,#e2e0d2 100%);
+  border-radius:10px;padding:12px 13px;
+  border:1px solid rgba(206,17,38,0.2);
+  border-top:1px solid rgba(255,255,255,0.85);
+  border-left:1px solid rgba(255,255,255,0.6);
+  box-shadow:0 4px 12px rgba(0,0,0,0.12),0 1px 3px rgba(0,0,0,0.08),inset 0 1px 0 rgba(255,255,255,0.7);
+  position:relative;overflow:hidden;
+}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#CE1126,#9b0e1e);border-radius:10px 10px 0 0;}
+.kpi-lbl{font-size:10px;color:#555;margin-bottom:4px;margin-top:2px;}
+.kpi-val{font-size:18px;font-weight:700;color:#000;}
+.kpi-chg{font-size:10px;margin-top:3px;}
+.up{color:#15803d;font-weight:600;}.dn{color:#CE1126;font-weight:600;}
+.neu{color:#666;}
+
+/* ── SECTION TITLES ── */
+.sec-title{font-size:14px;font-weight:700;color:#000;margin:18px 0 10px;padding-bottom:6px;border-bottom:2px solid #CE1126;text-shadow:0 1px 0 rgba(255,255,255,0.8);}
+.sec-sub{font-size:12px;font-weight:600;color:#222;margin:12px 0 4px;}
+.bp{font-size:12px;line-height:1.7;color:#000;margin-bottom:8px;}
+
+/* ── TABLE — 3D, red header ── */
+.dtbl-wrap{border-radius:10px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.11),0 1px 4px rgba(0,0,0,0.07);border:1px solid rgba(206,17,38,0.18);margin:10px 0;}
+.dtbl{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed;}
+.dtbl th{background:linear-gradient(180deg,#CE1126 0%,#9b0e1e 100%);color:#fff;font-weight:700;text-align:left;padding:9px 11px;text-shadow:0 1px 2px rgba(0,0,0,0.3);}
+.dtbl td{padding:7px 11px;border-bottom:1px solid rgba(206,17,38,0.1);color:#000;}
+.dtbl tr:last-child td{border-bottom:none;}
+.dtbl tr:nth-child(even) td{background:rgba(206,17,38,0.05);}
+.dtbl tr:hover td{background:rgba(206,17,38,0.09);}
+
+.tag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:4px;font-weight:600;}
+.tg{background:#dcfce7;color:#166534;box-shadow:inset 0 1px 0 rgba(255,255,255,0.6);}
+.ta{background:#fef9c3;color:#854d0e;box-shadow:inset 0 1px 0 rgba(255,255,255,0.6);}
+.tr2{background:#fee2e2;color:#991b1b;box-shadow:inset 0 1px 0 rgba(255,255,255,0.6);}
+
+/* ── FOOTER ── */
+.sm-footer{background:linear-gradient(135deg,var(--bg-deeper) 0%,var(--bg-card) 100%);border-top:2px solid #CE1126;padding:11px 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:inset 0 1px 0 rgba(255,255,255,0.5);}
+.footer-left{display:flex;align-items:center;gap:8px;font-size:10px;color:#333;}
+.footer-robot{height:24px;width:auto;object-fit:contain;}
+.footer-brand{font-weight:700;color:#CE1126;}
+.footer-link{color:#CE1126;text-decoration:none;font-weight:700;font-size:10px;border-bottom:1px solid rgba(206,17,38,0.4);}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:2px;border-bottom:2px solid rgba(206,17,38,0.2);margin-bottom:14px;}
+.tab{font-size:11px;padding:5px 13px;border:none;background:none;cursor:pointer;color:#555;border-bottom:2px solid transparent;margin-bottom:-2px;font-weight:500;}
+.tab.on{color:#CE1126;border-bottom-color:#CE1126;font-weight:700;}
+.sec{display:none;}.sec.on{display:block;}
+</style>
+
+<div class="sm-page">
+
+  <!-- HEADER -->
+  <div class="sm-hdr">
+    <div class="sm-hdr-top">
+      <img class="sm-logo" id="logo-img" src="" alt="SmartMove">
+      <div>
+        <div class="sm-brand-name">SmartMove</div>
+        <div class="sm-brand-sub">Real Estate Intelligence Platform</div>
+      </div>
+    </div>
+
+    <!-- Egypt flag banner: horizontal red/white/black -->
+    <div class="region-banner">
+      <div class="eg-flag-col">
+        <div class="eg-red"></div>
+        <div class="eg-white"><span class="eagle">🦅</span></div>
+        <div class="eg-black"></div>
+      </div>
+      <div class="region-center">
+        <div class="region-label">Market Region</div>
+        <div class="region-name">EGYPT</div>
+        <div class="region-sub">Arab Republic of Egypt &nbsp;&middot;&nbsp; Residential Market</div>
+      </div>
+      <div class="region-right"></div>
+    </div>
+
+    <div class="meta-row">
+      <div class="period">Executive Summary &mdash; May 2026</div>
+      <div class="badge"><span class="badge-score">61.2</span>&nbsp;SmartMove Index&trade; &mdash; NEUTRAL</div>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="sm-body">
+    <div class="wm-wrap">
+      <div class="wm-inner"><img id="wm-img" src="" alt=""></div>
+    </div>
+
+    <div class="body-content">
+      <div class="tabs">
+        <button class="tab on" onclick="sw('overview',this)">Overview</button>
+        <button class="tab" onclick="sw('districts',this)">Districts</button>
+        <button class="tab" onclick="sw('risk',this)">Risk signals</button>
+      </div>
+
+      <div class="sec on" id="s-overview">
+        <div class="kpi-grid">
+          <div class="kpi"><div class="kpi-lbl">Avg price / sqm</div><div class="kpi-val">EGP 28,400</div><div class="kpi-chg up">↑ 18.3% YoY</div></div>
+          <div class="kpi"><div class="kpi-lbl">Transactions</div><div class="kpi-val">9,210</div><div class="kpi-chg up">↑ 6.4% MoM</div></div>
+          <div class="kpi"><div class="kpi-lbl">Volatility 6M</div><div class="kpi-val">0.61</div><div class="kpi-chg neu">Elevated</div></div>
+          <div class="kpi"><div class="kpi-lbl">Shock index</div><div class="kpi-val">0.29</div><div class="kpi-chg dn">Moderate</div></div>
+        </div>
+        <div class="sec-title">Market overview</div>
+        <p class="bp">Egypt's residential market continues its recovery trajectory through May 2026, supported by currency stabilisation following EGP float adjustments and renewed foreign direct investment inflows into New Administrative Capital and North Coast corridors. Nominal price growth of 18.3% YoY reflects both genuine demand and inflation pass-through.</p>
+        <p class="bp">Affordable and mid-range segments (EGP 1.5M–4M) are driving volume, with first-time buyer activity rising as mortgage financing conditions ease. Luxury demand remains concentrated in New Cairo and 6th of October City.</p>
+        <div class="sec-sub">Demand-side drivers</div>
+        <p class="bp">Population growth, urbanisation pressure, and a large young demographic base sustain structural housing demand. Government social housing programs added 12,000 units to pipeline in Q1 2026.</p>
+        <div class="sec-sub">Supply-side</div>
+        <p class="bp">Developer activity is concentrated in East Cairo and New Administrative Capital. Delivery timelines remain stretched at 18–24 months, limiting near-term supply response.</p>
+      </div>
+
+      <div class="sec" id="s-districts">
+        <div class="sec-title">District performance</div>
+        <div class="dtbl-wrap">
+          <table class="dtbl">
+            <thead><tr><th>District</th><th>Avg price/sqm</th><th>YoY</th><th>Volatility</th><th>Signal</th></tr></thead>
+            <tbody>
+              <tr><td>New Cairo</td><td>EGP 38,500</td><td>+21.4%</td><td>0.48</td><td><span class="tag tg">Bullish</span></td></tr>
+              <tr><td>New Admin. Capital</td><td>EGP 44,200</td><td>+26.1%</td><td>0.55</td><td><span class="tag tg">Bullish</span></td></tr>
+              <tr><td>6th of October</td><td>EGP 22,100</td><td>+14.8%</td><td>0.52</td><td><span class="tag ta">Neutral</span></td></tr>
+              <tr><td>Heliopolis</td><td>EGP 31,700</td><td>+11.2%</td><td>0.44</td><td><span class="tag ta">Neutral</span></td></tr>
+              <tr><td>Nasr City</td><td>EGP 19,400</td><td>+8.6%</td><td>0.67</td><td><span class="tag ta">Neutral</span></td></tr>
+              <tr><td>Downtown Cairo</td><td>EGP 14,200</td><td>+2.1%</td><td>0.81</td><td><span class="tag tr2">Bearish</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="bp">New Administrative Capital leads YoY growth at 26.1%, driven by government relocation momentum and infrastructure completion. Elevated volatility warrants close monitoring heading into H2 2026.</p>
+      </div>
+
+      <div class="sec" id="s-risk">
+        <div class="kpi-grid">
+          <div class="kpi"><div class="kpi-lbl">Outlier txn ratio</div><div class="kpi-val">7.3%</div><div class="kpi-chg dn">Above avg</div></div>
+          <div class="kpi"><div class="kpi-lbl">Risk score</div><div class="kpi-val">44.8</div><div class="kpi-chg neu">Moderate</div></div>
+          <div class="kpi"><div class="kpi-lbl">Shock index</div><div class="kpi-val">0.29</div><div class="kpi-chg dn">Moderate</div></div>
+          <div class="kpi"><div class="kpi-lbl">Anomaly flags</div><div class="kpi-val">7</div><div class="kpi-chg dn">↑ from 4</div></div>
+        </div>
+        <div class="sec-title">Anomaly flags</div>
+        <p class="bp">Seven transactions exceeded 2.5σ from district means, concentrated in New Administrative Capital off-plan resales. Currency-linked pricing inconsistencies account for three flags; the remaining four are referred for compliance review.</p>
+        <div class="sec-title">Outlook</div>
+        <p class="bp">Probability of a nominal correction exceeding 10% over the next two quarters estimated at 18%, primarily driven by macroeconomic sensitivity to FX movements. Real (inflation-adjusted) returns remain positive in premium corridors. Base case: continued nominal appreciation of 12–16% with real gains of 3–6% QoQ.</p>
+        <p class="bp" style="font-size:11px;color:#555">AI-generated analysis — supplementary guidance only.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="sm-footer">
+    <div class="footer-left">
+      <img class="footer-robot" id="robot-img" src="" alt="SmartMove AI">
+      <span>
+        <span class="footer-brand">SmartMove</span>
+        <span style="font-style:italic;color:#666;font-size:10px;"> Real Estate Intelligence</span>
+        &nbsp;&middot;&nbsp; May 2026 &nbsp;&middot;&nbsp; AI-generated analysis
+      </span>
+    </div>
+    <a class="footer-link" href="https://smartmove.me" target="_blank">smartmove.me &#x2197;</a>
+  </div>
+</div>
+
+<script>
+function sw(id,el){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('s-'+id).classList.add('on');
+  el.classList.add('on');
+}
+function loadImg(id,url){
+  var x=new XMLHttpRequest();x.open('GET',url,true);x.responseType='blob';
+  x.onload=function(){var r=new FileReader();r.onloadend=function(){var el=document.getElementById(id);if(el)el.src=r.result;};r.readAsDataURL(x.response);};
+  x.send();
+}
+loadImg('logo-img','/mnt/user-data/uploads/1779004387480_Logo.jpg');
+loadImg('wm-img','/mnt/user-data/uploads/1779004387480_Logo.jpg');
+loadImg('robot-img','/mnt/user-data/uploads/1779004346382_image.png');
+</script>

@@ -1,0 +1,11 @@
+---
+# 1. Verify the VPN tunnel is active
+- name: Verify Tailscale VPN status
+  command: tailscale status
+  register: ts_status
+  changed_when: false
+
+# 2. Print the status to your terminal during the run
+- name: Display Tailscale connection output
+  debug:
+    msg: "Tailscale is active. Node status: {{ ts_status.stdout_lines[0] }}"

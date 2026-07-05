@@ -1,0 +1,104 @@
+# ==============================================================================
+# Alertmanager — Multi-Channel Routing (Fatigue-Free Setup)
+# ==============================================================================
+
+global:
+  resolve_timeout: 5m
+  smtp_smarthost: "smtp.gmail.com:587"
+  smtp_from: "alertmanager@smartmove.me"
+  smtp_auth_username: "$SMTP_USER"
+  smtp_auth_password: "$SMTP_PASSWORD"
+
+inhibit_rules:
+  - source_matchers:
+      - severity =~ "fatal|critical"
+    target_matchers:
+      - severity =~ "warning|info"
+    equal: ["alertname", "service"]
+
+route:
+  receiver: discord-warnings
+  group_by: ["alertname", "service", "severity"]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+
+  routes:
+    # 1. FATAL ALERTS: Server crashes. Wake the developer up!
+    - matchers:
+        - severity = "fatal"
+      receiver: wake-up-developer
+      group_wait: 10s
+      repeat_interval: 1h
+
+    # 2. CRITICAL ALERTS: Bad files, malware, app errors. (No phone calls)
+    - matchers:
+        - severity = "critical"
+      receiver: critical-no-page
+      group_wait: 10s
+      repeat_interval: 1h
+
+    # 3. WARNING ALERTS: High CPU, minor issues. (Discord only)
+    - matchers:
+        - severity = "warning"
+      receiver: discord-warnings
+      group_wait: 1m
+      repeat_interval: 6h
+
+receivers:
+  # ────────────────────────────────────────────────────────────
+  # 1. FATAL: PagerDuty + Email + Discord + Webhook
+  # ────────────────────────────────────────────────────────────
+  - name: wake-up-developer
+
+    webhook_configs:
+      # Replace 100.100.100.11 with the actual Tailscale IP of Server 1 (Control Plane)
+      - url: "http://100.100.100.11:8000/api/monitoring/webhook/alertmanager/"
+        send_resolved: true
+
+    discord_configs:
+      - webhook_url: "$DISCORD_WEBHOOK_URL"
+        send_resolved: true
+        title: "[FATAL OUTAGE] {{ .GroupLabels.alertname }}"
+        message: "SERVER DOWN. Escalating to PagerDuty."
+
+    pagerduty_configs:
+      - service_key: "$PAGERDUTY_SERVICE_KEY"
+        severity: "critical"
+
+    email_configs:
+      - to: "admin-team@smartmove.me"
+        send_resolved: true
+        headers:
+          subject: "[FATAL] SmartMove Infrastructure Alert"
+
+  # ────────────────────────────────────────────────────────────
+  # 2. CRITICAL: Email + Discord + Webhook (NO PAGERDUTY)
+  # ────────────────────────────────────────────────────────────
+  - name: critical-no-page
+
+    webhook_configs:
+      - url: "http://<DJANGO_BACKEND_IP>:8000/api/monitoring/webhook/alertmanager/"
+        send_resolved: true
+
+    discord_configs:
+      - webhook_url: "$DISCORD_WEBHOOK_URL"
+        send_resolved: true
+        title: "[CRITICAL] {{ .GroupLabels.alertname }}"
+        message: "{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}"
+
+    email_configs:
+      - to: "admin-team@smartmove.me"
+        send_resolved: true
+        headers:
+          subject: "[CRITICAL] SmartMove System Alert"
+
+  # ────────────────────────────────────────────────────────────
+  # 3. WARNING: Discord Only
+  # ────────────────────────────────────────────────────────────
+  - name: discord-warnings
+    discord_configs:
+      - webhook_url: "$DISCORD_WEBHOOK_URL"
+        send_resolved: true
+        title: "[WARNING] {{ .GroupLabels.alertname }}"
+        message: "{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}"

@@ -1,0 +1,49 @@
+---
+# 1. Install stress-ng (required by the context-aware script)
+- name: Install stress-ng tool for context-aware keep-alive
+  apt:
+    name: stress-ng
+    state: present
+    update_cache: true
+
+# 2. Deploy ARM Variant (4 OCPU)
+- name: Create smart-alive.sh (ARM servers)
+  copy:
+    dest: /usr/local/bin/smart-alive.sh
+    mode: "0755"
+    content: |
+      #!/bin/bash
+      # Check current CPU usage
+      CPU_USAGE=$(grep "cpu " /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print usage}')
+      CPU_INT=${CPU_USAGE%.*}
+
+      # Only stress if truly idle – prevents crashing during real traffic
+      if [ "$CPU_INT" -lt 25 ]; then
+          timeout 15m stress-ng --cpu 4 --cpu-load 25
+      else
+          echo "Server busy with real traffic (${CPU_INT}%). Skipping."
+      fi
+  when: ansible_architecture == "aarch64"
+
+# 3. Deploy AMD Variant (1 OCPU)
+- name: Create smart-alive.sh (AMD micro instances)
+  copy:
+    dest: /usr/local/bin/smart-alive.sh
+    mode: "0755"
+    content: |
+      #!/bin/bash
+      CPU_USAGE=$(grep "cpu " /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print usage}')
+      CPU_INT=${CPU_USAGE%.*}
+
+      if [ "$CPU_INT" -lt 25 ]; then
+          timeout 10m stress-ng --cpu 1 --cpu-load 15
+      fi
+  when: ansible_architecture == "x86_64"
+
+# 4. Schedule the Hourly Cron Job
+- name: Schedule hourly keep-alive cron job
+  cron:
+    name: "Context-Aware Oracle Keep-Alive"
+    minute: "0"
+    job: "/usr/local/bin/smart-alive.sh > /var/log/smart-alive.log 2>&1"
+    state: present

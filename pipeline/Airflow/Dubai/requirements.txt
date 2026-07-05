@@ -1,0 +1,37 @@
+# ============================================================
+# requirements.txt — Dubai Airflow Region
+# Integrated Enterprise Architecture (Transactions + Reports)
+# ============================================================
+
+# ── Airflow Providers ────────────────────────────────────────
+apache-airflow-providers-microsoft-azure==8.4.0
+apache-airflow-providers-smtp==1.6.1
+apache-airflow-providers-cncf-kubernetes>=8.0.0   # NEW: For ML Pod Execution
+apache-airflow-providers-postgres>=5.10.0         # NEW: For Session Manager tracking
+apache-airflow-providers-http>=4.8.0              # NEW: For ClamAV, AAS, & Power BI APIs
+
+# ── Azure SDKs ───────────────────────────────────────────────
+azure-storage-blob==12.20.0
+azure-identity==1.16.1
+
+# ── Synapse / SQL Server connectivity ────────────────────────
+pyodbc==5.1.0
+# Airflow 2.9.2 requires SQLAlchemy <2.0
+SQLAlchemy>=1.4.36,<2.0
+
+# NOTE: dbt-sqlserver is installed in /opt/dbt-venv (see Dockerfile)
+# It is NOT listed here to avoid SQLAlchemy <2.0 resolution conflicts.
+
+# ── Data processing ──────────────────────────────────────────
+pandas==2.2.2
+numpy==1.26.4
+tabulate>=0.9.0,<1.0
+
+# ── Report Generation Pipeline (Monthly Report DAG) ──────────
+anthropic>=0.39.0,<1.0       # Claude API SDK for executive summaries
+markdown>=3.7,<4.0           # Markdown → HTML conversion
+requests>=2.31.0,<3.0        # HTTP client for Django webhook / general APIs
+Jinja2>=3.1.0,<4.0           # Prompt template rendering
+
+# ── Utilities ────────────────────────────────────────────────
+python-dotenv==1.0.1

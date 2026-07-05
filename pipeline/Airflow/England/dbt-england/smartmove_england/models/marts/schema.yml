@@ -1,0 +1,57 @@
+version: 2
+
+models:
+  - name: dim_date_england
+    columns:
+      - name: date_id
+        tests: [not_null, unique]
+
+  - name: dim_area_england
+    columns:
+      - name: area_id
+        tests: [not_null, unique]
+
+  - name: dim_property_england
+    columns:
+      - name: property_type_id
+        tests: [not_null, unique]
+
+  - name: dim_procedure_england
+    columns:
+      - name: procedure_id
+        tests: [not_null, unique]
+
+  - name: dim_registration_england
+    columns:
+      - name: reg_type_id
+        tests: [not_null, unique]
+
+  - name: fact_transactions_england
+    columns:
+      - name: transaction_id
+        tests: [not_null, unique]
+      - name: date_id
+        tests:
+          - relationships:
+              to: ref('dim_date_england')
+              field: date_id
+      - name: area_id
+        tests:
+          - relationships:
+              to: ref('dim_area_england')
+              field: area_id
+      - name: property_type_id
+        tests:
+          - relationships:
+              to: ref('dim_property_england')
+              field: property_type_id
+      - name: procedure_id
+        tests:
+          - relationships:
+              to: ref('dim_procedure_england')
+              field: procedure_id
+      - name: reg_type_id
+        tests:
+          - relationships:
+              to: ref('dim_registration_england')
+              field: reg_type_id

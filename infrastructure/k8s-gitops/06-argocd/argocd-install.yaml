@@ -1,0 +1,42 @@
+# The tool that will auto-sync this folder from GitHub
+# ==============================================================================
+# SmartMove — ArgoCD Installation
+# Target: Server 1
+# Action: Installs the ArgoCD GitOps Engine
+# ==============================================================================
+
+# ── 1. Dedicated Namespace ──
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: argocd
+  labels:
+    app.kubernetes.io/part-of: smartmove-gitops
+
+---
+# ── 2. ArgoCD Helm Chart ──
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: argocd
+  namespace: kube-system
+spec:
+  repo: https://argoproj.github.io/argo-helm
+  chart: argo-cd
+  targetNamespace: argocd
+  valuesContent: |-
+    server:
+      # We will access the UI via port-forwarding or Tailscale, keeping it off the public internet
+      service:
+        type: ClusterIP
+      # Disables TLS on the internal service because Tailscale handles our encryption
+      extraArgs:
+        - --insecure
+    configs:
+      cm:
+        # Prevent users from creating resources outside of our defined namespaces
+        resource.exclusions: |
+          - apiGroups:
+            - ""
+            kinds:
+            - Namespace

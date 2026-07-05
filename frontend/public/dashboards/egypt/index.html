@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive Egypt Real Estate Analytics Dashboard — Overview, Investment, Risk & Market Trends across 520K+ transactions.">
+  <title>SmartMove — Egypt Real Estate Dashboard</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
+  <!-- Leaflet.js -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@0.344.0/dist/umd/lucide.js"></script>
+
+  <!-- Dashboard Styles -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ====== LOADING OVERLAY ====== -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Loading dashboard data…</p>
+  </div>
+
+  <div class="dashboard-layout">
+
+    <!-- ====== SIDEBAR ====== -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">
+          <i data-lucide="building-2"></i>
+        </div>
+        <div>
+          <h1>SmartMove</h1>
+          <span class="logo-sub">Egypt Real Estate</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a class="nav-item active" data-page="overview" id="nav-overview">
+          <i data-lucide="layout-dashboard"></i>
+          <span class="nav-label">Overview</span>
+          <span class="nav-badge">520K</span>
+        </a>
+        <a class="nav-item" data-page="investment" id="nav-investment">
+          <i data-lucide="trending-up"></i>
+          <span class="nav-label">Investment</span>
+        </a>
+        <a class="nav-item" data-page="risk" id="nav-risk">
+          <i data-lucide="shield-alert"></i>
+          <span class="nav-label">Risk</span>
+        </a>
+        <a class="nav-item" data-page="trends" id="nav-trends">
+          <i data-lucide="bar-chart-3"></i>
+          <span class="nav-label">Market Trends</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <p>SmartMove Analytics<br>Data: 2022 – 2026</p>
+      </div>
+    </aside>
+
+    <!-- ====== MAIN CONTENT ====== -->
+    <main class="main-content">
+
+      <!-- ============================================================
+           PAGE 1: OVERVIEW
+           ============================================================ -->
+      <section class="page-section active" id="page-overview">
+        <div class="page-header">
+          <h2>Market Overview</h2>
+          <p>A bird's-eye view of Egypt's real estate market across 520,000+ transactions from 2022 to 2026.</p>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-icon"><i data-lucide="receipt"></i></div>
+            <div class="kpi-label">Total Transactions</div>
+            <div class="kpi-value" id="kpi-ov-total">—</div>
+            <div class="kpi-sub">All recorded deals</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon"><i data-lucide="banknote"></i></div>
+            <div class="kpi-label">Total Market Value</div>
+            <div class="kpi-value" id="kpi-ov-value">—</div>
+            <div class="kpi-sub">Combined actual worth</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon"><i data-lucide="ruler"></i></div>
+            <div class="kpi-label">Avg Price / sqm</div>
+            <div class="kpi-value" id="kpi-ov-ppsqm">—</div>
+            <div class="kpi-sub">Weighted average</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon"><i data-lucide="maximize-2"></i></div>
+            <div class="kpi-label">Avg Property Size</div>
+            <div class="kpi-value" id="kpi-ov-size">—</div>
+            <div class="kpi-sub">Mean area in sqm</div>
+          </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Transaction Volume Over Time</div>
+                <div class="chart-subtitle">Monthly transaction count (2022–2026)</div>
+              </div>
+            </div>
+            <div class="chart-container"><canvas id="chart-ov-volume"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Property Type Distribution</div>
+                <div class="chart-subtitle">Count per property type</div>
+              </div>
+            </div>
+            <div class="chart-container"><canvas id="chart-ov-proptype"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Top 10 Areas by Volume</div>
+                <div class="chart-subtitle">Transaction count by area</div>
+              </div>
+            </div>
+            <div class="chart-container"><canvas id="chart-ov-topareas"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Sale vs Lease</div>
+                <div class="chart-subtitle">Procedure breakdown</div>
+              </div>
+            </div>
+            <div class="chart-container"><canvas id="chart-ov-salelease"></canvas></div>
+          </div>
+        </div>
+
+        <!-- Map -->
+        <div class="map-section">
+          <div class="map-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Transaction Density Map</div>
+                <div class="chart-subtitle">Bubble size represents transaction volume per area</div>
+              </div>
+            </div>
+            <div class="map-container" id="map-overview"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================
+           PAGE 2: INVESTMENT
+           ============================================================ -->
+      <section class="page-section" id="page-investment">
+        <div class="page-header">
+          <h2>Investment Analysis</h2>
+          <p>Uncover high-value areas, price trends, and channel dynamics to guide investment strategy.</p>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-icon"><i data-lucide="gem"></i></div>
+            <div class="kpi-label">Median Transaction Value</div>
+            <div class="kpi-value" id="kpi-inv-median">—</div>
+            <div class="kpi-sub">50th percentile</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon"><i data-lucide="crown"></i></div>
+            <div class="kpi-label">Highest Value Area</div>
+            <div class="kpi-value" id="kpi-inv-toparea" style="font-size:1.1rem;">—</div>
+            <div class="kpi-sub" id="kpi-inv-toparea-sub"></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon"><i data-lucide="arrow-up-right"></i></div>
+            <div class="kpi-label">YoY Price Growth</div>
+            <div class="kpi-value" id="kpi-inv-yoy">—</div>
+            <div class="kpi-sub">Avg price/sqm change</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon"><i data-lucide="hard-hat"></i></div>
+            <div class="kpi-label">Off-Plan Share</div>
+            <div class="kpi-value" id="kpi-inv-offplan">—</div>
+            <div class="kpi-sub">Pre-construction deals</div>
+          </div>
+        </div>
+
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Avg Price/sqm by Year</div>
+                <div class="chart-subtitle">Annual average with growth trend</div>
+              </div>
+            </div>
+            <div class="chart-container"><canvas id="chart-inv-ppsqm"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Top 10 Most Expensive Areas</div>
+                <div class="chart-subtitle">Average price per square meter</div>
+              </div>
+            </div>
+            <div class="chart-container"><canvas id="chart-inv-expensive"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Transactions by Type & Year</div>
+                <div class="chart-subtitle">Volume breakdown per property type</div>
+              </div>
+            </div>
+            <div class="chart-container"><canvas id="chart-inv-typeyear"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Transaction Channel Mix</div>
+                <div class="chart-subtitle">Distribution across sales channels</div>
+              </div>
+            </div>
+            <div class="chart-container"><canvas id="chart-inv-channel"></canvas></div>
+          </div>
+        </div>
+
+        <div class="map-section">
+          <div class="map-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Price Heat Map</div>
+                <div class="chart-subtitle">Bubble color intensity reflects average price per sqm</div>
+              </div>
+            </div>
+            <div class="map-container" id="map-investment"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================
+           PAGE 3: RISK
+           ============================================================ -->
+      <section class="page-section" id="page-risk">
+        <div class="page-header">
+          <h2>Risk Assessment</h2>
+          <p>Evaluate price volatility, registration risks, and market liquidity across regions.</p>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-icon"><i data-lucide="activity"></i></div>
+            <div class="kpi-label">Price Volatility (CoV)</div>
+            <div class="kpi-value" id="kpi-risk-vol">—</div>
+            <div class="kpi-sub">Coefficient of variation</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon"><i data-lucide="file-warning"></i></div>
+            <div class="kpi-label">Unregistered %</div>
+            <div class="kpi-value" id="kpi-risk-unreg">—</div>
+            <div class="kpi-sub">Market listing share</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon"><i data-lucide="droplets"></i></div>
+            <div class="kpi-label">Low-Liquidity Areas</div>
+            <div class="kpi-value" id="kpi-risk-lowliq">—</div>
+            <div class="kpi-sub">Areas with &lt; 100 deals</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon"><i data-lucide="trophy"></i></div>
+            <div class="kpi-label">Largest Single Deal</div>
+            <div class="kpi-value" id="kpi-risk-maxdeal">—</div>
+            <div class="kpi-sub" id="kpi-risk-maxdeal-sub"></div>
+          </div>
+        </div>
+
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Price Volatility by Area</div>
+                <div class="chart-subtitle">Coefficient of Variation (top 15, min 100 deals)</div>
+              </div>
+            </div>
+            <div class="chart-container"><canvas id="chart-risk-vol"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Registration Type Distribution</div>
+                <div class="chart-subtitle">Breakdown of registration status</div>
+              </div>
+            </div>
+            <div class="chart-container"><canvas id="chart-risk-regtype"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Quarterly Volume by Year</div>
+                <div class="chart-subtitle">Seasonal patterns across years</div>
+              </div>
+            </div>
+            <div class="chart-container"><canvas id="chart-risk-quarterly"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Price Distribution</div>
+                <div class="chart-subtitle">Transaction value histogram</div>
+              </div>
+            </div>
+            <div class="chart-container"><canvas id="chart-risk-pricedist"></canvas></div>
+          </div>
+        </div>
+
+        <div class="map-section">
+          <div class="map-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Risk Score Map</div>
+                <div class="chart-subtitle">Green = low risk · Red = high risk (composite of volatility + unregistered %)</div>
+              </div>
+            </div>
+            <div class="map-container" id="map-risk"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================
+           PAGE 4: MARKET TRENDS
+           ============================================================ -->
+      <section class="page-section" id="page-trends">
+        <div class="page-header">
+          <h2>Market Trends</h2>
+          <p>Track momentum, identify hotspots, and understand the shifting dynamics of the market.</p>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-icon"><i data-lucide="flame"></i></div>
+            <div class="kpi-label">Hottest Area</div>
+            <div class="kpi-value" id="kpi-tr-hottest" style="font-size:1.1rem;">—</div>
+            <div class="kpi-sub" id="kpi-tr-hottest-sub"></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon"><i data-lucide="rocket"></i></div>
+            <div class="kpi-label">Fastest Growing Type</div>
+            <div class="kpi-value" id="kpi-tr-fasttype" style="font-size:1.1rem;">—</div>
+            <div class="kpi-sub" id="kpi-tr-fasttype-sub"></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon"><i data-lucide="package-plus"></i></div>
+            <div class="kpi-label">New Supply (Developer)</div>
+            <div class="kpi-value" id="kpi-tr-supply">—</div>
+            <div class="kpi-sub">Developer Sale share</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon"><i data-lucide="gauge"></i></div>
+            <div class="kpi-label">Market Momentum</div>
+            <div class="kpi-value" id="kpi-tr-momentum">—</div>
+            <div class="kpi-sub">QoQ volume change</div>
+          </div>
+        </div>
+
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Monthly Transaction Trend</div>
+                <div class="chart-subtitle">Full timeline with gradient fill</div>
+              </div>
+            </div>
+            <div class="chart-container"><canvas id="chart-tr-monthly"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Property Type Trend</div>
+                <div class="chart-subtitle">Top 6 types monthly breakdown</div>
+              </div>
+            </div>
+            <div class="chart-container"><canvas id="chart-tr-typetrend"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Growing vs Declining Areas</div>
+                <div class="chart-subtitle">YoY transaction growth rate</div>
+              </div>
+            </div>
+            <div class="chart-container"><canvas id="chart-tr-growdecline"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Usage Mix Over Time</div>
+                <div class="chart-subtitle">Residential / Commercial / Mixed share by quarter</div>
+              </div>
+            </div>
+            <div class="chart-container"><canvas id="chart-tr-usagemix"></canvas></div>
+          </div>
+        </div>
+
+        <div class="map-section">
+          <div class="map-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Growth Map</div>
+                <div class="chart-subtitle">Green = growing · Red = declining · Bubble size = transaction volume</div>
+              </div>
+            </div>
+            <div class="map-container" id="map-trends"></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Dashboard JS -->
+  <script src="app.js?v=20260622"></script>
+</body>
+</html>

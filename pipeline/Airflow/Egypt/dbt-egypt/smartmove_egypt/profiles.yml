@@ -1,0 +1,24 @@
+# ============================================================
+# dbt-egypt/smartmove_egypt/profiles.yml
+#
+# DBT connection profile for Azure SQL Database.
+# Referenced at runtime with:  dbt run --profiles-dir .
+# All secrets read from environment variables set in .env
+# ============================================================
+
+smartmove_egypt:
+  target: prod
+  outputs:
+    prod:
+      type: sqlserver
+      driver: "ODBC Driver 18 for SQL Server"
+      server: "{{ env_var('AZURE_SQL_HOST') }}"
+      port: 1433
+      database: "{{ env_var('AZURE_SQL_DB_NAME') }}"
+      schema: dbo
+      user: "{{ env_var('AZURE_SQL_USER') }}"
+      password: "{{ env_var('AZURE_SQL_PASSWORD') }}"
+      encrypt: true
+      trust_cert: false
+      connect_timeout: 30
+      retries: 3

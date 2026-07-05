@@ -1,0 +1,7 @@
+---
+- name: Phase 2 - Deploy Utility and Bastion Nodes
+  hosts: utility_nodes, bastion_nodes
+  become: true
+  gather_facts: true
+  roles:
+    - utility_node

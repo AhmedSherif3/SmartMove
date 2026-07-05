@@ -1,0 +1,10 @@
+# Data Science & Modeling (Version locked for Prophet stability)
+pandas>=2.0.0,<2.2.0
+numpy>=1.24.0,<2.0.0
+cmdstanpy==1.2.5
+prophet==1.1.5
+joblib==1.3.2
+
+# Database Connectivity (Azure Synapse / SQL Server)
+SQLAlchemy>=1.4.36,<2.0
+pyodbc==5.1.0

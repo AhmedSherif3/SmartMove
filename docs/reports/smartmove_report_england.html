@@ -1,0 +1,253 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+
+:root{
+  --en-red:#CF142B;
+  --en-navy:#012169;
+  --en-white:#FFFFFF;
+  --bg:#F2F0E6;
+  --bg-card:#e8e6d8;
+  --bg-deeper:#dedad0;
+}
+
+.sm-page{font-family:'Segoe UI',sans-serif;font-size:13px;background:var(--bg);border:0.5px solid #c8c5b5;border-radius:var(--border-radius-lg);overflow:hidden;color:#000;box-shadow:0 4px 24px rgba(0,0,0,0.13);}
+
+/* ── HEADER — deep navy ── */
+.sm-hdr{background:linear-gradient(135deg,#010d2e 0%,#012169 60%,#01287a 100%);color:#fff;padding:22px 28px 18px;}
+.sm-hdr-top{display:flex;align-items:center;gap:14px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.1);}
+.sm-logo{height:44px;width:auto;object-fit:contain;border-radius:6px;}
+.sm-brand-name{font-size:20px;font-weight:700;color:#fff;margin:0 0 2px;}
+.sm-brand-sub{font-size:11px;color:#93c5fd;}
+
+/* ── REGION BANNER — England flag (St George's Cross) ── */
+.region-banner{
+  border-radius:10px;display:flex;align-items:stretch;margin-bottom:14px;overflow:hidden;
+  box-shadow:0 4px 16px rgba(0,0,0,0.45),inset 0 1px 0 rgba(255,255,255,0.15),inset 0 -1px 0 rgba(0,0,0,0.3);
+  border:1px solid rgba(255,255,255,0.08);
+}
+
+/* St George's Cross as left flag column */
+.en-flag-col{
+  width:64px;flex-shrink:0;
+  background:#fff;
+  display:grid;
+  grid-template-columns:1fr 10px 1fr;
+  grid-template-rows:1fr 10px 1fr;
+  position:relative;
+}
+.en-flag-col .cross-h{grid-column:1/-1;grid-row:2;background:#CF142B;}
+.en-flag-col .cross-v{grid-column:2;grid-row:1/-1;background:#CF142B;}
+.en-flag-col .q{background:#fff;}
+
+.region-center{
+  flex:1;
+  background:linear-gradient(105deg,
+    rgba(1,33,105,0.75) 0%,
+    rgba(1,20,65,0.92) 40%,
+    rgba(1,13,46,0.96) 65%,
+    rgba(207,20,43,0.3) 100%
+  );
+  padding:12px 16px;display:flex;flex-direction:column;justify-content:center;
+}
+.region-label{font-size:9px;color:#93c5fd;letter-spacing:2.5px;text-transform:uppercase;font-weight:700;margin-bottom:4px;}
+.region-name{font-size:24px;font-weight:900;color:#fff;line-height:1;letter-spacing:0.5px;text-shadow:0 2px 8px rgba(0,0,0,0.5);}
+.region-sub{font-size:11px;color:#93c5fd;margin-top:4px;opacity:0.85;}
+
+.region-right{width:10px;background:linear-gradient(to bottom,#CF142B 0%,#9a0f1f 100%);box-shadow:inset -2px 0 4px rgba(0,0,0,0.3);}
+
+.meta-row{display:flex;justify-content:space-between;align-items:center;}
+.period{font-size:11px;color:#93c5fd;}
+.badge{
+  background:linear-gradient(135deg,#010d2e,#012169);
+  color:#fff;font-size:10px;font-weight:700;padding:7px 16px;border-radius:6px;
+  display:flex;align-items:center;gap:5px;
+  box-shadow:0 2px 8px rgba(1,33,105,0.5),inset 0 1px 0 rgba(255,255,255,0.2);
+  border:1px solid rgba(207,20,43,0.5);
+}
+.badge-score{font-size:16px;}
+
+/* ── BODY ── */
+.sm-body{padding:18px 28px 22px;position:relative;background:var(--bg);}
+.wm-wrap{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:0;overflow:hidden;}
+.wm-inner{transform:rotate(-35deg);opacity:0.09;}
+.wm-inner img{width:260px;filter:grayscale(20%);}
+.body-content{position:relative;z-index:1;}
+
+/* ── KPI CARDS — 3D, navy accent ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:18px;}
+.kpi{
+  background:linear-gradient(160deg,#eeecdf 0%,#e2e0d2 100%);
+  border-radius:10px;padding:12px 13px;
+  border:1px solid rgba(1,33,105,0.18);
+  border-top:1px solid rgba(255,255,255,0.85);
+  border-left:1px solid rgba(255,255,255,0.6);
+  box-shadow:0 4px 12px rgba(0,0,0,0.12),0 1px 3px rgba(0,0,0,0.08),inset 0 1px 0 rgba(255,255,255,0.7);
+  position:relative;overflow:hidden;
+}
+/* Navy + red double stripe on top */
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#012169 60%,#CF142B 60%);border-radius:10px 10px 0 0;}
+.kpi-lbl{font-size:10px;color:#555;margin-bottom:4px;margin-top:2px;}
+.kpi-val{font-size:18px;font-weight:700;color:#000;}
+.kpi-chg{font-size:10px;margin-top:3px;}
+.up{color:#15803d;font-weight:600;}.dn{color:#CF142B;font-weight:600;}.neu{color:#666;}
+
+/* ── SECTION TITLES ── */
+.sec-title{font-size:14px;font-weight:700;color:#000;margin:18px 0 10px;padding-bottom:6px;border-bottom:2px solid #012169;text-shadow:0 1px 0 rgba(255,255,255,0.8);}
+.sec-sub{font-size:12px;font-weight:600;color:#222;margin:12px 0 4px;}
+.bp{font-size:12px;line-height:1.7;color:#000;margin-bottom:8px;}
+
+/* ── TABLE — 3D, navy header ── */
+.dtbl-wrap{border-radius:10px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.11),0 1px 4px rgba(0,0,0,0.07);border:1px solid rgba(1,33,105,0.18);margin:10px 0;}
+.dtbl{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed;}
+.dtbl th{background:linear-gradient(180deg,#012169 0%,#010d2e 100%);color:#fff;font-weight:700;text-align:left;padding:9px 11px;text-shadow:0 1px 2px rgba(0,0,0,0.3);}
+.dtbl td{padding:7px 11px;border-bottom:1px solid rgba(1,33,105,0.1);color:#000;}
+.dtbl tr:last-child td{border-bottom:none;}
+.dtbl tr:nth-child(even) td{background:rgba(1,33,105,0.05);}
+.dtbl tr:hover td{background:rgba(1,33,105,0.09);}
+
+.tag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:4px;font-weight:600;}
+.tg{background:#dcfce7;color:#166534;box-shadow:inset 0 1px 0 rgba(255,255,255,0.6);}
+.ta{background:#fef9c3;color:#854d0e;box-shadow:inset 0 1px 0 rgba(255,255,255,0.6);}
+.tr2{background:#fee2e2;color:#991b1b;box-shadow:inset 0 1px 0 rgba(255,255,255,0.6);}
+
+/* ── FOOTER ── */
+.sm-footer{background:linear-gradient(135deg,var(--bg-deeper) 0%,var(--bg-card) 100%);border-top:2px solid #012169;padding:11px 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:inset 0 1px 0 rgba(255,255,255,0.5);}
+.footer-left{display:flex;align-items:center;gap:8px;font-size:10px;color:#333;}
+.footer-robot{height:24px;width:auto;object-fit:contain;}
+.footer-brand{font-weight:700;color:#012169;}
+.footer-link{color:#012169;text-decoration:none;font-weight:700;font-size:10px;border-bottom:1px solid rgba(1,33,105,0.35);}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:2px;border-bottom:2px solid rgba(1,33,105,0.2);margin-bottom:14px;}
+.tab{font-size:11px;padding:5px 13px;border:none;background:none;cursor:pointer;color:#555;border-bottom:2px solid transparent;margin-bottom:-2px;font-weight:500;}
+.tab.on{color:#012169;border-bottom-color:#012169;font-weight:700;}
+.sec{display:none;}.sec.on{display:block;}
+</style>
+
+<div class="sm-page">
+
+  <!-- HEADER -->
+  <div class="sm-hdr">
+    <div class="sm-hdr-top">
+      <img class="sm-logo" id="logo-img" src="" alt="SmartMove">
+      <div>
+        <div class="sm-brand-name">SmartMove</div>
+        <div class="sm-brand-sub">Real Estate Intelligence Platform</div>
+      </div>
+    </div>
+
+    <!-- St George's Cross flag + region text -->
+    <div class="region-banner">
+      <div class="en-flag-col">
+        <div class="q"></div><div class="cross-v"></div><div class="q"></div>
+        <div class="cross-h"></div>
+        <div class="q"></div><div class="cross-v"></div><div class="q"></div>
+      </div>
+      <div class="region-center">
+        <div class="region-label">Market Region</div>
+        <div class="region-name">ENGLAND</div>
+        <div class="region-sub">United Kingdom &nbsp;&middot;&nbsp; Residential Market</div>
+      </div>
+      <div class="region-right"></div>
+    </div>
+
+    <div class="meta-row">
+      <div class="period">Executive Summary &mdash; May 2026</div>
+      <div class="badge"><span class="badge-score">54.7</span>&nbsp;SmartMove Index&trade; &mdash; NEUTRAL</div>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="sm-body">
+    <div class="wm-wrap">
+      <div class="wm-inner"><img id="wm-img" src="" alt=""></div>
+    </div>
+
+    <div class="body-content">
+      <div class="tabs">
+        <button class="tab on" onclick="sw('overview',this)">Overview</button>
+        <button class="tab" onclick="sw('cities',this)">Cities</button>
+        <button class="tab" onclick="sw('risk',this)">Risk signals</button>
+      </div>
+
+      <div class="sec on" id="s-overview">
+        <div class="kpi-grid">
+          <div class="kpi"><div class="kpi-lbl">Avg price / sqft</div><div class="kpi-val">£412</div><div class="kpi-chg up">↑ 4.2% YoY</div></div>
+          <div class="kpi"><div class="kpi-lbl">Transactions</div><div class="kpi-val">62,400</div><div class="kpi-chg up">↑ 3.1% MoM</div></div>
+          <div class="kpi"><div class="kpi-lbl">Volatility 6M</div><div class="kpi-val">0.31</div><div class="kpi-chg neu">Stable</div></div>
+          <div class="kpi"><div class="kpi-lbl">Shock index</div><div class="kpi-val">0.18</div><div class="kpi-chg neu">Low–Mod</div></div>
+        </div>
+        <div class="sec-title">Market overview</div>
+        <p class="bp">England's residential market is showing cautious recovery through May 2026, supported by two consecutive Bank of England base rate cuts bringing borrowing costs to 4.25%. Buyer confidence has improved notably in the North and Midlands, while London continues a period of price consolidation following years of premium compression.</p>
+        <p class="bp">First-time buyer activity is the primary demand driver, aided by expanded mortgage guarantee schemes. Buy-to-let investor appetite remains subdued following continued stamp duty surcharges and rental yield compression in prime areas.</p>
+        <div class="sec-sub">Demand-side drivers</div>
+        <p class="bp">Wage growth outpacing CPI for the fifth consecutive quarter is improving affordability ratios. Net migration into England's major cities sustains rental demand, underpinning investor yields outside London.</p>
+        <div class="sec-sub">Supply-side</div>
+        <p class="bp">Housebuilding completions reached 218,000 units in FY2025, still short of the 300,000 annual target. Planning reform momentum is expected to lift starts in H2 2026, but near-term supply pressure persists.</p>
+      </div>
+
+      <div class="sec" id="s-cities">
+        <div class="sec-title">City performance</div>
+        <div class="dtbl-wrap">
+          <table class="dtbl">
+            <thead><tr><th>City / Region</th><th>Avg price</th><th>YoY</th><th>Volatility</th><th>Signal</th></tr></thead>
+            <tbody>
+              <tr><td>Manchester</td><td>£312,000</td><td>+7.8%</td><td>0.29</td><td><span class="tag tg">Bullish</span></td></tr>
+              <tr><td>Birmingham</td><td>£278,000</td><td>+6.4%</td><td>0.31</td><td><span class="tag tg">Bullish</span></td></tr>
+              <tr><td>Leeds</td><td>£264,000</td><td>+5.9%</td><td>0.27</td><td><span class="tag tg">Bullish</span></td></tr>
+              <tr><td>Bristol</td><td>£398,000</td><td>+3.2%</td><td>0.33</td><td><span class="tag ta">Neutral</span></td></tr>
+              <tr><td>Inner London</td><td>£748,000</td><td>+1.1%</td><td>0.41</td><td><span class="tag ta">Neutral</span></td></tr>
+              <tr><td>Outer London</td><td>£486,000</td><td>-0.8%</td><td>0.38</td><td><span class="tag tr2">Bearish</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="bp">Northern cities continue to outperform the national average. Manchester leads at 7.8% YoY on strong tech-sector employment and continued regeneration investment. London's divergence between inner and outer zones is widening.</p>
+      </div>
+
+      <div class="sec" id="s-risk">
+        <div class="kpi-grid">
+          <div class="kpi"><div class="kpi-lbl">Outlier txn ratio</div><div class="kpi-val">3.9%</div><div class="kpi-chg up">Within normal</div></div>
+          <div class="kpi"><div class="kpi-lbl">Risk score</div><div class="kpi-val">38.2</div><div class="kpi-chg neu">Moderate</div></div>
+          <div class="kpi"><div class="kpi-lbl">Shock index</div><div class="kpi-val">0.18</div><div class="kpi-chg neu">Low–Mod</div></div>
+          <div class="kpi"><div class="kpi-lbl">Anomaly flags</div><div class="kpi-val">5</div><div class="kpi-chg dn">↑ from 3</div></div>
+        </div>
+        <div class="sec-title">Anomaly flags</div>
+        <p class="bp">Five transactions flagged across Inner London luxury segment — all cash purchases exceeding 3.1σ above district mean. Two are referred for AML compliance review. Remaining three are attributable to off-market portfolio disposals.</p>
+        <div class="sec-title">Outlook</div>
+        <p class="bp">Probability of a nominal correction exceeding 5% over the next two quarters estimated at 12%, contingent on Bank of England holding current rate trajectory. Base case: 2.5–4.5% YoY national average appreciation, with Northern cities sustaining 6–8% and London flat to slightly negative in real terms.</p>
+        <p class="bp" style="font-size:11px;color:#555">AI-generated analysis — supplementary guidance only.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="sm-footer">
+    <div class="footer-left">
+      <img class="footer-robot" id="robot-img" src="" alt="SmartMove AI">
+      <span>
+        <span class="footer-brand">SmartMove</span>
+        <span style="font-style:italic;color:#666;font-size:10px;"> Real Estate Intelligence</span>
+        &nbsp;&middot;&nbsp; May 2026 &nbsp;&middot;&nbsp; AI-generated analysis
+      </span>
+    </div>
+    <a class="footer-link" href="https://smartmove.me" target="_blank">smartmove.me &#x2197;</a>
+  </div>
+</div>
+
+<script>
+function sw(id,el){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('s-'+id).classList.add('on');
+  el.classList.add('on');
+}
+function loadImg(id,url){
+  var x=new XMLHttpRequest();x.open('GET',url,true);x.responseType='blob';
+  x.onload=function(){var r=new FileReader();r.onloadend=function(){var el=document.getElementById(id);if(el)el.src=r.result;};r.readAsDataURL(x.response);};
+  x.send();
+}
+loadImg('logo-img','/mnt/user-data/uploads/1779004387480_Logo.jpg');
+loadImg('wm-img','/mnt/user-data/uploads/1779004387480_Logo.jpg');
+loadImg('robot-img','/mnt/user-data/uploads/1779004346382_image.png');
+</script>

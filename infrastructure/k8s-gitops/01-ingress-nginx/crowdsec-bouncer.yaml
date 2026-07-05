@@ -1,0 +1,91 @@
+# ==============================================================================
+# SmartMove — CrowdSec Bouncer (Nginx Ingress Plugin)
+# Blocks malicious traffic at the edge based on Server 3's Threat Intelligence
+# ==============================================================================
+
+# ── Secret: CrowdSec LAPI Bouncer Key ────────────────────────
+apiVersion: v1
+kind: Secret
+metadata:
+  name: crowdsec-bouncer-secret
+  namespace: ingress-nginx # <-- Moved to our dedicated networking namespace
+  labels:
+    app.kubernetes.io/name: crowdsec-bouncer
+type: Opaque
+stringData:
+  # You will generate this on Server 3 via: cscli bouncers add ingress-bouncer
+  CROWDSEC_BOUNCER_API_KEY: "<REPLACE_WITH_API_KEY>"
+  CROWDSEC_LAPI_URL: "http://100.99.164.119:8080" # <-- Pointing to Server 3 via Tailscale
+
+---
+# ── ConfigMap: Bouncer Configuration ─────────────────────────
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: crowdsec-bouncer-config
+  namespace: ingress-nginx
+data:
+  crowdsec-bouncer.conf: |
+    API_URL=http://100.99.164.119:8080
+    API_KEY=${CROWDSEC_BOUNCER_API_KEY}
+    BAN_TEMPLATE_PATH=/etc/crowdsec/ban.html
+    CAPTCHA_TEMPLATE_PATH=/etc/crowdsec/captcha.html
+    CACHE_EXPIRATION=30s
+    UPDATE_FREQUENCY=10s
+    BOUNCING_ON_TYPE=ban
+    FALLBACK_REMEDIATION=ban
+
+---
+# ── Deployment: CrowdSec Bouncer ─────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crowdsec-bouncer
+  namespace: ingress-nginx
+spec:
+  replicas: 2 # High availability
+  selector:
+    matchLabels:
+      app: crowdsec-bouncer
+  template:
+    metadata:
+      labels:
+        app: crowdsec-bouncer
+    spec:
+      containers:
+        - name: crowdsec-bouncer
+          image: crowdsecurity/lua-bouncer:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: crowdsec-bouncer-secret
+          volumeMounts:
+            - name: bouncer-config
+              mountPath: /etc/crowdsec/
+              readOnly: true
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+      volumes:
+        - name: bouncer-config
+          configMap:
+            name: crowdsec-bouncer-config
+
+---
+# ── Service ──────────────────────────────────────────────────
+apiVersion: v1
+kind: Service
+metadata:
+  name: crowdsec-bouncer
+  namespace: ingress-nginx
+spec:
+  selector:
+    app: crowdsec-bouncer
+  ports:
+    - port: 8080
+      targetPort: 8080

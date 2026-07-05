@@ -1,0 +1,18 @@
+# Redis configuration for SmartMove 1GB Micro-VMs
+bind 0.0.0.0
+port 6379
+
+# Do not run as a daemon since Docker handles the backgrounding
+daemonize no
+
+# RAM Straitjacket: Hard cap at 700MB
+maxmemory 700mb
+
+# Eviction Policy: When full, delete the oldest cache data first
+# (Perfect for Mimir/Loki/Tempo query caching)
+maxmemory-policy allkeys-lru
+
+# Disable disk persistence - this is purely a fast RAM cache. 
+# If the VM reboots, we want it to start fresh.
+save ""
+appendonly no

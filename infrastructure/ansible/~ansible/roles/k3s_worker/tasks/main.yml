@@ -1,0 +1,12 @@
+---
+# 1. Install K3s Agent and attach it to Server 1
+- name: Install K3s Worker and join Master cluster
+  shell: curl -sfL https://get.k3s.io | sh -
+  environment:
+    # IMPORTANT: Update this to Server 1's actual Tailscale IP
+    K3S_URL: "https://100.100.100.11:6443"
+    # Notice we changed 'server1' to 'server1_app' to match inventory.ini
+    K3S_TOKEN: "{{ hostvars['server1_app']['k3s_node_token'] }}"
+    INSTALL_K3S_EXEC: "agent --node-ip {{ ansible_host }} --flannel-iface tailscale0"
+  args:
+    creates: /etc/systemd/system/k3s-agent.service

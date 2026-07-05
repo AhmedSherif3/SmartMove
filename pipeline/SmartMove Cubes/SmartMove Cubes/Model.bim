@@ -1,0 +1,5488 @@
+{
+  "name": "SemanticModel",
+  "compatibilityLevel": 1600,
+  "model": {
+    "culture": "en-US",
+    "defaultPowerBIDataSourceVersion": "powerBI_V3",
+    "dataSources": [
+      {
+        "type": "structured",
+        "name": "SQL/smartmove-sql-server database windows net;smartmove-global",
+        "connectionDetails": {
+          "protocol": "tds",
+          "address": {
+            "server": "smartmove-sql-server.database.windows.net",
+            "database": "smartmove-global"
+          },
+          "authentication": null,
+          "query": null
+        },
+        "credential": {
+          "AuthenticationKind": "UsernamePassword",
+          "kind": "SQL",
+          "path": "smartmove-sql-server.database.windows.net;smartmove-global",
+          "Username": "smartmove-admin",
+          "EncryptConnection": true
+        }
+      },
+      {
+        "name": "smartmove-sql-server.database.windows.net smartmove-global",
+        "connectionString": "data source=smartmove-sql-server.database.windows.net;initial catalog=smartmove-global;user id=smartmove-admin",
+        "impersonationMode": "impersonateServiceAccount",
+        "provider": "System.Data.SqlClient"
+      }
+    ],
+    "tables": [
+      {
+        "name": "Top N",
+        "columns": [
+          {
+            "type": "calculatedTableColumn",
+            "name": "N",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "sourceColumn": "[N]"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "CalculatedTable 1",
+            "source": {
+              "type": "calculated",
+              "expression": " DATATABLE(\"N\", INTEGER, {{5}, {10}, {15}, {20}})"
+            }
+          }
+        ]
+      },
+      {
+        "name": "dim_area_dubai",
+        "columns": [
+          {
+            "name": "area_id",
+            "dataType": "int64",
+            "sourceColumn": "area_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\",\"Dubai Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "area_name_en",
+            "dataType": "string",
+            "sourceColumn": "area_name_en",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\",\"Dubai Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "Longitude",
+            "dataType": "double",
+            "sourceColumn": "Longitude",
+            "lineageTag": "2708cf50-7b27-47cb-96ae-fbecdcb2e4eb"
+          },
+          {
+            "name": "Latitude",
+            "dataType": "double",
+            "sourceColumn": "Latitude",
+            "lineageTag": "c153a8af-cd52-4616-bd2d-f62d17fc4d07"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"SQL/smartmove-sql-server database windows net;smartmove-global\",",
+                "    dbo_dim_area_dubai = Source{[Schema=\"dbo\",Item=\"dim_area_dubai\"]}[Data]",
+                "in",
+                "    dbo_dim_area_dubai"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "dim_area_egypt",
+        "columns": [
+          {
+            "name": "area_id",
+            "dataType": "int64",
+            "sourceColumn": "area_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\",\"Egypt Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "area_name_en",
+            "dataType": "string",
+            "sourceColumn": "area_name_en",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\",\"Egypt Predicted\"]"
+              }
+            ]
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"SQL/smartmove-sql-server database windows net;smartmove-global\",",
+                "    dbo_dim_area_egypt = Source{[Schema=\"dbo\",Item=\"dim_area_egypt\"]}[Data]",
+                "in",
+                "    dbo_dim_area_egypt"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "dim_date_dubai",
+        "columns": [
+          {
+            "name": "date_id",
+            "dataType": "int64",
+            "sourceColumn": "date_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "full_date",
+            "dataType": "dateTime",
+            "sourceColumn": "full_date",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "day",
+            "dataType": "int64",
+            "sourceColumn": "day",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "month",
+            "dataType": "int64",
+            "sourceColumn": "month",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "month_name",
+            "dataType": "string",
+            "sourceColumn": "month_name",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "quarter",
+            "dataType": "int64",
+            "sourceColumn": "quarter",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "year",
+            "dataType": "int64",
+            "sourceColumn": "year",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "YearMonth",
+            "dataType": "int64",
+            "sourceColumn": "YearMonth",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "YearMonthLabel",
+            "dataType": "string",
+            "sourceColumn": "YearMonthLabel",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"SQL/smartmove-sql-server database windows net;smartmove-global\",",
+                "    dbo_dim_date_dubai = Source{[Schema=\"dbo\",Item=\"dim_date_dubai\"]}[Data]",
+                "in",
+                "    dbo_dim_date_dubai"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "dim_date_egypt",
+        "columns": [
+          {
+            "name": "date_id",
+            "dataType": "int64",
+            "sourceColumn": "date_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "full_date",
+            "dataType": "dateTime",
+            "sourceColumn": "full_date",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "day",
+            "dataType": "int64",
+            "sourceColumn": "day",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "month",
+            "dataType": "int64",
+            "sourceColumn": "month",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "month_name",
+            "dataType": "string",
+            "sourceColumn": "month_name",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "quarter",
+            "dataType": "int64",
+            "sourceColumn": "quarter",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "year",
+            "dataType": "int64",
+            "sourceColumn": "year",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "YearMonth",
+            "dataType": "int64",
+            "sourceColumn": "YearMonth",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "YearMonthLabel",
+            "dataType": "string",
+            "sourceColumn": "YearMonthLabel",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"SQL/smartmove-sql-server database windows net;smartmove-global\",",
+                "    dbo_dim_date_egypt = Source{[Schema=\"dbo\",Item=\"dim_date_egypt\"]}[Data]",
+                "in",
+                "    dbo_dim_date_egypt"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "dim_date_predicted_dubai",
+        "columns": [
+          {
+            "name": "date_id",
+            "dataType": "int64",
+            "sourceColumn": "date_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "date",
+            "dataType": "dateTime",
+            "sourceColumn": "date",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "year",
+            "dataType": "int64",
+            "sourceColumn": "year",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "month_number",
+            "dataType": "int64",
+            "sourceColumn": "month_number",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "month_name",
+            "dataType": "string",
+            "sourceColumn": "month_name",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "day_of_month",
+            "dataType": "int64",
+            "sourceColumn": "day_of_month",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "quarter",
+            "dataType": "int64",
+            "sourceColumn": "quarter",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai Predicted\"]"
+              }
+            ]
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"SQL/smartmove-sql-server database windows net;smartmove-global\",",
+                "    dbo_dim_date_predicted_dubai = Source{[Schema=\"dbo\",Item=\"dim_date_predicted_dubai\"]}[Data]",
+                "in",
+                "    dbo_dim_date_predicted_dubai"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "dim_date_predicted_egypt",
+        "columns": [
+          {
+            "name": "date_id",
+            "dataType": "int64",
+            "sourceColumn": "date_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "date",
+            "dataType": "dateTime",
+            "sourceColumn": "date",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "year",
+            "dataType": "int64",
+            "sourceColumn": "year",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "month_number",
+            "dataType": "int64",
+            "sourceColumn": "month_number",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "month_name",
+            "dataType": "string",
+            "sourceColumn": "month_name",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "day_of_month",
+            "dataType": "int64",
+            "sourceColumn": "day_of_month",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "quarter",
+            "dataType": "int64",
+            "sourceColumn": "quarter",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt Predicted\"]"
+              }
+            ]
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"SQL/smartmove-sql-server database windows net;smartmove-global\",",
+                "    dbo_dim_date_predicted_egypt = Source{[Schema=\"dbo\",Item=\"dim_date_predicted_egypt\"]}[Data]",
+                "in",
+                "    dbo_dim_date_predicted_egypt"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "dim_procedure_dubai",
+        "columns": [
+          {
+            "name": "procedure_id",
+            "dataType": "int64",
+            "sourceColumn": "procedure_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\",\"Dubai Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "procedure_name_en",
+            "dataType": "string",
+            "sourceColumn": "procedure_name_en",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\",\"Dubai Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "trans_group_id",
+            "dataType": "string",
+            "sourceColumn": "trans_group_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\",\"Dubai Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "trans_group_en",
+            "dataType": "string",
+            "sourceColumn": "trans_group_en",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\",\"Dubai Predicted\"]"
+              }
+            ]
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"SQL/smartmove-sql-server database windows net;smartmove-global\",",
+                "    dbo_dim_procedure_dubai = Source{[Schema=\"dbo\",Item=\"dim_procedure_dubai\"]}[Data]",
+                "in",
+                "    dbo_dim_procedure_dubai"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "dim_procedure_egypt",
+        "columns": [
+          {
+            "name": "procedure_id",
+            "dataType": "int64",
+            "sourceColumn": "procedure_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\",\"Egypt Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "procedure_name_en",
+            "dataType": "string",
+            "sourceColumn": "procedure_name_en",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\",\"Egypt Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "trans_group_id",
+            "dataType": "string",
+            "sourceColumn": "trans_group_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\",\"Egypt Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "trans_group_en",
+            "dataType": "string",
+            "sourceColumn": "trans_group_en",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\",\"Egypt Predicted\"]"
+              }
+            ]
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"SQL/smartmove-sql-server database windows net;smartmove-global\",",
+                "    dbo_dim_procedure_egypt = Source{[Schema=\"dbo\",Item=\"dim_procedure_egypt\"]}[Data]",
+                "in",
+                "    dbo_dim_procedure_egypt"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "dim_property_dubai",
+        "columns": [
+          {
+            "name": "property_type_id",
+            "dataType": "int64",
+            "sourceColumn": "property_type_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\",\"Dubai Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "property_type_en",
+            "dataType": "string",
+            "sourceColumn": "property_type_en",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\",\"Dubai Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "property_usage_en",
+            "dataType": "string",
+            "sourceColumn": "property_usage_en",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\",\"Dubai Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "has_parking",
+            "dataType": "string",
+            "sourceColumn": "has_parking",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\",\"Dubai Predicted\"]"
+              }
+            ]
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"SQL/smartmove-sql-server database windows net;smartmove-global\",",
+                "    dbo_dim_property_dubai = Source{[Schema=\"dbo\",Item=\"dim_property_dubai\"]}[Data]",
+                "in",
+                "    dbo_dim_property_dubai"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "dim_property_egypt",
+        "columns": [
+          {
+            "name": "property_type_id",
+            "dataType": "int64",
+            "sourceColumn": "property_type_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\",\"Egypt Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "property_type_en",
+            "dataType": "string",
+            "sourceColumn": "property_type_en",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\",\"Egypt Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "property_usage_en",
+            "dataType": "string",
+            "sourceColumn": "property_usage_en",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\",\"Egypt Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "has_parking",
+            "dataType": "string",
+            "sourceColumn": "has_parking",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\",\"Egypt Predicted\"]"
+              }
+            ]
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"SQL/smartmove-sql-server database windows net;smartmove-global\",",
+                "    dbo_dim_property_egypt = Source{[Schema=\"dbo\",Item=\"dim_property_egypt\"]}[Data]",
+                "in",
+                "    dbo_dim_property_egypt"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "dim_registration_dubai",
+        "columns": [
+          {
+            "name": "reg_type_id",
+            "dataType": "int64",
+            "sourceColumn": "reg_type_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\",\"Dubai Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "reg_type_en",
+            "dataType": "string",
+            "sourceColumn": "reg_type_en",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\",\"Dubai Predicted\"]"
+              }
+            ]
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"SQL/smartmove-sql-server database windows net;smartmove-global\",",
+                "    dbo_dim_registration_dubai = Source{[Schema=\"dbo\",Item=\"dim_registration_dubai\"]}[Data]",
+                "in",
+                "    dbo_dim_registration_dubai"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "dim_registration_egypt",
+        "columns": [
+          {
+            "name": "reg_type_id",
+            "dataType": "int64",
+            "sourceColumn": "reg_type_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\",\"Egypt Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "reg_type_en",
+            "dataType": "string",
+            "sourceColumn": "reg_type_en",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\",\"Egypt Predicted\"]"
+              }
+            ]
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"SQL/smartmove-sql-server database windows net;smartmove-global\",",
+                "    dbo_dim_registration_egypt = Source{[Schema=\"dbo\",Item=\"dim_registration_egypt\"]}[Data]",
+                "in",
+                "    dbo_dim_registration_egypt"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "fact_predictions_dubai",
+        "columns": [
+          {
+            "name": "prediction_id",
+            "dataType": "string",
+            "sourceColumn": "prediction_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "target_date_id",
+            "dataType": "int64",
+            "sourceColumn": "target_date_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "ds",
+            "dataType": "dateTime",
+            "sourceColumn": "ds",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "price_yhat",
+            "dataType": "double",
+            "sourceColumn": "price_yhat",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "price_lower",
+            "dataType": "double",
+            "sourceColumn": "price_lower",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "price_upper",
+            "dataType": "double",
+            "sourceColumn": "price_upper",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "rent_yhat",
+            "dataType": "double",
+            "sourceColumn": "rent_yhat",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "rent_lower",
+            "dataType": "double",
+            "sourceColumn": "rent_lower",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "rent_upper",
+            "dataType": "double",
+            "sourceColumn": "rent_upper",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "projected_roi_pct",
+            "dataType": "double",
+            "sourceColumn": "projected_roi_pct",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "is_latest_forecast",
+            "dataType": "int64",
+            "sourceColumn": "is_latest_forecast",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "generated_at",
+            "dataType": "dateTime",
+            "sourceColumn": "generated_at",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai Predicted\"]"
+              }
+            ]
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"SQL/smartmove-sql-server database windows net;smartmove-global\",",
+                "    dbo_fact_predictions_dubai = Source{[Schema=\"dbo\",Item=\"fact_predictions_dubai\"]}[Data]",
+                "in",
+                "    dbo_fact_predictions_dubai"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "fact_predictions_egypt",
+        "columns": [
+          {
+            "name": "prediction_id",
+            "dataType": "string",
+            "sourceColumn": "prediction_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "target_date_id",
+            "dataType": "int64",
+            "sourceColumn": "target_date_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "ds",
+            "dataType": "dateTime",
+            "sourceColumn": "ds",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "price_yhat",
+            "dataType": "double",
+            "sourceColumn": "price_yhat",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "price_lower",
+            "dataType": "double",
+            "sourceColumn": "price_lower",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "price_upper",
+            "dataType": "double",
+            "sourceColumn": "price_upper",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "rent_yhat",
+            "dataType": "double",
+            "sourceColumn": "rent_yhat",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "rent_lower",
+            "dataType": "double",
+            "sourceColumn": "rent_lower",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "rent_upper",
+            "dataType": "double",
+            "sourceColumn": "rent_upper",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "projected_roi_pct",
+            "dataType": "double",
+            "sourceColumn": "projected_roi_pct",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "is_latest_forecast",
+            "dataType": "int64",
+            "sourceColumn": "is_latest_forecast",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "generated_at",
+            "dataType": "dateTime",
+            "sourceColumn": "generated_at",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt Predicted\"]"
+              }
+            ]
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"SQL/smartmove-sql-server database windows net;smartmove-global\",",
+                "    dbo_fact_predictions_egypt = Source{[Schema=\"dbo\",Item=\"fact_predictions_egypt\"]}[Data]",
+                "in",
+                "    dbo_fact_predictions_egypt"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "fact_transactions_dubai",
+        "columns": [
+          {
+            "name": "transaction_id",
+            "dataType": "string",
+            "sourceColumn": "transaction_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "date_id",
+            "dataType": "int64",
+            "sourceColumn": "date_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "property_type_id",
+            "dataType": "int64",
+            "sourceColumn": "property_type_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "area_id",
+            "dataType": "int64",
+            "sourceColumn": "area_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "procedure_id",
+            "dataType": "int64",
+            "sourceColumn": "procedure_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "reg_type_id",
+            "dataType": "int64",
+            "sourceColumn": "reg_type_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "procedure_area",
+            "dataType": "double",
+            "sourceColumn": "procedure_area",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "actual_worth",
+            "dataType": "double",
+            "sourceColumn": "actual_worth",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "meter_sale_price",
+            "dataType": "double",
+            "sourceColumn": "meter_sale_price",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "no_of_parties_role_1",
+            "dataType": "string",
+            "sourceColumn": "no_of_parties_role_1",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "no_of_parties_role_2",
+            "dataType": "string",
+            "sourceColumn": "no_of_parties_role_2",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"SQL/smartmove-sql-server database windows net;smartmove-global\",",
+                "    dbo_fact_transactions_dubai = Source{[Schema=\"dbo\",Item=\"fact_transactions_dubai\"]}[Data]",
+                "in",
+                "    dbo_fact_transactions_dubai"
+              ]
+            }
+          }
+        ],
+        "measures": [
+          {
+            "name": "YoY Price Growth %",
+            "expression": [
+              "",
+              "",
+              "VAR PrevYear =",
+              "",
+              "    CALCULATE(",
+              "",
+              "        [Avg Price per sqm],",
+              "",
+              "        SAMEPERIODLASTYEAR(dim_date_dubai[full_date])",
+              "",
+              "    )",
+              "",
+              "RETURN",
+              "",
+              "DIVIDE([Avg Price per sqm] - PrevYear, PrevYear) * 100"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Transaction Count",
+            "expression": [
+              "",
+              "COUNTROWS(fact_transactions_dubai)",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Total Sales Value",
+            "expression": [
+              "",
+              "SUM(fact_transactions_dubai[actual_worth])",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Avg Ticket Size",
+            "expression": [
+              "",
+              "AVERAGE(fact_transactions_dubai[actual_worth])"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Avg Price per sqm",
+            "expression": [
+              "",
+              "AVERAGE(fact_transactions_dubai[meter_sale_price])",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Avg Procedure Area",
+            "expression": [
+              "",
+              "AVERAGE(fact_transactions_dubai[procedure_area])",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Total Sales by Area",
+            "expression": [
+              " ",
+              "CALCULATE(",
+              "    SUM(fact_transactions_dubai[actual_worth]),",
+              "    RELATEDTABLE(dim_area_dubai)",
+              ")",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Active Areas",
+            "expression": [
+              " DISTINCTCOUNT(fact_transactions_dubai[area_id])",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "YoY Sales Growth %",
+            "expression": [
+              " ",
+              "VAR CurrentYear = MAX('dim_date_dubai'[year])",
+              "VAR CurrentSales = [Total Sales Value]",
+              "",
+              "VAR PrevYearSales = ",
+              "    CALCULATE(",
+              "        [Total Sales Value],",
+              "        ALL('dim_date_dubai'), ",
+              "        'dim_date_dubai'[year] = CurrentYear - 1",
+              "    )",
+              "",
+              "VAR NextYearSales = ",
+              "    CALCULATE(",
+              "        [Total Sales Value],",
+              "        ALL('dim_date_dubai'), ",
+              "        'dim_date_dubai'[year] = CurrentYear + 1",
+              "    )",
+              "",
+              "RETURN",
+              "    SWITCH(",
+              "        TRUE(),",
+              "        -- 1. The year BEFORE data starts: Force to 0 to anchor the line.",
+              "        ISBLANK(CurrentSales) && NOT ISBLANK(NextYearSales), 0,",
+              "        ",
+              "        -- 2. The FIRST year of data: Force to 100% to make the line go \"up\".",
+              "        NOT ISBLANK(CurrentSales) && ISBLANK(PrevYearSales), 100,",
+              "        ",
+              "        -- 3. All normal years: Do the actual math.",
+              "        NOT ISBLANK(CurrentSales), DIVIDE(CurrentSales - PrevYearSales, PrevYearSales) * 100,",
+              "        ",
+              "        -- 4. Future/Past years with no data around them stay blank",
+              "        BLANK()",
+              "    )",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Sales per Month",
+            "expression": [
+              "",
+              "VAR MonthsInContext = DISTINCTCOUNT(dim_date_dubai[YearMonth])",
+              "RETURN DIVIDE([Transaction Count], MonthsInContext)"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "New Transaction Count",
+            "expression": [
+              "",
+              "CALCULATE(",
+              "    [Transaction Count],",
+              "    dim_registration_dubai[reg_type_en] = \"New\"",
+              ")",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "New Property Ratio",
+            "expression": [
+              "",
+              "DIVIDE([New Transaction Count], [Transaction Count])",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Sales per Year",
+            "expression": [
+              " ",
+              "VAR YearsInContext = DISTINCTCOUNT(dim_date_dubai[year])",
+              "RETURN DIVIDE([Transaction Count], YearsInContext)",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Property Types",
+            "expression": [
+              " DISTINCTCOUNT(fact_transactions_dubai[property_type_id])",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Investment Score",
+            "expression": [
+              " ",
+              "VAR growth_score =",
+              "    DIVIDE([YoY Price Growth %], ",
+              "           MAXX(ALL(dim_area_dubai[area_name_en]), [YoY Price Growth %]))",
+              "",
+              "VAR liquidity_score =",
+              "    DIVIDE([Liquidity (Sales/Month)], ",
+              "           MAXX(ALL(dim_area_dubai[area_name_en]), [Liquidity (Sales/Month)]))",
+              "",
+              "VAR capital_score =",
+              "    DIVIDE([Capital Growth %], ",
+              "           MAXX(ALL(dim_area_dubai[area_name_en]), [Capital Growth %]))",
+              "",
+              "VAR risk_penalty =",
+              "    1 - DIVIDE([Risk Score (Dubai)], ",
+              "               MAXX(ALL(dim_area_dubai[area_name_en]), [Risk Score (Dubai)]))",
+              "",
+              "RETURN",
+              "    (growth_score * 0.35) +",
+              "    (liquidity_score * 0.25) +",
+              "    (capital_score * 0.25) +",
+              "    (risk_penalty * 0.15)",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "MoM Price Momentum %",
+            "expression": [
+              "",
+              "VAR PrevMonth =",
+              "    CALCULATE(",
+              "        [Avg Price per sqm],",
+              "        PARALLELPERIOD(dim_date_dubai[full_date], -1, MONTH)",
+              "    )",
+              "RETURN",
+              "    DIVIDE([Avg Price per sqm] - PrevMonth, PrevMonth)",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Liquidity (Sales/Month)",
+            "expression": [
+              " [Sales per Month]",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Tx Count 6M Avg",
+            "expression": [
+              "",
+              "AVERAGEX(",
+              "    DATESINPERIOD(dim_date_dubai[full_date], MAX(dim_date_dubai[full_date]), -6, MONTH),",
+              "    CALCULATE([Transaction Count])",
+              ")",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Volume Spike %",
+            "expression": [
+              "",
+              "DIVIDE([Transaction Count] - [Tx Count 6M Avg], [Tx Count 6M Avg])",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Heat Index (Dubai)",
+            "expression": [
+              "",
+              "0.35 * [MoM Price Momentum %] +",
+              "0.35 * [YoY Price Growth %] +",
+              "0.20 * [Liquidity (Sales/Month)] +",
+              "0.10 * [Volume Spike %]",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Risk Score",
+            "expression": [
+              " ",
+              "VAR RawScore = ",
+              "    (0.45 * [Price Volatility 6M]) + ",
+              "    (0.35 * [Outlier Transaction Ratio]) + ",
+              "    (0.20 * [Shock Index])",
+              "",
+              "-- This finds the highest raw score across all areas to use as a ceiling",
+              "VAR MaxScoreInMarket = ",
+              "    MAXX(",
+              "        ALLSELECTED('dim_area_dubai'), ",
+              "        (0.45 * [Price Volatility 6M]) + ",
+              "        (0.35 * [Outlier Transaction Ratio]) + ",
+              "        (0.20 * [Shock Index])",
+              "    )",
+              "",
+              "RETURN ",
+              "    DIVIDE(RawScore, MaxScoreInMarket, 0)",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Show In Chart",
+            "expression": [
+              " ",
+              "VAR highest = [Top 5 Highest Risk Score (Dubai)]",
+              "VAR lowest = [Top 5 Lowest Risk Score (Dubai)]",
+              "VAR raw =",
+              "    (0.45 * [Price Volatility 6M]) +",
+              "    (0.35 * [Outlier Transaction Ratio]) +",
+              "    (0.20 * [Shock Index])",
+              "RETURN",
+              "    IF(",
+              "        (NOT ISBLANK(highest) || NOT ISBLANK(lowest)) && raw > 0,",
+              "        1,",
+              "        BLANK()",
+              "    )",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Top 5 Combined Risk",
+            "expression": [
+              " ",
+              "VAR highest = [Top 5 Highest Risk Score (Dubai)]",
+              "VAR lowest = [Top 5 Lowest Risk Score (Dubai)]",
+              "RETURN",
+              "    IF(",
+              "        NOT ISBLANK(highest) || NOT ISBLANK(lowest),",
+              "        1,",
+              "        BLANK()",
+              "    )",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Top 5 Highest Risk Score (Dubai)",
+            "expression": [
+              " ",
+              "VAR RawScore =",
+              "    (0.45 * [Price Volatility 6M]) +",
+              "    (0.35 * [Outlier Transaction Ratio]) +",
+              "    (0.20 * [Shock Index])",
+              "",
+              "VAR MaxScoreInMarket =",
+              "    MAXX(",
+              "        ALLSELECTED('dim_area_dubai'),",
+              "        (0.45 * [Price Volatility 6M]) +",
+              "        (0.35 * [Outlier Transaction Ratio]) +",
+              "        (0.20 * [Shock Index])",
+              "    )",
+              "",
+              "VAR NormalizedScore =",
+              "    DIVIDE(RawScore, MaxScoreInMarket, 0)",
+              "",
+              "VAR CurrentAreaRank =",
+              "    RANKX(",
+              "        FILTER(",
+              "            ALLSELECTED('dim_area_dubai'),",
+              "            (0.45 * [Price Volatility 6M]) +",
+              "            (0.35 * [Outlier Transaction Ratio]) +",
+              "            (0.20 * [Shock Index]) > 0",
+              "        ),",
+              "        DIVIDE(",
+              "            (0.45 * [Price Volatility 6M]) +",
+              "            (0.35 * [Outlier Transaction Ratio]) +",
+              "            (0.20 * [Shock Index]),",
+              "            MaxScoreInMarket,",
+              "            0",
+              "        ),",
+              "        ,",
+              "        DESC,",
+              "        DENSE",
+              "    )",
+              "",
+              "RETURN",
+              "    IF(RawScore > 0 && CurrentAreaRank <= 5, NormalizedScore, BLANK())",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Top 5 Lowest Risk Score (Dubai)",
+            "expression": [
+              " ",
+              "VAR RawScore =",
+              "    (0.45 * [Price Volatility 6M]) +",
+              "    (0.35 * [Outlier Transaction Ratio]) +",
+              "    (0.20 * [Shock Index])",
+              "",
+              "VAR MaxScoreInMarket =",
+              "    MAXX(",
+              "        ALLSELECTED('dim_area_dubai'),",
+              "        (0.45 * [Price Volatility 6M]) +",
+              "        (0.35 * [Outlier Transaction Ratio]) +",
+              "        (0.20 * [Shock Index])",
+              "    )",
+              "",
+              "VAR NormalizedScore =",
+              "    DIVIDE(RawScore, MaxScoreInMarket, 0)",
+              "",
+              "VAR ValidAreas =",
+              "    FILTER(",
+              "        ALLSELECTED('dim_area_dubai'),",
+              "        NOT ISBLANK([Price Volatility 6M]) &&",
+              "        NOT ISBLANK([Shock Index])",
+              "    )",
+              "",
+              "VAR CurrentAreaRank =",
+              "    RANKX(",
+              "        ValidAreas,",
+              "        DIVIDE(",
+              "            (0.45 * [Price Volatility 6M]) +",
+              "            (0.35 * [Outlier Transaction Ratio]) +",
+              "            (0.20 * [Shock Index]),",
+              "            MaxScoreInMarket,",
+              "            0",
+              "        ),",
+              "        ,",
+              "        ASC,",
+              "        DENSE",
+              "    )",
+              "",
+              "RETURN",
+              "    IF(",
+              "        NOT ISBLANK([Price Volatility 6M]) &&",
+              "        NOT ISBLANK([Shock Index]) &&",
+              "        CurrentAreaRank <= 5,",
+              "        NormalizedScore,",
+              "        BLANK()",
+              "    )",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Top N Areas Filter",
+            "expression": [
+              " ",
+              "VAR selected_n = SELECTEDVALUE('Top N'[N], 10)",
+              "VAR area_rank =",
+              "    RANKX(",
+              "        ALL(dim_area_dubai[area_name_en]),",
+              "        [Investor Score (Dubai)],",
+              "        ,",
+              "        DESC,",
+              "        DENSE",
+              "    )",
+              "RETURN",
+              "    IF(area_rank <= selected_n, 1, 0)",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Turnover Velocity",
+            "expression": [
+              " [Sales per Month]",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Capital Growth %",
+            "expression": [
+              "",
+              "[YoY Price Growth %]",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Monthly Avg Price per sqm",
+            "expression": [
+              "",
+              "CALCULATE([Avg Price per sqm])",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Price Volatility 6M",
+            "expression": [
+              "",
+              "VAR Window =",
+              "    DATESINPERIOD(dim_date_dubai[full_date], MAX(dim_date_dubai[full_date]), -6, MONTH)",
+              "RETURN",
+              "STDEVX.S(",
+              "    VALUES(dim_date_dubai[YearMonth]),",
+              "    CALCULATE([Monthly Avg Price per sqm], Window)",
+              ")",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Risk-Adjusted Opportunity Score",
+            "expression": [
+              "",
+              "DIVIDE(",
+              "    [Capital Growth %] * [Turnover Velocity],",
+              "    [Price Volatility 6M]",
+              ")",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Investor Score (Dubai)",
+            "expression": [
+              " 0.80 * [Risk-Adjusted Opportunity Score] + 0.20 * DIVIDE([Avg Ticket Size], 5000000)",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Avg Capital Growth %",
+            "expression": [
+              " AVERAGEX(VALUES(dim_date_dubai[YearMonth]), [Capital Growth %])",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Median Turnover Velocity",
+            "expression": [
+              " MEDIANX(VALUES(dim_area_dubai[area_name_en]), [Turnover Velocity])",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Avg Price per sqm 6M",
+            "expression": [
+              "",
+              "AVERAGEX(",
+              "    DATESINPERIOD(dim_date_dubai[full_date], MAX(dim_date_dubai[full_date]), -6, MONTH),",
+              "    CALCULATE([Avg Price per sqm])",
+              ")",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Shock Index",
+            "expression": [
+              "",
+              "DIVIDE([Avg Price per sqm] - [Avg Price per sqm 6M], [Avg Price per sqm 6M])",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Outlier Transaction Ratio",
+            "expression": [
+              "",
+              "VAR mu = [Avg Price per sqm]",
+              "VAR sigma =",
+              "    CALCULATE(",
+              "        STDEVX.S(",
+              "            fact_transactions_dubai,",
+              "            fact_transactions_dubai[meter_sale_price]",
+              "        )",
+              "    )",
+              "VAR threshold = mu + 2 * sigma",
+              "VAR outliers =",
+              "    CALCULATE(",
+              "        [Transaction Count],",
+              "        FILTER(",
+              "            fact_transactions_dubai,",
+              "            fact_transactions_dubai[meter_sale_price] > threshold",
+              "        )",
+              "    )",
+              "RETURN",
+              "    DIVIDE(outliers, [Transaction Count])",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Risk Score (Dubai)",
+            "expression": [
+              " ",
+              "VAR RawScore = ",
+              "    (0.45 * [Price Volatility 6M]) + ",
+              "    (0.35 * [Outlier Transaction Ratio]) + ",
+              "    (0.20 * [Shock Index])",
+              "",
+              "-- This finds the highest raw score across all areas to use as a ceiling",
+              "VAR MaxScoreInMarket = ",
+              "    MAXX(",
+              "        ALLSELECTED('dim_area_dubai'), ",
+              "        (0.45 * [Price Volatility 6M]) + ",
+              "        (0.35 * [Outlier Transaction Ratio]) + ",
+              "        (0.20 * [Shock Index])",
+              "    )",
+              "",
+              "RETURN ",
+              "    DIVIDE(RawScore, MaxScoreInMarket, 0)",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          },
+          {
+            "name": "Outlier Transaction Ratio %",
+            "expression": [
+              "",
+              "VAR mu = [Avg Price per sqm]",
+              "VAR sigma =",
+              "    CALCULATE(",
+              "        STDEVX.S(",
+              "            fact_transactions_dubai,",
+              "            fact_transactions_dubai[meter_sale_price]",
+              "        )",
+              "    )",
+              "VAR threshold = mu + 2 * sigma",
+              "VAR outliers =",
+              "    CALCULATE(",
+              "        [Transaction Count],",
+              "        FILTER(",
+              "            fact_transactions_dubai,",
+              "            fact_transactions_dubai[meter_sale_price] > threshold",
+              "        )",
+              "    )",
+              "RETURN",
+              "    FORMAT(DIVIDE(outliers, [Transaction Count]), \"0.00%\")",
+              ""
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai\"]"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "fact_transactions_egypt",
+        "columns": [
+          {
+            "name": "transaction_id",
+            "dataType": "string",
+            "sourceColumn": "transaction_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "date_id",
+            "dataType": "int64",
+            "sourceColumn": "date_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "property_type_id",
+            "dataType": "int64",
+            "sourceColumn": "property_type_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "area_id",
+            "dataType": "int64",
+            "sourceColumn": "area_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "procedure_id",
+            "dataType": "int64",
+            "sourceColumn": "procedure_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "reg_type_id",
+            "dataType": "int64",
+            "sourceColumn": "reg_type_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "procedure_area",
+            "dataType": "string",
+            "sourceColumn": "procedure_area",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "actual_worth",
+            "dataType": "string",
+            "sourceColumn": "actual_worth",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "no_of_parties_role_1",
+            "dataType": "string",
+            "sourceColumn": "no_of_parties_role_1",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "no_of_parties_role_2",
+            "dataType": "string",
+            "sourceColumn": "no_of_parties_role_2",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"SQL/smartmove-sql-server database windows net;smartmove-global\",",
+                "    dbo_fact_transactions_egypt = Source{[Schema=\"dbo\",Item=\"fact_transactions_egypt\"]}[Data]",
+                "in",
+                "    dbo_fact_transactions_egypt"
+              ]
+            }
+          }
+        ],
+        "measures": [
+          {
+            "name": "YoY Price Growth % Egypt",
+            "expression": [
+              "",
+              "VAR PrevYear =",
+              "    CALCULATE(",
+              "        [Avg Price per sqm Egypt],",
+              "        SAMEPERIODLASTYEAR(dim_date_egypt[full_date])",
+              "    )",
+              "RETURN",
+              "DIVIDE([Avg Price per sqm Egypt] - PrevYear, PrevYear) * 100"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "Transaction Count Egypt",
+            "expression": [
+              "",
+              "COUNTROWS(fact_transactions_egypt)"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "Total Sales Value Egypt",
+            "expression": [
+              "",
+              "SUM(fact_transactions_egypt[actual_worth])"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "Avg Ticket Size Egypt",
+            "expression": [
+              "",
+              "AVERAGE(fact_transactions_egypt[actual_worth])"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "Avg Price per sqm Egypt",
+            "expression": [
+              "",
+              "-- Note: 'meter_sale_price' is not visible in the schema image. ",
+              "-- If it doesn't exist in the table, replace this with: ",
+              "-- AVERAGEX(fact_transactions_egypt, DIVIDE(fact_transactions_egypt[actual_worth], fact_transactions_egypt[procedure_area]))",
+              "AVERAGE(fact_transactions_egypt[meter_sale_price])"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "Avg Procedure Area Egypt",
+            "expression": [
+              "",
+              "AVERAGE(fact_transactions_egypt[procedure_area])"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "Total Sales by Area Egypt",
+            "expression": [
+              " ",
+              "CALCULATE(",
+              "    SUM(fact_transactions_egypt[actual_worth]),",
+              "    RELATEDTABLE(dim_area_egypt)",
+              ")"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "Active Areas Egypt",
+            "expression": " DISTINCTCOUNT(fact_transactions_egypt[area_id])",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "YoY Sales Growth % Egypt",
+            "expression": [
+              " ",
+              "VAR CurrentYear = MAX('dim_date_egypt'[year])",
+              "VAR CurrentSales = [Total Sales Value Egypt]",
+              "VAR PrevYearSales = ",
+              "    CALCULATE(",
+              "        [Total Sales Value Egypt],",
+              "        ALL('dim_date_egypt'), ",
+              "        'dim_date_egypt'[year] = CurrentYear - 1",
+              "    )",
+              "VAR NextYearSales = ",
+              "    CALCULATE(",
+              "        [Total Sales Value Egypt],",
+              "        ALL('dim_date_egypt'), ",
+              "        'dim_date_egypt'[year] = CurrentYear + 1",
+              "    )",
+              "RETURN",
+              "    SWITCH(",
+              "        TRUE(),",
+              "        -- 1. The year BEFORE data starts: Force to 0 to anchor the line.",
+              "        ISBLANK(CurrentSales) && NOT ISBLANK(NextYearSales), 0,",
+              "        ",
+              "        -- 2. The FIRST year of data: Force to 100% to make the line go \"up\".",
+              "        NOT ISBLANK(CurrentSales) && ISBLANK(PrevYearSales), 100,",
+              "        ",
+              "        -- 3. All normal years: Do the actual math.",
+              "        NOT ISBLANK(CurrentSales), DIVIDE(CurrentSales - PrevYearSales, PrevYearSales) * 100,",
+              "        ",
+              "        -- 4. Future/Past years with no data around them stay blank",
+              "        BLANK()",
+              "    )"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "Sales per Month Egypt",
+            "expression": [
+              "",
+              "-- Note: Requires a 'YearMonth' column in dim_date_egypt",
+              "VAR MonthsInContext = DISTINCTCOUNT(dim_date_egypt[YearMonth])",
+              "RETURN DIVIDE([Transaction Count Egypt], MonthsInContext)"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "New Transaction Count Egypt",
+            "expression": [
+              "",
+              "CALCULATE(",
+              "    [Transaction Count Egypt],",
+              "    dim_registration_egypt[reg_type_en] = \"New\"",
+              ")"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "New Property Ratio Egypt",
+            "expression": [
+              "",
+              "DIVIDE([New Transaction Count Egypt], [Transaction Count Egypt])"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "Sales per Year Egypt",
+            "expression": [
+              " ",
+              "VAR YearsInContext = DISTINCTCOUNT(dim_date_egypt[year])",
+              "RETURN DIVIDE([Transaction Count Egypt], YearsInContext)"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "Property Types Egypt",
+            "expression": " DISTINCTCOUNT(fact_transactions_egypt[property_type_id])",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "Investment Score Egypt",
+            "expression": [
+              " ",
+              "VAR growth_score =",
+              "    DIVIDE([YoY Price Growth % Egypt], ",
+              "           MAXX(ALL(dim_area_egypt[area_name_en]), [YoY Price Growth % Egypt]))",
+              "VAR liquidity_score =",
+              "    DIVIDE([Liquidity (Sales/Month) Egypt], ",
+              "           MAXX(ALL(dim_area_egypt[area_name_en]), [Liquidity (Sales/Month) Egypt]))",
+              "VAR capital_score =",
+              "    DIVIDE([Capital Growth % Egypt], ",
+              "           MAXX(ALL(dim_area_egypt[area_name_en]), [Capital Growth % Egypt]))",
+              "VAR risk_penalty =",
+              "    1 - DIVIDE([Risk Score Egypt], ",
+              "               MAXX(ALL(dim_area_egypt[area_name_en]), [Risk Score Egypt]))",
+              "RETURN",
+              "    (growth_score * 0.35) +",
+              "    (liquidity_score * 0.25) +",
+              "    (capital_score * 0.25) +",
+              "    (risk_penalty * 0.15)"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "MoM Price Momentum % Egypt",
+            "expression": [
+              "",
+              "VAR PrevMonth =",
+              "    CALCULATE(",
+              "        [Avg Price per sqm Egypt],",
+              "        PARALLELPERIOD(dim_date_egypt[full_date], -1, MONTH)",
+              "    )",
+              "RETURN",
+              "    DIVIDE([Avg Price per sqm Egypt] - PrevMonth, PrevMonth)"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "Liquidity (Sales/Month) Egypt",
+            "expression": [
+              "",
+              "[Sales per Month Egypt]"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "Tx Count 6M Avg Egypt",
+            "expression": [
+              "",
+              "AVERAGEX(",
+              "    DATESINPERIOD(dim_date_egypt[full_date], MAX(dim_date_egypt[full_date]), -6, MONTH),",
+              "    CALCULATE([Transaction Count Egypt])",
+              ")"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "Volume Spike % Egypt",
+            "expression": [
+              "",
+              "DIVIDE([Transaction Count Egypt] - [Tx Count 6M Avg Egypt], [Tx Count 6M Avg Egypt])"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "Heat Index Egypt",
+            "expression": [
+              "",
+              "0.35 * [MoM Price Momentum % Egypt] +",
+              "0.35 * [YoY Price Growth % Egypt] +",
+              "0.20 * [Liquidity (Sales/Month) Egypt] +",
+              "0.10 * [Volume Spike % Egypt]"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "Risk Score Egypt",
+            "expression": [
+              " ",
+              "VAR RawScore = ",
+              "    (0.45 * [Price Volatility 6M Egypt]) + ",
+              "    (0.35 * [Outlier Transaction Ratio Egypt]) + ",
+              "    (0.20 * [Shock Index Egypt])",
+              "VAR MaxScoreInMarket = ",
+              "    MAXX(",
+              "        ALLSELECTED('dim_area_egypt'), ",
+              "        (0.45 * [Price Volatility 6M Egypt]) + ",
+              "        (0.35 * [Outlier Transaction Ratio Egypt]) + ",
+              "        (0.20 * [Shock Index Egypt])",
+              "    )",
+              "RETURN ",
+              "    DIVIDE(RawScore, MaxScoreInMarket, 0)"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "Show In Chart Egypt",
+            "expression": [
+              " ",
+              "VAR highest = [Top 5 Highest Risk Score Egypt]",
+              "VAR lowest = [Top 5 Lowest Risk Score Egypt]",
+              "VAR raw =",
+              "    (0.45 * [Price Volatility 6M Egypt]) +",
+              "    (0.35 * [Outlier Transaction Ratio Egypt]) +",
+              "    (0.20 * [Shock Index Egypt])",
+              "RETURN",
+              "    IF(",
+              "        (NOT ISBLANK(highest) || NOT ISBLANK(lowest)) && raw > 0,",
+              "        1,",
+              "        BLANK()",
+              "    )"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "Top 5 Combined Risk Egypt",
+            "expression": [
+              " ",
+              "VAR highest = [Top 5 Highest Risk Score Egypt]",
+              "VAR lowest = [Top 5 Lowest Risk Score Egypt]",
+              "RETURN",
+              "    IF(",
+              "        NOT ISBLANK(highest) || NOT ISBLANK(lowest),",
+              "        1,",
+              "        BLANK()",
+              "    )"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "Top 5 Highest Risk Score Egypt",
+            "expression": [
+              " ",
+              "VAR RawScore =",
+              "    (0.45 * [Price Volatility 6M Egypt]) +",
+              "    (0.35 * [Outlier Transaction Ratio Egypt]) +",
+              "    (0.20 * [Shock Index Egypt])",
+              "VAR MaxScoreInMarket =",
+              "    MAXX(",
+              "        ALLSELECTED('dim_area_egypt'),",
+              "        (0.45 * [Price Volatility 6M Egypt]) +",
+              "        (0.35 * [Outlier Transaction Ratio Egypt]) +",
+              "        (0.20 * [Shock Index Egypt])",
+              "    )",
+              "VAR NormalizedScore =",
+              "    DIVIDE(RawScore, MaxScoreInMarket, 0)",
+              "VAR CurrentAreaRank =",
+              "    RANKX(",
+              "        FILTER(",
+              "            ALLSELECTED('dim_area_egypt'),",
+              "            (0.45 * [Price Volatility 6M Egypt]) +",
+              "            (0.35 * [Outlier Transaction Ratio Egypt]) +",
+              "            (0.20 * [Shock Index Egypt]) > 0",
+              "        ),",
+              "        DIVIDE(",
+              "            (0.45 * [Price Volatility 6M Egypt]) +",
+              "            (0.35 * [Outlier Transaction Ratio Egypt]) +",
+              "            (0.20 * [Shock Index Egypt]),",
+              "            MaxScoreInMarket,",
+              "            0",
+              "        ),",
+              "        ,",
+              "        DESC,",
+              "        DENSE",
+              "    )",
+              "RETURN",
+              "    IF(RawScore > 0 && CurrentAreaRank <= 5, NormalizedScore, BLANK())"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "Top 5 Lowest Risk Score Egypt",
+            "expression": [
+              " ",
+              "VAR RawScore =",
+              "    (0.45 * [Price Volatility 6M Egypt]) +",
+              "    (0.35 * [Outlier Transaction Ratio Egypt]) +",
+              "    (0.20 * [Shock Index Egypt])",
+              "VAR MaxScoreInMarket =",
+              "    MAXX(",
+              "        ALLSELECTED('dim_area_egypt'),",
+              "        (0.45 * [Price Volatility 6M Egypt]) +",
+              "        (0.35 * [Outlier Transaction Ratio Egypt]) +",
+              "        (0.20 * [Shock Index Egypt])",
+              "    )",
+              "VAR NormalizedScore =",
+              "    DIVIDE(RawScore, MaxScoreInMarket, 0)",
+              "VAR ValidAreas =",
+              "    FILTER(",
+              "        ALLSELECTED('dim_area_egypt'),",
+              "        NOT ISBLANK([Price Volatility 6M Egypt]) &&",
+              "        NOT ISBLANK([Shock Index Egypt])",
+              "    )",
+              "VAR CurrentAreaRank =",
+              "    RANKX(",
+              "        ValidAreas,",
+              "        DIVIDE(",
+              "            (0.45 * [Price Volatility 6M Egypt]) +",
+              "            (0.35 * [Outlier Transaction Ratio Egypt]) +",
+              "            (0.20 * [Shock Index Egypt]),",
+              "            MaxScoreInMarket,",
+              "            0",
+              "        ),",
+              "        ,",
+              "        ASC,",
+              "        DENSE",
+              "    )",
+              "RETURN",
+              "    IF(",
+              "        NOT ISBLANK([Price Volatility 6M Egypt]) &&",
+              "        NOT ISBLANK([Shock Index Egypt]) &&",
+              "        CurrentAreaRank <= 5,",
+              "        NormalizedScore,",
+              "        BLANK()",
+              "    )"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "Top N Areas Filter Egypt",
+            "expression": [
+              " ",
+              "VAR selected_n = SELECTEDVALUE('Top N'[N], 10)",
+              "VAR area_rank =",
+              "    RANKX(",
+              "        ALL(dim_area_egypt[area_name_en]),",
+              "        [Investor Score Egypt],",
+              "        ,",
+              "        DESC,",
+              "        DENSE",
+              "    )",
+              "RETURN",
+              "    IF(area_rank <= selected_n, 1, 0)"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "Turnover Velocity Egypt",
+            "expression": [
+              "",
+              "[Sales per Month Egypt]"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "Capital Growth % Egypt",
+            "expression": [
+              "",
+              "[YoY Price Growth % Egypt]"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "Monthly Avg Price per sqm Egypt",
+            "expression": [
+              "",
+              "CALCULATE([Avg Price per sqm Egypt])"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "Price Volatility 6M Egypt",
+            "expression": [
+              "",
+              "-- Note: Requires a 'YearMonth' column in dim_date_egypt",
+              "VAR Window =",
+              "    DATESINPERIOD(dim_date_egypt[full_date], MAX(dim_date_egypt[full_date]), -6, MONTH)",
+              "RETURN",
+              "STDEVX.S(",
+              "    VALUES(dim_date_egypt[YearMonth]),",
+              "    CALCULATE([Monthly Avg Price per sqm Egypt], Window)",
+              ")"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "Risk-Adjusted Opportunity Score Egypt",
+            "expression": [
+              "",
+              "DIVIDE(",
+              "    [Capital Growth % Egypt] * [Turnover Velocity Egypt],",
+              "    [Price Volatility 6M Egypt]",
+              ")"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "Investor Score Egypt",
+            "expression": " 0.80 * [Risk-Adjusted Opportunity Score Egypt] + 0.20 * DIVIDE([Avg Ticket Size Egypt], 5000000)",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "Avg Capital Growth % Egypt",
+            "expression": [
+              " ",
+              "-- Note: Requires a 'YearMonth' column in dim_date_egypt",
+              "AVERAGEX(VALUES(dim_date_egypt[YearMonth]), [Capital Growth % Egypt])"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "Median Turnover Velocity Egypt",
+            "expression": " MEDIANX(VALUES(dim_area_egypt[area_name_en]), [Turnover Velocity Egypt])",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "Avg Price per sqm 6M Egypt",
+            "expression": [
+              "",
+              "AVERAGEX(",
+              "    DATESINPERIOD(dim_date_egypt[full_date], MAX(dim_date_egypt[full_date]), -6, MONTH),",
+              "    CALCULATE([Avg Price per sqm Egypt])",
+              ")"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "Shock Index Egypt",
+            "expression": [
+              "",
+              "DIVIDE([Avg Price per sqm Egypt] - [Avg Price per sqm 6M Egypt], [Avg Price per sqm 6M Egypt])",
+              "",
+              "Outlier Transaction Ratio Egypt:=",
+              "VAR mu = [Avg Price per sqm Egypt]",
+              "VAR sigma =",
+              "    CALCULATE(",
+              "        STDEVX.S(",
+              "            fact_transactions_egypt,",
+              "            -- Update this column reference if you calculate price per meter dynamically",
+              "            fact_transactions_egypt[meter_sale_price] ",
+              "        )",
+              "    )",
+              "VAR threshold = mu + 2 * sigma",
+              "VAR outliers =",
+              "    CALCULATE(",
+              "        [Transaction Count Egypt],",
+              "        FILTER(",
+              "            fact_transactions_egypt,",
+              "            fact_transactions_egypt[meter_sale_price] > threshold",
+              "        )",
+              "    )",
+              "RETURN",
+              "    DIVIDE(outliers, [Transaction Count Egypt])"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          },
+          {
+            "name": "Outlier Transaction Ratio % Egypt",
+            "expression": [
+              "",
+              "VAR mu = [Avg Price per sqm Egypt]",
+              "VAR sigma =",
+              "    CALCULATE(",
+              "        STDEVX.S(",
+              "            fact_transactions_egypt,",
+              "            fact_transactions_egypt[meter_sale_price]",
+              "        )",
+              "    )",
+              "VAR threshold = mu + 2 * sigma",
+              "VAR outliers =",
+              "    CALCULATE(",
+              "        [Transaction Count Egypt],",
+              "        FILTER(",
+              "            fact_transactions_egypt,",
+              "            fact_transactions_egypt[meter_sale_price] > threshold",
+              "        )",
+              "    )",
+              "RETURN",
+              "    FORMAT(DIVIDE(outliers, [Transaction Count Egypt]), \"0.00%\")"
+            ],
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\"]"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "dim_area_england",
+        "columns": [
+          {
+            "name": "area_id",
+            "dataType": "int64",
+            "sourceColumn": "area_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai Predicted\",\"Egypt\",\"England\",\"England Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "area_name_en",
+            "dataType": "string",
+            "sourceColumn": "area_name_en",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Dubai Predicted\",\"Egypt\",\"England\",\"England Predicted\"]"
+              }
+            ]
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"SQL/smartmove-sql-server database windows net;smartmove-global\",",
+                "    dbo_dim_area_england = Source{[Schema=\"dbo\",Item=\"dim_area_england\"]}[Data]",
+                "in",
+                "    dbo_dim_area_england"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "dim_date_predicted_england",
+        "columns": [
+          {
+            "name": "date_id",
+            "dataType": "int64",
+            "sourceColumn": "date_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\",\"England Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "date",
+            "dataType": "dateTime",
+            "sourceColumn": "date",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\",\"England Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "year",
+            "dataType": "int64",
+            "sourceColumn": "year",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\",\"England Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "month_number",
+            "dataType": "int64",
+            "sourceColumn": "month_number",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\",\"England Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "month_name",
+            "dataType": "string",
+            "sourceColumn": "month_name",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\",\"England Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "day_of_month",
+            "dataType": "int64",
+            "sourceColumn": "day_of_month",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\",\"England Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "quarter",
+            "dataType": "int64",
+            "sourceColumn": "quarter",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\",\"England Predicted\"]"
+              }
+            ]
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"SQL/smartmove-sql-server database windows net;smartmove-global\",",
+                "    dbo_dim_date_predicted_england = Source{[Schema=\"dbo\",Item=\"dim_date_predicted_england\"]}[Data]",
+                "in",
+                "    dbo_dim_date_predicted_england"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "dim_procedure_england",
+        "columns": [
+          {
+            "name": "procedure_id",
+            "dataType": "int64",
+            "sourceColumn": "procedure_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\",\"England\",\"England Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "procedure_name_en",
+            "dataType": "string",
+            "sourceColumn": "procedure_name_en",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\",\"England\",\"England Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "trans_group_id",
+            "dataType": "string",
+            "sourceColumn": "trans_group_id",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\",\"England\",\"England Predicted\"]"
+              }
+            ]
+          },
+          {
+            "name": "trans_group_en",
+            "dataType": "string",
+            "sourceColumn": "trans_group_en",
+            "annotations": [
+              {
+                "name": "TabularEditor_InPerspective",
+                "value": "[\"Egypt\",\"England\",\"England Predicted\"]"
+              }
+            ]
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"SQL/smartmove-sql-server database windows net;smartmove-global\",",
+                "    dbo_dim_procedure_england = Source{[Schema=\"dbo\",Item=\"dim_procedure_england\"]}[Data]",
+                "in",
+                "    dbo_dim_procedure_england"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "dim_property_england",
+        "columns": [
+          {
+            "name": "property_type_id",
+            "dataType": "int64",
+            "sourceColumn": "property_type_id"
+          },
+          {
+            "name": "property_type_en",
+            "dataType": "string",
+            "sourceColumn": "property_type_en"
+          },
+          {
+            "name": "property_usage_en",
+            "dataType": "string",
+            "sourceColumn": "property_usage_en"
+          },
+          {
+            "name": "has_parking",
+            "dataType": "string",
+            "sourceColumn": "has_parking"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"SQL/smartmove-sql-server database windows net;smartmove-global\",",
+                "    dbo_dim_property_england = Source{[Schema=\"dbo\",Item=\"dim_property_england\"]}[Data]",
+                "in",
+                "    dbo_dim_property_england"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "dim_registration_england",
+        "columns": [
+          {
+            "name": "reg_type_id",
+            "dataType": "int64",
+            "sourceColumn": "reg_type_id"
+          },
+          {
+            "name": "reg_type_en",
+            "dataType": "string",
+            "sourceColumn": "reg_type_en"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"SQL/smartmove-sql-server database windows net;smartmove-global\",",
+                "    dbo_dim_registration_england = Source{[Schema=\"dbo\",Item=\"dim_registration_england\"]}[Data]",
+                "in",
+                "    dbo_dim_registration_england"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "fact_predictions_england",
+        "columns": [
+          {
+            "name": "prediction_id",
+            "dataType": "string",
+            "sourceColumn": "prediction_id"
+          },
+          {
+            "name": "target_date_id",
+            "dataType": "int64",
+            "sourceColumn": "target_date_id"
+          },
+          {
+            "name": "ds",
+            "dataType": "dateTime",
+            "sourceColumn": "ds"
+          },
+          {
+            "name": "price_yhat",
+            "dataType": "double",
+            "sourceColumn": "price_yhat"
+          },
+          {
+            "name": "price_lower",
+            "dataType": "double",
+            "sourceColumn": "price_lower"
+          },
+          {
+            "name": "price_upper",
+            "dataType": "double",
+            "sourceColumn": "price_upper"
+          },
+          {
+            "name": "rent_yhat",
+            "dataType": "double",
+            "sourceColumn": "rent_yhat"
+          },
+          {
+            "name": "rent_lower",
+            "dataType": "double",
+            "sourceColumn": "rent_lower"
+          },
+          {
+            "name": "rent_upper",
+            "dataType": "double",
+            "sourceColumn": "rent_upper"
+          },
+          {
+            "name": "projected_roi_pct",
+            "dataType": "double",
+            "sourceColumn": "projected_roi_pct"
+          },
+          {
+            "name": "is_latest_forecast",
+            "dataType": "int64",
+            "sourceColumn": "is_latest_forecast"
+          },
+          {
+            "name": "generated_at",
+            "dataType": "dateTime",
+            "sourceColumn": "generated_at"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"SQL/smartmove-sql-server database windows net;smartmove-global\",",
+                "    dbo_fact_predictions_england = Source{[Schema=\"dbo\",Item=\"fact_predictions_england\"]}[Data]",
+                "in",
+                "    dbo_fact_predictions_england"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "fact_transactions_england",
+        "columns": [
+          {
+            "name": "transaction_id",
+            "dataType": "string",
+            "sourceColumn": "transaction_id"
+          },
+          {
+            "name": "date_id",
+            "dataType": "int64",
+            "sourceColumn": "date_id"
+          },
+          {
+            "name": "property_type_id",
+            "dataType": "int64",
+            "sourceColumn": "property_type_id"
+          },
+          {
+            "name": "area_id",
+            "dataType": "int64",
+            "sourceColumn": "area_id"
+          },
+          {
+            "name": "procedure_id",
+            "dataType": "int64",
+            "sourceColumn": "procedure_id"
+          },
+          {
+            "name": "reg_type_id",
+            "dataType": "int64",
+            "sourceColumn": "reg_type_id"
+          },
+          {
+            "name": "procedure_area",
+            "dataType": "string",
+            "sourceColumn": "procedure_area"
+          },
+          {
+            "name": "actual_worth",
+            "dataType": "string",
+            "sourceColumn": "actual_worth"
+          },
+          {
+            "name": "no_of_parties_role_1",
+            "dataType": "string",
+            "sourceColumn": "no_of_parties_role_1"
+          },
+          {
+            "name": "no_of_parties_role_2",
+            "dataType": "string",
+            "sourceColumn": "no_of_parties_role_2"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"SQL/smartmove-sql-server database windows net;smartmove-global\",",
+                "    dbo_fact_transactions_england = Source{[Schema=\"dbo\",Item=\"fact_transactions_england\"]}[Data]",
+                "in",
+                "    dbo_fact_transactions_england"
+              ]
+            }
+          }
+        ],
+        "measures": [
+          {
+            "name": "YoY Price Growth % England",
+            "expression": [
+              "",
+              "VAR PrevYear =",
+              "    CALCULATE(",
+              "        [Avg Price per sqm England],",
+              "        SAMEPERIODLASTYEAR(dim_date[full_date])",
+              "    )",
+              "RETURN",
+              "DIVIDE([Avg Price per sqm England] - PrevYear, PrevYear) * 100"
+            ]
+          },
+          {
+            "name": "Transaction Count England",
+            "expression": [
+              "",
+              "COUNTROWS(fact_transactions_england)"
+            ]
+          },
+          {
+            "name": "Total Sales Value England",
+            "expression": [
+              "",
+              "SUM(fact_transactions_england[actual_worth])"
+            ]
+          },
+          {
+            "name": "Avg Ticket Size England",
+            "expression": [
+              "",
+              "AVERAGE(fact_transactions_england[actual_worth])"
+            ]
+          },
+          {
+            "name": "Avg Price per sqm England",
+            "expression": [
+              "",
+              "-- Note: 'meter_sale_price' is not visible in the England schema image. ",
+              "-- If it doesn't exist, replace this with: ",
+              "-- AVERAGEX(fact_transactions_england, DIVIDE(fact_transactions_england[actual_worth], fact_transactions_england[procedure_area]))",
+              "AVERAGE(fact_transactions_england[meter_sale_price])Avg Price per sqm England:=",
+              "-- Note: 'meter_sale_price' is not visible in the England schema image. ",
+              "-- If it doesn't exist, replace this with: ",
+              "-- AVERAGEX(fact_transactions_england, DIVIDE(fact_transactions_england[actual_worth], fact_transactions_england[procedure_area]))",
+              "AVERAGE(fact_transactions_england[meter_sale_price])"
+            ]
+          },
+          {
+            "name": "Avg Procedure Area England",
+            "expression": [
+              "",
+              "AVERAGE(fact_transactions_england[procedure_area])"
+            ]
+          },
+          {
+            "name": "Total Sales by Area England",
+            "expression": [
+              " ",
+              "CALCULATE(",
+              "    SUM(fact_transactions_england[actual_worth]),",
+              "    RELATEDTABLE(dim_area_england)",
+              ")"
+            ]
+          },
+          {
+            "name": "Active Areas England",
+            "expression": " DISTINCTCOUNT(fact_transactions_england[area_id])"
+          },
+          {
+            "name": "YoY Sales Growth % England",
+            "expression": [
+              " ",
+              "VAR CurrentYear = MAX('dim_date'[year])",
+              "VAR CurrentSales = [Total Sales Value England]",
+              "VAR PrevYearSales = ",
+              "    CALCULATE(",
+              "        [Total Sales Value England],",
+              "        ALL('dim_date'), ",
+              "        'dim_date'[year] = CurrentYear - 1",
+              "    )",
+              "VAR NextYearSales = ",
+              "    CALCULATE(",
+              "        [Total Sales Value England],",
+              "        ALL('dim_date'), ",
+              "        'dim_date'[year] = CurrentYear + 1",
+              "    )",
+              "RETURN",
+              "    SWITCH(",
+              "        TRUE(),",
+              "        -- 1. The year BEFORE data starts: Force to 0 to anchor the line.",
+              "        ISBLANK(CurrentSales) && NOT ISBLANK(NextYearSales), 0,",
+              "        ",
+              "        -- 2. The FIRST year of data: Force to 100% to make the line go \"up\".",
+              "        NOT ISBLANK(CurrentSales) && ISBLANK(PrevYearSales), 100,",
+              "        ",
+              "        -- 3. All normal years: Do the actual math.",
+              "        NOT ISBLANK(CurrentSales), DIVIDE(CurrentSales - PrevYearSales, PrevYearSales) * 100,",
+              "        ",
+              "        -- 4. Future/Past years with no data around them stay blank",
+              "        BLANK()",
+              "    )"
+            ]
+          },
+          {
+            "name": "Sales per Month England",
+            "expression": [
+              "",
+              "-- Note: Requires a 'YearMonth' column in dim_date",
+              "VAR MonthsInContext = DISTINCTCOUNT(dim_date[YearMonth])",
+              "RETURN DIVIDE([Transaction Count England], MonthsInContext)"
+            ]
+          },
+          {
+            "name": "New Transaction Count England",
+            "expression": [
+              "",
+              "CALCULATE(",
+              "    [Transaction Count England],",
+              "    dim_registration_england[reg_type_en] = \"New\"",
+              ")"
+            ]
+          },
+          {
+            "name": "New Property Ratio England",
+            "expression": [
+              "",
+              "DIVIDE([New Transaction Count England], [Transaction Count England])"
+            ]
+          },
+          {
+            "name": "Sales per Year England",
+            "expression": [
+              " ",
+              "VAR YearsInContext = DISTINCTCOUNT(dim_date[year])",
+              "RETURN DIVIDE([Transaction Count England], YearsInContext)"
+            ]
+          },
+          {
+            "name": "Property Types England",
+            "expression": " DISTINCTCOUNT(fact_transactions_england[property_type_id])"
+          },
+          {
+            "name": "Investment Score England",
+            "expression": [
+              " ",
+              "VAR growth_score =",
+              "    DIVIDE([YoY Price Growth % England], ",
+              "           MAXX(ALL(dim_area_england[area_name_en]), [YoY Price Growth % England]))",
+              "VAR liquidity_score =",
+              "    DIVIDE([Liquidity (Sales/Month) England], ",
+              "           MAXX(ALL(dim_area_england[area_name_en]), [Liquidity (Sales/Month) England]))",
+              "VAR capital_score =",
+              "    DIVIDE([Capital Growth % England], ",
+              "           MAXX(ALL(dim_area_england[area_name_en]), [Capital Growth % England]))",
+              "VAR risk_penalty =",
+              "    1 - DIVIDE([Risk Score England], ",
+              "               MAXX(ALL(dim_area_england[area_name_en]), [Risk Score England]))",
+              "RETURN",
+              "    (growth_score * 0.35) +",
+              "    (liquidity_score * 0.25) +",
+              "    (capital_score * 0.25) +",
+              "    (risk_penalty * 0.15)"
+            ]
+          },
+          {
+            "name": "MoM Price Momentum % England",
+            "expression": [
+              "",
+              "VAR PrevMonth =",
+              "    CALCULATE(",
+              "        [Avg Price per sqm England],",
+              "        PARALLELPERIOD(dim_date[full_date], -1, MONTH)",
+              "    )",
+              "RETURN",
+              "    DIVIDE([Avg Price per sqm England] - PrevMonth, PrevMonth)"
+            ]
+          },
+          {
+            "name": "Liquidity (Sales/Month) England",
+            "expression": [
+              "",
+              "[Sales per Month England]"
+            ]
+          },
+          {
+            "name": "Tx Count 6M Avg England",
+            "expression": [
+              "",
+              "AVERAGEX(",
+              "    DATESINPERIOD(dim_date[full_date], MAX(dim_date[full_date]), -6, MONTH),",
+              "    CALCULATE([Transaction Count England])",
+              ")Tx Count 6M Avg England:=",
+              "AVERAGEX(",
+              "    DATESINPERIOD(dim_date[full_date], MAX(dim_date[full_date]), -6, MONTH),",
+              "    CALCULATE([Transaction Count England])",
+              ")"
+            ]
+          },
+          {
+            "name": "Volume Spike % England",
+            "expression": [
+              "",
+              "DIVIDE([Transaction Count England] - [Tx Count 6M Avg England], [Tx Count 6M Avg England])"
+            ]
+          },
+          {
+            "name": "Heat Index England",
+            "expression": [
+              "",
+              "0.35 * [MoM Price Momentum % England] +",
+              "0.35 * [YoY Price Growth % England] +",
+              "0.20 * [Liquidity (Sales/Month) England] +",
+              "0.10 * [Volume Spike % England]"
+            ]
+          },
+          {
+            "name": "Risk Score England",
+            "expression": [
+              " ",
+              "VAR RawScore = ",
+              "    (0.45 * [Price Volatility 6M England]) + ",
+              "    (0.35 * [Outlier Transaction Ratio England]) + ",
+              "    (0.20 * [Shock Index England])",
+              "VAR MaxScoreInMarket = ",
+              "    MAXX(",
+              "        ALLSELECTED('dim_area_england'), ",
+              "        (0.45 * [Price Volatility 6M England]) + ",
+              "        (0.35 * [Outlier Transaction Ratio England]) + ",
+              "        (0.20 * [Shock Index England])",
+              "    )",
+              "RETURN ",
+              "    DIVIDE(RawScore, MaxScoreInMarket, 0)"
+            ]
+          },
+          {
+            "name": "Show In Chart England",
+            "expression": [
+              " ",
+              "VAR highest = [Top 5 Highest Risk Score England]",
+              "VAR lowest = [Top 5 Lowest Risk Score England]",
+              "VAR raw =",
+              "    (0.45 * [Price Volatility 6M England]) +",
+              "    (0.35 * [Outlier Transaction Ratio England]) +",
+              "    (0.20 * [Shock Index England])",
+              "RETURN",
+              "    IF(",
+              "        (NOT ISBLANK(highest) || NOT ISBLANK(lowest)) && raw > 0,",
+              "        1,",
+              "        BLANK()",
+              "    )"
+            ]
+          },
+          {
+            "name": "Top 5 Combined Risk England",
+            "expression": [
+              " ",
+              "VAR highest = [Top 5 Highest Risk Score England]",
+              "VAR lowest = [Top 5 Lowest Risk Score England]",
+              "RETURN",
+              "    IF(",
+              "        NOT ISBLANK(highest) || NOT ISBLANK(lowest),",
+              "        1,",
+              "        BLANK()",
+              "    )"
+            ]
+          },
+          {
+            "name": "Top 5 Highest Risk Score England",
+            "expression": [
+              " ",
+              "VAR RawScore =",
+              "    (0.45 * [Price Volatility 6M England]) +",
+              "    (0.35 * [Outlier Transaction Ratio England]) +",
+              "    (0.20 * [Shock Index England])",
+              "VAR MaxScoreInMarket =",
+              "    MAXX(",
+              "        ALLSELECTED('dim_area_england'),",
+              "        (0.45 * [Price Volatility 6M England]) +",
+              "        (0.35 * [Outlier Transaction Ratio England]) +",
+              "        (0.20 * [Shock Index England])",
+              "    )",
+              "VAR NormalizedScore =",
+              "    DIVIDE(RawScore, MaxScoreInMarket, 0)",
+              "VAR CurrentAreaRank =",
+              "    RANKX(",
+              "        FILTER(",
+              "            ALLSELECTED('dim_area_england'),",
+              "            (0.45 * [Price Volatility 6M England]) +",
+              "            (0.35 * [Outlier Transaction Ratio England]) +",
+              "            (0.20 * [Shock Index England]) > 0",
+              "        ),",
+              "        DIVIDE(",
+              "            (0.45 * [Price Volatility 6M England]) +",
+              "            (0.35 * [Outlier Transaction Ratio England]) +",
+              "            (0.20 * [Shock Index England]),",
+              "            MaxScoreInMarket,",
+              "            0",
+              "        ),",
+              "        ,",
+              "        DESC,",
+              "        DENSE",
+              "    )",
+              "RETURN",
+              "    IF(RawScore > 0 && CurrentAreaRank <= 5, NormalizedScore, BLANK())"
+            ]
+          },
+          {
+            "name": "Top 5 Lowest Risk Score England",
+            "expression": [
+              " ",
+              "VAR RawScore =",
+              "    (0.45 * [Price Volatility 6M England]) +",
+              "    (0.35 * [Outlier Transaction Ratio England]) +",
+              "    (0.20 * [Shock Index England])",
+              "VAR MaxScoreInMarket =",
+              "    MAXX(",
+              "        ALLSELECTED('dim_area_england'),",
+              "        (0.45 * [Price Volatility 6M England]) +",
+              "        (0.35 * [Outlier Transaction Ratio England]) +",
+              "        (0.20 * [Shock Index England])",
+              "    )",
+              "VAR NormalizedScore =",
+              "    DIVIDE(RawScore, MaxScoreInMarket, 0)",
+              "VAR ValidAreas =",
+              "    FILTER(",
+              "        ALLSELECTED('dim_area_england'),",
+              "        NOT ISBLANK([Price Volatility 6M England]) &&",
+              "        NOT ISBLANK([Shock Index England])",
+              "    )",
+              "VAR CurrentAreaRank =",
+              "    RANKX(",
+              "        ValidAreas,",
+              "        DIVIDE(",
+              "            (0.45 * [Price Volatility 6M England]) +",
+              "            (0.35 * [Outlier Transaction Ratio England]) +",
+              "            (0.20 * [Shock Index England]),",
+              "            MaxScoreInMarket,",
+              "            0",
+              "        ),",
+              "        ,",
+              "        ASC,",
+              "        DENSE",
+              "    )",
+              "RETURN",
+              "    IF(",
+              "        NOT ISBLANK([Price Volatility 6M England]) &&",
+              "        NOT ISBLANK([Shock Index England]) &&",
+              "        CurrentAreaRank <= 5,",
+              "        NormalizedScore,",
+              "        BLANK()",
+              "    )"
+            ]
+          },
+          {
+            "name": "Top N Areas Filter England",
+            "expression": [
+              " ",
+              "VAR selected_n = SELECTEDVALUE('Top N'[N], 10)",
+              "VAR area_rank =",
+              "    RANKX(",
+              "        ALL(dim_area_england[area_name_en]),",
+              "        [Investor Score England],",
+              "        ,",
+              "        DESC,",
+              "        DENSE",
+              "    )",
+              "RETURN",
+              "    IF(area_rank <= selected_n, 1, 0)"
+            ]
+          },
+          {
+            "name": "Turnover Velocity England",
+            "expression": [
+              "",
+              "[Sales per Month England]"
+            ]
+          },
+          {
+            "name": "Capital Growth % England",
+            "expression": [
+              "",
+              "[YoY Price Growth % England]"
+            ]
+          },
+          {
+            "name": "Monthly Avg Price per sqm England",
+            "expression": [
+              "",
+              "CALCULATE([Avg Price per sqm England])"
+            ]
+          },
+          {
+            "name": "Price Volatility 6M England",
+            "expression": [
+              "",
+              "-- Note: Requires a 'YearMonth' column in dim_date",
+              "VAR Window =",
+              "    DATESINPERIOD(dim_date[full_date], MAX(dim_date[full_date]), -6, MONTH)",
+              "RETURN",
+              "STDEVX.S(",
+              "    VALUES(dim_date[YearMonth]),",
+              "    CALCULATE([Monthly Avg Price per sqm England], Window)",
+              ")"
+            ]
+          },
+          {
+            "name": "Risk-Adjusted Opportunity Score England",
+            "expression": [
+              "",
+              "DIVIDE(",
+              "    [Capital Growth % England] * [Turnover Velocity England],",
+              "    [Price Volatility 6M England]",
+              ")"
+            ]
+          },
+          {
+            "name": "Investor Score England",
+            "expression": " 0.80 * [Risk-Adjusted Opportunity Score England] + 0.20 * DIVIDE([Avg Ticket Size England], 5000000)"
+          },
+          {
+            "name": "Avg Capital Growth % England",
+            "expression": [
+              " ",
+              "-- Note: Requires a 'YearMonth' column in dim_date",
+              "AVERAGEX(VALUES(dim_date[YearMonth]), [Capital Growth % England])"
+            ]
+          },
+          {
+            "name": "Median Turnover Velocity England",
+            "expression": " MEDIANX(VALUES(dim_area_england[area_name_en]), [Turnover Velocity England])"
+          },
+          {
+            "name": "Avg Price per sqm 6M England",
+            "expression": [
+              "",
+              "AVERAGEX(",
+              "    DATESINPERIOD(dim_date[full_date], MAX(dim_date[full_date]), -6, MONTH),",
+              "    CALCULATE([Avg Price per sqm England])",
+              ")"
+            ]
+          },
+          {
+            "name": "Shock Index England",
+            "expression": [
+              "",
+              "DIVIDE([Avg Price per sqm England] - [Avg Price per sqm 6M England], [Avg Price per sqm 6M England])"
+            ]
+          },
+          {
+            "name": "Outlier Transaction Ratio England",
+            "expression": [
+              "",
+              "VAR mu = [Avg Price per sqm England]",
+              "VAR sigma =",
+              "    CALCULATE(",
+              "        STDEVX.S(",
+              "            fact_transactions_england,",
+              "            -- Update this column reference if you calculate price per meter dynamically",
+              "            fact_transactions_england[meter_sale_price] ",
+              "        )",
+              "    )",
+              "VAR threshold = mu + 2 * sigma",
+              "VAR outliers =",
+              "    CALCULATE(",
+              "        [Transaction Count England],",
+              "        FILTER(",
+              "            fact_transactions_england,",
+              "            fact_transactions_england[meter_sale_price] > threshold",
+              "        )",
+              "    )",
+              "RETURN",
+              "    DIVIDE(outliers, [Transaction Count England])"
+            ]
+          },
+          {
+            "name": "Outlier Transaction Ratio % England",
+            "expression": [
+              "",
+              "VAR mu = [Avg Price per sqm England]",
+              "VAR sigma =",
+              "    CALCULATE(",
+              "        STDEVX.S(",
+              "            fact_transactions_england,",
+              "            fact_transactions_england[meter_sale_price]",
+              "        )",
+              "    )",
+              "VAR threshold = mu + 2 * sigma",
+              "VAR outliers =",
+              "    CALCULATE(",
+              "        [Transaction Count England],",
+              "        FILTER(",
+              "            fact_transactions_england,",
+              "            fact_transactions_england[meter_sale_price] > threshold",
+              "        )",
+              "    )",
+              "RETURN",
+              "    FORMAT(DIVIDE(outliers, [Transaction Count England]), \"0.00%\")"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "dim_date",
+        "columns": [
+          {
+            "name": "date_id",
+            "dataType": "int64",
+            "sourceColumn": "date_id"
+          },
+          {
+            "name": "full_date",
+            "dataType": "dateTime",
+            "sourceColumn": "full_date"
+          },
+          {
+            "name": "day",
+            "dataType": "int64",
+            "sourceColumn": "day"
+          },
+          {
+            "name": "month",
+            "dataType": "int64",
+            "sourceColumn": "month"
+          },
+          {
+            "name": "month_name",
+            "dataType": "string",
+            "sourceColumn": "month_name"
+          },
+          {
+            "name": "quarter",
+            "dataType": "int64",
+            "sourceColumn": "quarter"
+          },
+          {
+            "name": "year",
+            "dataType": "int64",
+            "sourceColumn": "year"
+          },
+          {
+            "name": "YearMonth",
+            "dataType": "int64",
+            "sourceColumn": "YearMonth"
+          },
+          {
+            "name": "YearMonthLabel",
+            "dataType": "string",
+            "sourceColumn": "YearMonthLabel"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"SQL/smartmove-sql-server database windows net;smartmove-global\",",
+                "    dbo_dim_date = Source{[Schema=\"dbo\",Item=\"dim_date\"]}[Data]",
+                "in",
+                "    dbo_dim_date"
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "relationships": [
+      {
+        "name": "88de0f2f-706b-4119-887e-7216dda697d1",
+        "fromTable": "fact_transactions_dubai",
+        "fromColumn": "date_id",
+        "toTable": "dim_date_dubai",
+        "toColumn": "date_id"
+      },
+      {
+        "name": "14cd0844-baa0-4dc6-9a80-e7f5052ff597",
+        "toCardinality": "many",
+        "fromTable": "fact_transactions_dubai",
+        "fromColumn": "property_type_id",
+        "toTable": "dim_property_dubai",
+        "toColumn": "property_type_id",
+        "crossFilteringBehavior": "bothDirections"
+      },
+      {
+        "name": "f679ace0-e21e-4389-9049-fd382e79a3e7",
+        "fromTable": "fact_transactions_dubai",
+        "fromColumn": "area_id",
+        "toTable": "dim_area_dubai",
+        "toColumn": "area_id"
+      },
+      {
+        "name": "5bb93f1f-5989-4e7a-9c0e-c7b71102b9d8",
+        "toCardinality": "many",
+        "fromTable": "fact_transactions_dubai",
+        "fromColumn": "procedure_id",
+        "toTable": "dim_procedure_dubai",
+        "toColumn": "procedure_id",
+        "crossFilteringBehavior": "bothDirections"
+      },
+      {
+        "name": "2cb3610e-c727-410a-bc53-25b87ef16bd0",
+        "fromTable": "fact_transactions_dubai",
+        "fromColumn": "reg_type_id",
+        "toTable": "dim_registration_dubai",
+        "toColumn": "reg_type_id"
+      },
+      {
+        "name": "d3f10915-29f7-4761-9bfe-6c06454135c1",
+        "fromTable": "fact_transactions_egypt",
+        "fromColumn": "property_type_id",
+        "toTable": "dim_property_egypt",
+        "toColumn": "property_type_id"
+      },
+      {
+        "name": "ee63f7f5-e85c-4cfa-9c5d-9bf5a5c39792",
+        "fromTable": "fact_transactions_egypt",
+        "fromColumn": "date_id",
+        "toTable": "dim_date_egypt",
+        "toColumn": "date_id"
+      },
+      {
+        "name": "139b3790-0373-4bde-b50a-46d1dd2f7ce6",
+        "fromTable": "fact_transactions_egypt",
+        "fromColumn": "area_id",
+        "toTable": "dim_area_egypt",
+        "toColumn": "area_id"
+      },
+      {
+        "name": "e2d858c2-6f02-4552-8499-55eb20cdf896",
+        "fromTable": "fact_transactions_egypt",
+        "fromColumn": "procedure_id",
+        "toTable": "dim_procedure_egypt",
+        "toColumn": "procedure_id"
+      },
+      {
+        "name": "11eb8b98-aa9a-4a87-b79a-a0e391d0f5c5",
+        "fromTable": "fact_transactions_egypt",
+        "fromColumn": "reg_type_id",
+        "toTable": "dim_registration_egypt",
+        "toColumn": "reg_type_id"
+      },
+      {
+        "name": "abefe9b2-0ae3-4ab6-9dbd-92002fe6f70d",
+        "fromTable": "fact_transactions_england",
+        "fromColumn": "date_id",
+        "toTable": "dim_date",
+        "toColumn": "date_id"
+      },
+      {
+        "name": "39be36cd-e416-4c8d-974b-0d3e1c8b9643",
+        "toCardinality": "many",
+        "fromTable": "fact_transactions_england",
+        "fromColumn": "property_type_id",
+        "toTable": "dim_property_england",
+        "toColumn": "property_type_id",
+        "crossFilteringBehavior": "bothDirections"
+      },
+      {
+        "name": "f19c2ec9-0fbe-46ac-b385-505e8e58483e",
+        "toCardinality": "many",
+        "fromTable": "fact_transactions_england",
+        "fromColumn": "area_id",
+        "toTable": "dim_area_england",
+        "toColumn": "area_id",
+        "crossFilteringBehavior": "bothDirections"
+      },
+      {
+        "name": "de9b715c-2413-4d2f-b80e-5b2cda3899f6",
+        "fromTable": "fact_transactions_england",
+        "fromColumn": "procedure_id",
+        "toTable": "dim_procedure_england",
+        "toColumn": "procedure_id"
+      },
+      {
+        "name": "6d50200b-ae44-45e5-ade9-2305698152f9",
+        "toCardinality": "many",
+        "fromTable": "fact_transactions_england",
+        "fromColumn": "reg_type_id",
+        "toTable": "dim_registration_england",
+        "toColumn": "reg_type_id",
+        "crossFilteringBehavior": "bothDirections"
+      }
+    ],
+    "perspectives": [
+      {
+        "name": "Dubai",
+        "tables": [
+          {
+            "name": "dim_area_dubai",
+            "columns": [
+              {
+                "name": "area_id"
+              },
+              {
+                "name": "area_name_en"
+              }
+            ]
+          },
+          {
+            "name": "dim_date_dubai",
+            "columns": [
+              {
+                "name": "date_id"
+              },
+              {
+                "name": "full_date"
+              },
+              {
+                "name": "day"
+              },
+              {
+                "name": "month"
+              },
+              {
+                "name": "month_name"
+              },
+              {
+                "name": "quarter"
+              },
+              {
+                "name": "year"
+              },
+              {
+                "name": "YearMonth"
+              },
+              {
+                "name": "YearMonthLabel"
+              }
+            ]
+          },
+          {
+            "name": "dim_procedure_dubai",
+            "columns": [
+              {
+                "name": "procedure_id"
+              },
+              {
+                "name": "procedure_name_en"
+              },
+              {
+                "name": "trans_group_id"
+              },
+              {
+                "name": "trans_group_en"
+              }
+            ]
+          },
+          {
+            "name": "dim_property_dubai",
+            "columns": [
+              {
+                "name": "property_type_id"
+              },
+              {
+                "name": "property_type_en"
+              },
+              {
+                "name": "property_usage_en"
+              },
+              {
+                "name": "has_parking"
+              }
+            ]
+          },
+          {
+            "name": "dim_registration_dubai",
+            "columns": [
+              {
+                "name": "reg_type_id"
+              },
+              {
+                "name": "reg_type_en"
+              }
+            ]
+          },
+          {
+            "name": "fact_transactions_dubai",
+            "columns": [
+              {
+                "name": "transaction_id"
+              },
+              {
+                "name": "date_id"
+              },
+              {
+                "name": "property_type_id"
+              },
+              {
+                "name": "area_id"
+              },
+              {
+                "name": "procedure_id"
+              },
+              {
+                "name": "reg_type_id"
+              },
+              {
+                "name": "procedure_area"
+              },
+              {
+                "name": "actual_worth"
+              },
+              {
+                "name": "meter_sale_price"
+              },
+              {
+                "name": "no_of_parties_role_1"
+              },
+              {
+                "name": "no_of_parties_role_2"
+              }
+            ],
+            "measures": [
+              {
+                "name": "YoY Price Growth %"
+              },
+              {
+                "name": "Transaction Count"
+              },
+              {
+                "name": "Total Sales Value"
+              },
+              {
+                "name": "Avg Ticket Size"
+              },
+              {
+                "name": "Avg Price per sqm"
+              },
+              {
+                "name": "Avg Procedure Area"
+              },
+              {
+                "name": "Total Sales by Area"
+              },
+              {
+                "name": "Active Areas"
+              },
+              {
+                "name": "YoY Sales Growth %"
+              },
+              {
+                "name": "Sales per Month"
+              },
+              {
+                "name": "New Transaction Count"
+              },
+              {
+                "name": "New Property Ratio"
+              },
+              {
+                "name": "Sales per Year"
+              },
+              {
+                "name": "Property Types"
+              },
+              {
+                "name": "Investment Score"
+              },
+              {
+                "name": "MoM Price Momentum %"
+              },
+              {
+                "name": "Liquidity (Sales/Month)"
+              },
+              {
+                "name": "Tx Count 6M Avg"
+              },
+              {
+                "name": "Volume Spike %"
+              },
+              {
+                "name": "Heat Index (Dubai)"
+              },
+              {
+                "name": "Risk Score"
+              },
+              {
+                "name": "Show In Chart"
+              },
+              {
+                "name": "Top 5 Combined Risk"
+              },
+              {
+                "name": "Top 5 Highest Risk Score (Dubai)"
+              },
+              {
+                "name": "Top 5 Lowest Risk Score (Dubai)"
+              },
+              {
+                "name": "Top N Areas Filter"
+              },
+              {
+                "name": "Turnover Velocity"
+              },
+              {
+                "name": "Capital Growth %"
+              },
+              {
+                "name": "Monthly Avg Price per sqm"
+              },
+              {
+                "name": "Price Volatility 6M"
+              },
+              {
+                "name": "Risk-Adjusted Opportunity Score"
+              },
+              {
+                "name": "Investor Score (Dubai)"
+              },
+              {
+                "name": "Avg Capital Growth %"
+              },
+              {
+                "name": "Median Turnover Velocity"
+              },
+              {
+                "name": "Avg Price per sqm 6M"
+              },
+              {
+                "name": "Shock Index"
+              },
+              {
+                "name": "Outlier Transaction Ratio"
+              },
+              {
+                "name": "Risk Score (Dubai)"
+              },
+              {
+                "name": "Outlier Transaction Ratio %"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Egypt",
+        "tables": [
+          {
+            "name": "dim_area_egypt",
+            "columns": [
+              {
+                "name": "area_id"
+              },
+              {
+                "name": "area_name_en"
+              }
+            ]
+          },
+          {
+            "name": "dim_date_egypt",
+            "columns": [
+              {
+                "name": "date_id"
+              },
+              {
+                "name": "day"
+              },
+              {
+                "name": "full_date"
+              },
+              {
+                "name": "month"
+              },
+              {
+                "name": "month_name"
+              },
+              {
+                "name": "quarter"
+              },
+              {
+                "name": "year"
+              },
+              {
+                "name": "YearMonth"
+              },
+              {
+                "name": "YearMonthLabel"
+              }
+            ]
+          },
+          {
+            "name": "dim_procedure_egypt",
+            "columns": [
+              {
+                "name": "procedure_id"
+              },
+              {
+                "name": "procedure_name_en"
+              },
+              {
+                "name": "trans_group_en"
+              },
+              {
+                "name": "trans_group_id"
+              }
+            ]
+          },
+          {
+            "name": "dim_property_egypt",
+            "columns": [
+              {
+                "name": "has_parking"
+              },
+              {
+                "name": "property_type_en"
+              },
+              {
+                "name": "property_type_id"
+              },
+              {
+                "name": "property_usage_en"
+              }
+            ]
+          },
+          {
+            "name": "dim_registration_egypt",
+            "columns": [
+              {
+                "name": "reg_type_en"
+              },
+              {
+                "name": "reg_type_id"
+              }
+            ]
+          },
+          {
+            "name": "fact_transactions_egypt",
+            "columns": [
+              {
+                "name": "transaction_id"
+              },
+              {
+                "name": "date_id"
+              },
+              {
+                "name": "property_type_id"
+              },
+              {
+                "name": "area_id"
+              },
+              {
+                "name": "procedure_id"
+              },
+              {
+                "name": "reg_type_id"
+              },
+              {
+                "name": "procedure_area"
+              },
+              {
+                "name": "actual_worth"
+              },
+              {
+                "name": "no_of_parties_role_1"
+              },
+              {
+                "name": "no_of_parties_role_2"
+              }
+            ],
+            "measures": [
+              {
+                "name": "YoY Price Growth % Egypt"
+              },
+              {
+                "name": "Transaction Count Egypt"
+              },
+              {
+                "name": "Total Sales Value Egypt"
+              },
+              {
+                "name": "Avg Ticket Size Egypt"
+              },
+              {
+                "name": "Avg Price per sqm Egypt"
+              },
+              {
+                "name": "Avg Procedure Area Egypt"
+              },
+              {
+                "name": "Total Sales by Area Egypt"
+              },
+              {
+                "name": "Active Areas Egypt"
+              },
+              {
+                "name": "YoY Sales Growth % Egypt"
+              },
+              {
+                "name": "Sales per Month Egypt"
+              },
+              {
+                "name": "New Transaction Count Egypt"
+              },
+              {
+                "name": "New Property Ratio Egypt"
+              },
+              {
+                "name": "Sales per Year Egypt"
+              },
+              {
+                "name": "Property Types Egypt"
+              },
+              {
+                "name": "Investment Score Egypt"
+              },
+              {
+                "name": "MoM Price Momentum % Egypt"
+              },
+              {
+                "name": "Liquidity (Sales/Month) Egypt"
+              },
+              {
+                "name": "Tx Count 6M Avg Egypt"
+              },
+              {
+                "name": "Volume Spike % Egypt"
+              },
+              {
+                "name": "Heat Index Egypt"
+              },
+              {
+                "name": "Risk Score Egypt"
+              },
+              {
+                "name": "Show In Chart Egypt"
+              },
+              {
+                "name": "Top 5 Combined Risk Egypt"
+              },
+              {
+                "name": "Top 5 Highest Risk Score Egypt"
+              },
+              {
+                "name": "Top 5 Lowest Risk Score Egypt"
+              },
+              {
+                "name": "Top N Areas Filter Egypt"
+              },
+              {
+                "name": "Turnover Velocity Egypt"
+              },
+              {
+                "name": "Capital Growth % Egypt"
+              },
+              {
+                "name": "Monthly Avg Price per sqm Egypt"
+              },
+              {
+                "name": "Price Volatility 6M Egypt"
+              },
+              {
+                "name": "Risk-Adjusted Opportunity Score Egypt"
+              },
+              {
+                "name": "Investor Score Egypt"
+              },
+              {
+                "name": "Avg Capital Growth % Egypt"
+              },
+              {
+                "name": "Median Turnover Velocity Egypt"
+              },
+              {
+                "name": "Avg Price per sqm 6M Egypt"
+              },
+              {
+                "name": "Shock Index Egypt"
+              },
+              {
+                "name": "Outlier Transaction Ratio % Egypt"
+              }
+            ]
+          },
+          {
+            "name": "dim_area_england",
+            "columns": [
+              {
+                "name": "area_id"
+              },
+              {
+                "name": "area_name_en"
+              }
+            ]
+          },
+          {
+            "name": "dim_date_predicted_england",
+            "columns": [
+              {
+                "name": "date_id"
+              },
+              {
+                "name": "date"
+              },
+              {
+                "name": "year"
+              },
+              {
+                "name": "month_number"
+              },
+              {
+                "name": "month_name"
+              },
+              {
+                "name": "day_of_month"
+              },
+              {
+                "name": "quarter"
+              }
+            ]
+          },
+          {
+            "name": "dim_procedure_england",
+            "columns": [
+              {
+                "name": "procedure_id"
+              },
+              {
+                "name": "procedure_name_en"
+              },
+              {
+                "name": "trans_group_id"
+              },
+              {
+                "name": "trans_group_en"
+              }
+            ]
+          },
+          {
+            "name": "dim_property_england",
+            "columns": [
+              {
+                "name": "property_type_id"
+              },
+              {
+                "name": "property_type_en"
+              },
+              {
+                "name": "property_usage_en"
+              },
+              {
+                "name": "has_parking"
+              }
+            ]
+          },
+          {
+            "name": "dim_registration_england",
+            "columns": [
+              {
+                "name": "reg_type_id"
+              },
+              {
+                "name": "reg_type_en"
+              }
+            ]
+          },
+          {
+            "name": "fact_predictions_england",
+            "columns": [
+              {
+                "name": "prediction_id"
+              },
+              {
+                "name": "target_date_id"
+              },
+              {
+                "name": "ds"
+              },
+              {
+                "name": "price_yhat"
+              },
+              {
+                "name": "price_lower"
+              },
+              {
+                "name": "price_upper"
+              },
+              {
+                "name": "rent_yhat"
+              },
+              {
+                "name": "rent_lower"
+              },
+              {
+                "name": "rent_upper"
+              },
+              {
+                "name": "projected_roi_pct"
+              },
+              {
+                "name": "is_latest_forecast"
+              },
+              {
+                "name": "generated_at"
+              }
+            ]
+          },
+          {
+            "name": "fact_transactions_england",
+            "columns": [
+              {
+                "name": "transaction_id"
+              },
+              {
+                "name": "date_id"
+              },
+              {
+                "name": "property_type_id"
+              },
+              {
+                "name": "area_id"
+              },
+              {
+                "name": "procedure_id"
+              },
+              {
+                "name": "reg_type_id"
+              },
+              {
+                "name": "procedure_area"
+              },
+              {
+                "name": "actual_worth"
+              },
+              {
+                "name": "no_of_parties_role_1"
+              },
+              {
+                "name": "no_of_parties_role_2"
+              }
+            ]
+          },
+          {
+            "name": "dim_date",
+            "columns": [
+              {
+                "name": "date_id"
+              },
+              {
+                "name": "full_date"
+              },
+              {
+                "name": "day"
+              },
+              {
+                "name": "month"
+              },
+              {
+                "name": "month_name"
+              },
+              {
+                "name": "quarter"
+              },
+              {
+                "name": "year"
+              },
+              {
+                "name": "YearMonth"
+              },
+              {
+                "name": "YearMonthLabel"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Dubai Predicted",
+        "tables": [
+          {
+            "name": "dim_area_dubai",
+            "columns": [
+              {
+                "name": "area_id"
+              },
+              {
+                "name": "area_name_en"
+              }
+            ]
+          },
+          {
+            "name": "dim_date_predicted_dubai",
+            "columns": [
+              {
+                "name": "date"
+              },
+              {
+                "name": "date_id"
+              },
+              {
+                "name": "day_of_month"
+              },
+              {
+                "name": "month_name"
+              },
+              {
+                "name": "month_number"
+              },
+              {
+                "name": "quarter"
+              },
+              {
+                "name": "year"
+              }
+            ]
+          },
+          {
+            "name": "dim_procedure_dubai",
+            "columns": [
+              {
+                "name": "procedure_id"
+              },
+              {
+                "name": "procedure_name_en"
+              },
+              {
+                "name": "trans_group_en"
+              },
+              {
+                "name": "trans_group_id"
+              }
+            ]
+          },
+          {
+            "name": "dim_property_dubai",
+            "columns": [
+              {
+                "name": "has_parking"
+              },
+              {
+                "name": "property_type_en"
+              },
+              {
+                "name": "property_type_id"
+              },
+              {
+                "name": "property_usage_en"
+              }
+            ]
+          },
+          {
+            "name": "dim_registration_dubai",
+            "columns": [
+              {
+                "name": "reg_type_en"
+              },
+              {
+                "name": "reg_type_id"
+              }
+            ]
+          },
+          {
+            "name": "fact_predictions_dubai",
+            "columns": [
+              {
+                "name": "ds"
+              },
+              {
+                "name": "generated_at"
+              },
+              {
+                "name": "is_latest_forecast"
+              },
+              {
+                "name": "prediction_id"
+              },
+              {
+                "name": "price_lower"
+              },
+              {
+                "name": "price_upper"
+              },
+              {
+                "name": "price_yhat"
+              },
+              {
+                "name": "projected_roi_pct"
+              },
+              {
+                "name": "rent_lower"
+              },
+              {
+                "name": "rent_upper"
+              },
+              {
+                "name": "rent_yhat"
+              },
+              {
+                "name": "target_date_id"
+              }
+            ]
+          },
+          {
+            "name": "dim_area_england",
+            "columns": [
+              {
+                "name": "area_id"
+              },
+              {
+                "name": "area_name_en"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Egypt Predicted",
+        "tables": [
+          {
+            "name": "dim_area_egypt",
+            "columns": [
+              {
+                "name": "area_id"
+              },
+              {
+                "name": "area_name_en"
+              }
+            ]
+          },
+          {
+            "name": "dim_date_predicted_egypt",
+            "columns": [
+              {
+                "name": "date"
+              },
+              {
+                "name": "date_id"
+              },
+              {
+                "name": "day_of_month"
+              },
+              {
+                "name": "month_name"
+              },
+              {
+                "name": "month_number"
+              },
+              {
+                "name": "quarter"
+              },
+              {
+                "name": "year"
+              }
+            ]
+          },
+          {
+            "name": "dim_procedure_egypt",
+            "columns": [
+              {
+                "name": "procedure_id"
+              },
+              {
+                "name": "procedure_name_en"
+              },
+              {
+                "name": "trans_group_en"
+              },
+              {
+                "name": "trans_group_id"
+              }
+            ]
+          },
+          {
+            "name": "dim_property_egypt",
+            "columns": [
+              {
+                "name": "has_parking"
+              },
+              {
+                "name": "property_type_en"
+              },
+              {
+                "name": "property_type_id"
+              },
+              {
+                "name": "property_usage_en"
+              }
+            ]
+          },
+          {
+            "name": "dim_registration_egypt",
+            "columns": [
+              {
+                "name": "reg_type_en"
+              },
+              {
+                "name": "reg_type_id"
+              }
+            ]
+          },
+          {
+            "name": "fact_predictions_egypt",
+            "columns": [
+              {
+                "name": "ds"
+              },
+              {
+                "name": "generated_at"
+              },
+              {
+                "name": "is_latest_forecast"
+              },
+              {
+                "name": "prediction_id"
+              },
+              {
+                "name": "price_lower"
+              },
+              {
+                "name": "price_upper"
+              },
+              {
+                "name": "price_yhat"
+              },
+              {
+                "name": "projected_roi_pct"
+              },
+              {
+                "name": "rent_lower"
+              },
+              {
+                "name": "rent_upper"
+              },
+              {
+                "name": "rent_yhat"
+              },
+              {
+                "name": "target_date_id"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "England",
+        "tables": [
+          {
+            "name": "dim_area_england",
+            "columns": [
+              {
+                "name": "area_id"
+              },
+              {
+                "name": "area_name_en"
+              }
+            ]
+          },
+          {
+            "name": "dim_date",
+            "columns": [
+              {
+                "name": "date_id"
+              },
+              {
+                "name": "day"
+              },
+              {
+                "name": "full_date"
+              },
+              {
+                "name": "month"
+              },
+              {
+                "name": "month_name"
+              },
+              {
+                "name": "quarter"
+              },
+              {
+                "name": "year"
+              },
+              {
+                "name": "YearMonth"
+              },
+              {
+                "name": "YearMonthLabel"
+              }
+            ]
+          },
+          {
+            "name": "dim_procedure_england",
+            "columns": [
+              {
+                "name": "procedure_id"
+              },
+              {
+                "name": "procedure_name_en"
+              },
+              {
+                "name": "trans_group_en"
+              },
+              {
+                "name": "trans_group_id"
+              }
+            ]
+          },
+          {
+            "name": "dim_property_england",
+            "columns": [
+              {
+                "name": "has_parking"
+              },
+              {
+                "name": "property_type_en"
+              },
+              {
+                "name": "property_type_id"
+              },
+              {
+                "name": "property_usage_en"
+              }
+            ]
+          },
+          {
+            "name": "dim_registration_england",
+            "columns": [
+              {
+                "name": "reg_type_en"
+              },
+              {
+                "name": "reg_type_id"
+              }
+            ]
+          },
+          {
+            "name": "fact_transactions_england",
+            "columns": [
+              {
+                "name": "actual_worth"
+              },
+              {
+                "name": "area_id"
+              },
+              {
+                "name": "date_id"
+              },
+              {
+                "name": "no_of_parties_role_1"
+              },
+              {
+                "name": "no_of_parties_role_2"
+              },
+              {
+                "name": "procedure_area"
+              },
+              {
+                "name": "procedure_id"
+              },
+              {
+                "name": "property_type_id"
+              },
+              {
+                "name": "reg_type_id"
+              },
+              {
+                "name": "transaction_id"
+              }
+            ],
+            "measures": [
+              {
+                "name": "YoY Price Growth % England"
+              },
+              {
+                "name": "Transaction Count England"
+              },
+              {
+                "name": "Total Sales Value England"
+              },
+              {
+                "name": "Avg Ticket Size England"
+              },
+              {
+                "name": "Avg Price per sqm England"
+              },
+              {
+                "name": "Avg Procedure Area England"
+              },
+              {
+                "name": "Total Sales by Area England"
+              },
+              {
+                "name": "Active Areas England"
+              },
+              {
+                "name": "YoY Sales Growth % England"
+              },
+              {
+                "name": "Sales per Month England"
+              },
+              {
+                "name": "New Transaction Count England"
+              },
+              {
+                "name": "New Property Ratio England"
+              },
+              {
+                "name": "Sales per Year England"
+              },
+              {
+                "name": "Property Types England"
+              },
+              {
+                "name": "Investment Score England"
+              },
+              {
+                "name": "MoM Price Momentum % England"
+              },
+              {
+                "name": "Liquidity (Sales/Month) England"
+              },
+              {
+                "name": "Tx Count 6M Avg England"
+              },
+              {
+                "name": "Volume Spike % England"
+              },
+              {
+                "name": "Heat Index England"
+              },
+              {
+                "name": "Risk Score England"
+              },
+              {
+                "name": "Show In Chart England"
+              },
+              {
+                "name": "Top 5 Combined Risk England"
+              },
+              {
+                "name": "Top 5 Highest Risk Score England"
+              },
+              {
+                "name": "Top 5 Lowest Risk Score England"
+              },
+              {
+                "name": "Top N Areas Filter England"
+              },
+              {
+                "name": "Turnover Velocity England"
+              },
+              {
+                "name": "Capital Growth % England"
+              },
+              {
+                "name": "Monthly Avg Price per sqm England"
+              },
+              {
+                "name": "Price Volatility 6M England"
+              },
+              {
+                "name": "Risk-Adjusted Opportunity Score England"
+              },
+              {
+                "name": "Investor Score England"
+              },
+              {
+                "name": "Avg Capital Growth % England"
+              },
+              {
+                "name": "Median Turnover Velocity England"
+              },
+              {
+                "name": "Avg Price per sqm 6M England"
+              },
+              {
+                "name": "Shock Index England"
+              },
+              {
+                "name": "Outlier Transaction Ratio England"
+              },
+              {
+                "name": "Outlier Transaction Ratio % England"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "England Predicted",
+        "tables": [
+          {
+            "name": "dim_area_england",
+            "columns": [
+              {
+                "name": "area_id"
+              },
+              {
+                "name": "area_name_en"
+              }
+            ]
+          },
+          {
+            "name": "dim_date_predicted_england",
+            "columns": [
+              {
+                "name": "date"
+              },
+              {
+                "name": "date_id"
+              },
+              {
+                "name": "day_of_month"
+              },
+              {
+                "name": "month_name"
+              },
+              {
+                "name": "month_number"
+              },
+              {
+                "name": "quarter"
+              },
+              {
+                "name": "year"
+              }
+            ]
+          },
+          {
+            "name": "dim_procedure_england",
+            "columns": [
+              {
+                "name": "procedure_id"
+              },
+              {
+                "name": "procedure_name_en"
+              },
+              {
+                "name": "trans_group_en"
+              },
+              {
+                "name": "trans_group_id"
+              }
+            ]
+          },
+          {
+            "name": "dim_property_england",
+            "columns": [
+              {
+                "name": "has_parking"
+              },
+              {
+                "name": "property_type_en"
+              },
+              {
+                "name": "property_type_id"
+              },
+              {
+                "name": "property_usage_en"
+              }
+            ]
+          },
+          {
+            "name": "dim_registration_england",
+            "columns": [
+              {
+                "name": "reg_type_en"
+              },
+              {
+                "name": "reg_type_id"
+              }
+            ]
+          },
+          {
+            "name": "fact_predictions_england",
+            "columns": [
+              {
+                "name": "ds"
+              },
+              {
+                "name": "generated_at"
+              },
+              {
+                "name": "is_latest_forecast"
+              },
+              {
+                "name": "prediction_id"
+              },
+              {
+                "name": "price_lower"
+              },
+              {
+                "name": "price_upper"
+              },
+              {
+                "name": "price_yhat"
+              },
+              {
+                "name": "projected_roi_pct"
+              },
+              {
+                "name": "rent_lower"
+              },
+              {
+                "name": "rent_upper"
+              },
+              {
+                "name": "rent_yhat"
+              },
+              {
+                "name": "target_date_id"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "name": "ClientCompatibilityLevel",
+        "value": "700"
+      },
+      {
+        "name": "__TEdtr",
+        "value": "1"
+      }
+    ]
+  }
+}

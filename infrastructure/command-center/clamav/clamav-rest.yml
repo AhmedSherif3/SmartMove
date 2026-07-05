@@ -1,0 +1,24 @@
+# ────────────────────────────────────────────────────────────
+# ClamAV — Antivirus REST API for Airflow & Data Pipelines
+# ────────────────────────────────────────────────────────────
+clamav-rest:
+  image: lokori/clamav-rest:latest
+  container_name: clamav_api
+  ports:
+    - "9000:9000"
+  volumes:
+    # Injecting the enterprise configurations
+    - ./clamav/clamd.conf:/etc/clamav/clamd.conf:ro
+    - ./clamav/freshclam.conf:/etc/clamav/freshclam.conf:ro
+  deploy:
+    resources:
+      limits:
+        # Failsafe: ClamAV can NEVER use more than 2 CPUs or 2GB RAM
+        cpus: "2.0"
+        memory: 2048M
+      reservations:
+        cpus: "0.5"
+        memory: 512M
+  networks:
+    - soc-net
+  restart: unless-stopped

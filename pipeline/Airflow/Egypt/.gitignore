@@ -1,0 +1,29 @@
+# .gitignore for the Dubai Airflow project
+
+# Secrets – NEVER commit
+.env
+
+# Runtime data
+data/
+
+# Airflow generated files
+logs/
+plugins/
+airflow.db
+airflow-webserver.pid
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# OS
+.DS_Store
+Thumbs.db

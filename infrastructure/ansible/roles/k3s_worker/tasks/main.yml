@@ -1,0 +1,11 @@
+# 1. Install K3s Agent and attach it to Server 1
+- block:
+    - name: Install K3s Worker and join Master cluster
+      shell: curl -sfL https://get.k3s.io | K3S_URL="https://{{ hostvars['server1_app']['ansible_host'] }}:6443" K3S_TOKEN="{{ hostvars['server1_app']['k3s_node_token'] }}" INSTALL_K3S_EXEC="agent --node-ip {{ ansible_host }} --flannel-iface tailscale0" INSTALL_K3S_VERSION="v1.29.3+k3s1" sh -
+  rescue:
+    - name: Fetch K3s agent logs on failure
+      shell: journalctl -xeu k3s-agent.service -n 100
+      register: k3s_logs
+    - name: Print K3s agent logs
+      fail:
+        msg: "K3s Agent failed to start. Logs: {{ k3s_logs.stdout }}"

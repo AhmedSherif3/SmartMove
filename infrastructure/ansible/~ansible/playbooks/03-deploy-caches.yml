@@ -1,0 +1,7 @@
+---
+- name: Phase 3 - Deploy Observability Memory Caches
+  hosts: cache_nodes
+  become: true
+  gather_facts: true
+  roles:
+    - cache_node

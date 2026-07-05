@@ -1,0 +1,9 @@
+---
+# SmartMove Master Infrastructure Playbook
+# Execution Order: Network -> Utilities -> Caches -> Command Center -> Kubernetes
+
+- import_playbook: playbooks/01-bootstrap-network.yml
+- import_playbook: playbooks/02-deploy-utilities.yml
+- import_playbook: playbooks/03-deploy-caches.yml
+- import_playbook: playbooks/04-deploy-command.yml
+- import_playbook: playbooks/05-deploy-k3s.yml

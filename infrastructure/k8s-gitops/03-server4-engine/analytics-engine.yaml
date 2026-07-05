@@ -1,0 +1,88 @@
+# Django Engine pods for processing uploads
+# ==============================================================================
+# SmartMove — Analytics Pro Engine
+# Target: Strictly Server 4 (Analytics Engine Node)
+# ==============================================================================
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: analytics-engine
+  namespace: smartmove-engine
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: analytics-engine
+  template:
+    metadata:
+      labels:
+        app: analytics-engine
+    spec:
+      # ── STRICT NODE PINNING ──
+      nodeSelector:
+        node-role: "engine"
+
+      containers:
+        - name: engine
+          image: smartmoveacr.azurecr.io/smartmove-backend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          env:
+            # Connect to Server 2 for User Subscriptions (1GB vs 5GB checks)
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: smartmove-config
+                  key: DB_HOST
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: smartmove-config
+                  key: DB_PORT
+
+            # Connect to Server 3 for ClamAV Security Scans BEFORE saving
+            - name: CLAMAV_REST_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: smartmove-config
+                  key: CLAMAV_REST_URL
+
+            # Connect to the local MinIO pod for Final Storage
+            - name: MINIO_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: smartmove-config
+                  key: MINIO_ENDPOINT
+            - name: MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secrets
+                  key: MINIO_ROOT_USER
+            - name: MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secrets
+                  key: MINIO_ROOT_PASSWORD
+          resources:
+            requests:
+              cpu: "1"
+              memory: 2Gi
+            limits:
+              cpu: "2"
+              memory: 4Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: analytics-engine-service
+  namespace: smartmove-engine
+spec:
+  type: ClusterIP
+  selector:
+    app: analytics-engine
+  ports:
+    - port: 8000
+      targetPort: 8000
+      protocol: TCP

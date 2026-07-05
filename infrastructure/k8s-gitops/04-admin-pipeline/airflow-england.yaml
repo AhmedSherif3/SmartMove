@@ -1,0 +1,122 @@
+# ==============================================================================
+# SmartMove — Airflow (England Region)
+# ==============================================================================
+
+# ── Scheduler Deployment ──
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airflow-scheduler-england
+  namespace: smartmove-admin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: airflow-scheduler-england
+  template:
+    metadata:
+      labels:
+        app: airflow-scheduler-england
+    spec:
+      imagePullSecrets:
+        - name: acr-secret
+      containers:
+        - name: scheduler
+          image: smartmoveacr.azurecr.io/airflow-england:latest
+          command: ["airflow", "scheduler"]
+          env:
+            - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-secrets-england
+                  key: AIRFLOW_DB_CONN
+            - name: AIRFLOW__CORE__EXECUTOR
+              value: "LocalExecutor"
+            - name: AIRFLOW__CORE__LOAD_EXAMPLES
+              value: "False"
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: "1"
+              memory: 2Gi
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: tier
+                    operator: NotIn
+                    values:
+                      - overflow
+
+---
+# ── Webserver Deployment ──
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airflow-webserver-england
+  namespace: smartmove-admin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: airflow-webserver-england
+  template:
+    metadata:
+      labels:
+        app: airflow-webserver-england
+    spec:
+      imagePullSecrets:
+        - name: acr-secret
+      containers:
+        - name: webserver
+          image: smartmoveacr.azurecr.io/airflow-england:latest
+          command: ["airflow", "webserver"]
+          ports:
+            - containerPort: 8080
+          env:
+            - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-secrets-england
+                  key: AIRFLOW_DB_CONN
+            - name: AIRFLOW__CORE__EXECUTOR
+              value: "LocalExecutor"
+            - name: AIRFLOW__CORE__LOAD_EXAMPLES
+              value: "False"
+          resources:
+            requests:
+              cpu: 250m
+              memory: 1Gi
+            limits:
+              cpu: 500m
+              memory: 2Gi
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: tier
+                    operator: NotIn
+                    values:
+                      - overflow
+
+---
+# ── Service ──
+apiVersion: v1
+kind: Service
+metadata:
+  name: airflow-webserver-england-service
+  namespace: smartmove-admin
+spec:
+  type: ClusterIP
+  selector:
+    app: airflow-webserver-england
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP

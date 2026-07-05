@@ -1,0 +1,143 @@
+# Scrapes K8s metrics and sends them to Server 3
+# ==============================================================================
+# SmartMove — Grafana Alloy Monitoring Agent
+# Target: All Kubernetes Nodes (Server 1, Server 2, Server 4)
+# Action: Scrapes local logs/metrics and ships them to Server 3 via Tailscale
+# ==============================================================================
+
+# ── 1. Dedicated Namespace ──
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+  labels:
+    app.kubernetes.io/part-of: smartmove-soc
+
+---
+# ── 2. Security Roles (RBAC) ──
+# Grants Alloy the necessary permissions to read logs from other pods
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: alloy-agent
+  namespace: monitoring
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: alloy-agent-role
+rules:
+  - apiGroups: [""]
+    resources: ["nodes", "nodes/proxy", "services", "endpoints", "pods"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: alloy-agent-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: alloy-agent-role
+subjects:
+  - kind: ServiceAccount
+    name: alloy-agent
+    namespace: monitoring
+
+---
+# ── 3. Configuration (The Routing Logic) ──
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alloy-config
+  namespace: monitoring
+data:
+  config.alloy: |
+    // 1. Ship Metrics to Server 3 (Mimir)
+    prometheus.remote_write "mimir" {
+      endpoint {
+        url = "http://100.99.164.119:9009/api/v1/push"
+      }
+    }
+
+    // 2. Ship Logs to Server 3 (Loki)
+    loki.write "loki" {
+      endpoint {
+        url = "http://100.99.164.119:3100/loki/api/v1/push"
+      }
+    }
+
+    // 3. Discover all Kubernetes Pods
+    discovery.kubernetes "pods" {
+      role = "pod"
+    }
+
+    // 4. Scrape Logs from Discovered Pods and Forward to Loki
+    loki.source.kubernetes "pod_logs" {
+      targets    = discovery.kubernetes.pods.targets
+      forward_to = [loki.write.loki.receiver]
+    }
+
+    // 5. Scrape CPU/RAM Metrics from Discovered Pods and Forward to Mimir
+    prometheus.scrape "k8s_metrics" {
+      targets    = discovery.kubernetes.pods.targets
+      forward_to = [prometheus.remote_write.mimir.receiver]
+    }
+
+---
+# ── 4. DaemonSet (The Execution Engine) ──
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: alloy-agent
+  namespace: monitoring
+  labels:
+    app: alloy-agent
+spec:
+  selector:
+    matchLabels:
+      app: alloy-agent
+  template:
+    metadata:
+      labels:
+        app: alloy-agent
+    spec:
+      serviceAccountName: alloy-agent
+      # Ensures the agent runs alongside the host OS network to capture node-level data
+      hostNetwork: true
+      # This toleration allows it to run on the Engine node (Server 4) and Overflow node (Server 2)
+      tolerations:
+        - operator: "Exists"
+      containers:
+        - name: alloy
+          image: grafana/alloy:latest
+          args:
+            - run
+            - /etc/alloy/config.alloy
+            - --storage.path=/var/lib/alloy/data
+            - --server.http.listen-addr=0.0.0.0:12345
+          volumeMounts:
+            - name: config
+              mountPath: /etc/alloy/
+            - name: varlog
+              mountPath: /var/log
+            - name: containerlogs
+              mountPath: /var/lib/docker/containers
+              readOnly: true
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 250m
+              memory: 512Mi
+      volumes:
+        - name: config
+          configMap:
+            name: alloy-config
+        - name: varlog
+          hostPath:
+            path: /var/log
+        - name: containerlogs
+          hostPath:
+            path: /var/lib/docker/containers

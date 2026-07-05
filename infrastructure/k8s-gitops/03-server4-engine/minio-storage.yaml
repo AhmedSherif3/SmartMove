@@ -1,0 +1,93 @@
+# User CSV cloud storage (StatefulSet)
+# ==============================================================================
+# SmartMove — MinIO Object Storage (User Uploads)
+# Target: Strictly Server 4 (Analytics Engine Node)
+# ==============================================================================
+
+# ── Secret: MinIO Credentials ──
+apiVersion: v1
+kind: Secret
+metadata:
+  name: minio-secrets
+  namespace: smartmove-engine
+type: Opaque
+stringData:
+  # In production, replace these with secure keys
+  MINIO_ROOT_USER: "smartmove_admin"
+  MINIO_ROOT_PASSWORD: "SuperSecureMinioPassword2026!"
+
+---
+# ── StatefulSet: MinIO ──
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: minio-storage
+  namespace: smartmove-engine
+spec:
+  serviceName: minio-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minio
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      # ── STRICT NODE PINNING ──
+      nodeSelector:
+        node-role: "engine"
+
+      containers:
+        - name: minio
+          image: minio/minio:latest
+          command:
+            - /bin/sh
+            - -c
+            - minio server /data --console-address ":9001"
+          envFrom:
+            - secretRef:
+                name: minio-secrets
+          ports:
+            - containerPort: 9000
+              name: api
+            - containerPort: 9001
+              name: console
+          volumeMounts:
+            - name: minio-data
+              mountPath: /data
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: "2"
+              memory: 4Gi
+  # ── Persistent Storage (150GB Quota) ──
+  volumeClaimTemplates:
+    - metadata:
+        name: minio-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 150Gi
+
+---
+# ── Service ──
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio-service
+  namespace: smartmove-engine
+spec:
+  type: ClusterIP
+  selector:
+    app: minio
+  ports:
+    - port: 9000
+      targetPort: 9000
+      name: api
+    - port: 9001
+      targetPort: 9001
+      name: console

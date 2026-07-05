@@ -1,0 +1,35 @@
+# ==============================================================================
+# SmartMove — The "Root" ArgoCD Application
+# Action: Watches GitHub and automatically deploys all other folders (00 to 05)
+# ==============================================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: smartmove-root
+  namespace: argocd
+  # We must wait for the ArgoCD CRDs to be fully installed before applying this
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  project: default
+  source:
+    # ── YOUR GITHUB REPOSITORY ──
+    repoURL: "https://github.com/SmartMove-Organization/SmartMove.git"
+    targetRevision: main
+    # Tells ArgoCD to look at the exact folder we just finished building
+    path: infrastructure/k8s-gitops
+    directory:
+      recurse: true # Looks inside 01, 02, 03, 04, and 05 automatically
+  destination:
+    server: "https://kubernetes.default.svc"
+    # The default destination (Namespaces are defined inside the individual YAMLs)
+    namespace: default
+
+  # ── The Auto-Pilot Settings ──
+  syncPolicy:
+    automated:
+      prune: true # If you delete a file in GitHub, it deletes the pod on the server
+      selfHeal: true # If a server crashes, ArgoCD instantly re-creates it
+    syncOptions:
+      - CreateNamespace=true

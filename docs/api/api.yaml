@@ -1,0 +1,1753 @@
+openapi: 3.0.3
+
+info:
+  title: SmartMove API
+  description: |
+    REST + WebSocket API for SmartMove — a real estate analytics platform
+    covering the Dubai and Egypt markets.
+
+    ## Authentication
+    All protected endpoints require a valid JWT access token delivered as an
+    httpOnly cookie (`access_token`). Obtain tokens via `POST /api/auth/login/`.
+    Tokens expire after **15 minutes**; use `POST /api/auth/refresh/` to renew.
+
+    ## Markets
+    Every data endpoint accepts an optional `market` query parameter:
+    - `dubai`  — Dubai DLD transaction data
+    - `egypt`  — Egypt property listings data
+    - Omit to receive combined / cross-market results where applicable.
+
+    ## Roles
+    | Role    | Accessible endpoints |
+    |---------|----------------------|
+    | Admin   | All endpoints including `/monitoring/` |
+    | Analyst | Dashboard, Upload, Reports, Predictions, Chatbot, Notifications |
+    | Viewer  | Dashboard (read-only), Reports (read-only), Notifications |
+
+  version: "1.0.0"
+  contact:
+    name: SmartMove Engineering
+    url: https://github.com/SmartMove-Organization/SmartMove
+
+servers:
+  - url: http://localhost:8000/api
+    description: Local development
+  - url: https://smartmove.app/api
+    description: Production (AKS)
+
+tags:
+  - name: Auth
+    description: Login, logout, token refresh, registration
+  - name: Users
+    description: User profile and team management
+  - name: Dashboard
+    description: KPI cards and aggregated market metrics
+  - name: Upload
+    description: Data ingestion — file upload, Airflow pipeline status
+  - name: Reports
+    description: PDF / Excel report generation and download
+  - name: Predictions
+    description: Prophet ML forecasting endpoints
+  - name: Chatbot
+    description: LangChain + OpenAI conversational AI with SQL tool
+  - name: Monitoring
+    description: Admin-only pipeline health and observability
+  - name: Notifications
+    description: WebSocket push alert registration and history
+
+# ─────────────────────────────────────────────
+# SECURITY
+# ─────────────────────────────────────────────
+security:
+  - cookieAuth: []
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: access_token
+
+  # ─── Reusable schemas ───────────────────────
+  schemas:
+    # ── Generic ────────────────────────────────
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Invalid credentials"
+        detail:
+          type: string
+          example: "No active account found with the given credentials."
+
+    PaginatedMeta:
+      type: object
+      properties:
+        count:
+          type: integer
+        page:
+          type: integer
+        page_size:
+          type: integer
+        total_pages:
+          type: integer
+
+    Market:
+      type: string
+      enum: [dubai, egypt]
+
+    # ── Auth ────────────────────────────────────
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          example: analyst@smartmove.app
+        password:
+          type: string
+          format: password
+          example: "S3cur3Pass!"
+
+    TokenResponse:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        email:
+          type: string
+        role:
+          type: string
+          enum: [Admin, Analyst, Viewer]
+        access_expires_in:
+          type: integer
+          description: Seconds until access token expires
+          example: 900
+
+    RegisterRequest:
+      type: object
+      required: [email, password, first_name, last_name]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        first_name:
+          type: string
+        last_name:
+          type: string
+        role:
+          type: string
+          enum: [Analyst, Viewer]
+          default: Viewer
+
+    # ── Users ────────────────────────────────────
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        role:
+          type: string
+          enum: [Admin, Analyst, Viewer]
+        date_joined:
+          type: string
+          format: date-time
+        last_login:
+          type: string
+          format: date-time
+
+    # ── Dashboard ────────────────────────────────
+    DashboardKPIs:
+      type: object
+      description: |
+        KPI cards sourced from SSAS measures via Azure SQL Database.
+        All monetary values are in the market's native currency
+        (AED for Dubai, EGP for Egypt).
+      properties:
+        market:
+          $ref: "#/components/schemas/Market"
+        period:
+          type: string
+          example: "2024"
+        # ── Base measures ──────────────────────
+        transaction_count:
+          type: integer
+          description: "Dubai: COUNTROWS(fact_transactions_dubai) | Egypt: COUNTROWS(Fact_Property_Listings)"
+          example: 48320
+        total_value:
+          type: number
+          description: "Dubai: Total Sales Value (SUM actual_worth) | Egypt: Total Listed Value (SUM price_total)"
+          example: 12500000000
+        avg_ticket_size:
+          type: number
+          description: "Dubai: Avg Ticket Size | Egypt: Avg Price Total"
+          example: 1850000
+        avg_price_per_sqm:
+          type: number
+          description: "Dubai: meter_sale_price avg | Egypt: price_per_sqm avg"
+          example: 18500
+        avg_area_sqm:
+          type: number
+          description: "Dubai: Avg Procedure Area | Egypt: Avg Area sqm"
+          example: 142.5
+        # ── Cube 1 — Investment Opportunity ────
+        yoy_price_growth_pct:
+          type: number
+          description: "YoY Price Growth % — year-over-year change in avg price per sqm"
+          example: 0.124
+        sales_per_month:
+          type: number
+          description: "Dubai: Sales per Month (Transaction Velocity) | Egypt: Listings per Month"
+          example: 4026.7
+        new_property_ratio:
+          type: number
+          description: "Dubai only — ratio of New reg_type transactions"
+          example: 0.38
+          nullable: true
+        compound_ratio:
+          type: number
+          description: "Egypt only — proxy for planned/newer developments"
+          example: 0.22
+          nullable: true
+        # ── Cube 2 — Market Heat & Momentum ────
+        mom_price_momentum_pct:
+          type: number
+          description: "MoM Price Momentum % — month-over-month change in avg price per sqm"
+          example: 0.031
+        heat_index:
+          type: number
+          description: "Composite heat index (Dubai/Egypt formula differs)"
+          example: 0.087
+        volume_spike_pct:
+          type: number
+          description: "Dubai: Volume Spike % | Egypt: Supply Shock %"
+          example: 0.15
+        # ── Cube 3 — Investor Performance ──────
+        rent_to_sale_ratio:
+          type: number
+          description: "Egypt only — Rent-to-Sale Ratio"
+          example: 0.43
+          nullable: true
+        investor_score:
+          type: number
+          description: "Composite investor score (0–1 scale)"
+          example: 0.71
+        risk_adjusted_opportunity_score:
+          type: number
+          description: "Dubai only — Capital Growth × Velocity / Volatility"
+          example: 0.54
+          nullable: true
+        # ── Cube 4 — Market Risk & Anomaly ──────
+        price_dispersion:
+          type: number
+          description: "STDDEV of price_per_sqm in current context"
+          example: 4200
+        price_volatility_6m:
+          type: number
+          description: "Dubai: Price Volatility 6M | Egypt: Listing Volatility 6M"
+          example: 1850
+        anomaly_ratio:
+          type: number
+          description: "% of transactions/listings with price > mean + 2σ"
+          example: 0.042
+        shock_index:
+          type: number
+          description: "Dubai: Shock Index | Egypt: implied from Anomaly Ratio"
+          example: 0.09
+          nullable: true
+        risk_score:
+          type: number
+          description: "Composite risk score"
+          example: 0.18
+
+    DashboardFilters:
+      type: object
+      description: Available filter options for the dashboard dropdowns
+      properties:
+        years:
+          type: array
+          items:
+            type: integer
+          example: [2019, 2020, 2021, 2022, 2023, 2024]
+        # Dubai-specific
+        areas:
+          type: array
+          items:
+            type: string
+          example: ["Downtown Dubai", "Dubai Marina", "Jumeirah"]
+          description: "Dubai: area_name_en from dim_area"
+        property_types:
+          type: array
+          items:
+            type: string
+          example: ["Apartment", "Villa", "Land", "Office"]
+          description: "Dubai: property_type_en | Egypt: property_type"
+        reg_types:
+          type: array
+          items:
+            type: string
+          example: ["New", "Existing Properties"]
+          description: "Dubai only: reg_type_en from dim_registration"
+        procedure_names:
+          type: array
+          items:
+            type: string
+          example: ["Sales", "Mortgage", "Grant"]
+          description: "Dubai only: procedure_name_en from dim_procedure"
+        # Egypt-specific
+        cities:
+          type: array
+          items:
+            type: string
+          example: ["Cairo", "Giza", "Alexandria"]
+          description: "Egypt only: city from Dim_Location"
+        governorates:
+          type: array
+          items:
+            type: string
+          example: ["Cairo", "Giza", "Alexandria"]
+        listing_types:
+          type: array
+          items:
+            type: string
+          enum: [sale, rent]
+        property_categories:
+          type: array
+          items:
+            type: string
+          example: ["residential", "commercial"]
+        furnished_options:
+          type: array
+          items:
+            type: string
+          enum: [yes, no]
+
+    # ── Upload ────────────────────────────────────
+    UploadStatus:
+      type: object
+      properties:
+        upload_id:
+          type: string
+          format: uuid
+        market:
+          $ref: "#/components/schemas/Market"
+        filename:
+          type: string
+        status:
+          type: string
+          enum:
+            [
+              pending,
+              validating,
+              uploading_to_blob,
+              pipeline_triggered,
+              processing,
+              completed,
+              failed,
+            ]
+        validation_errors:
+          type: array
+          items:
+            type: string
+          description: pandera validation error messages, if any
+        dag_run_id:
+          type: string
+          nullable: true
+          description: Airflow DAG run ID once pipeline is triggered
+        rows_loaded:
+          type: integer
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    # ── Reports ────────────────────────────────────
+    ReportRequest:
+      type: object
+      required: [market, report_type]
+      properties:
+        market:
+          $ref: "#/components/schemas/Market"
+        report_type:
+          type: string
+          enum:
+            [
+              investment_opportunity,
+              market_heat,
+              investor_performance,
+              market_risk,
+              full_market,
+            ]
+        filters:
+          type: object
+          description: Same filter keys as DashboardFilters
+          additionalProperties: true
+        format:
+          type: string
+          enum: [pdf, excel]
+          default: pdf
+
+    ReportRecord:
+      type: object
+      properties:
+        report_id:
+          type: string
+          format: uuid
+        market:
+          $ref: "#/components/schemas/Market"
+        report_type:
+          type: string
+        format:
+          type: string
+          enum: [pdf, excel]
+        status:
+          type: string
+          enum: [generating, ready, failed]
+        download_url:
+          type: string
+          nullable: true
+          description: Signed Azure Blob URL, valid for 1 hour
+        created_at:
+          type: string
+          format: date-time
+
+    # ── Predictions ────────────────────────────────
+    PredictionRequest:
+      type: object
+      required: [market, target_measure, horizon_months]
+      properties:
+        market:
+          $ref: "#/components/schemas/Market"
+        target_measure:
+          type: string
+          enum:
+            - avg_price_per_sqm
+            - transaction_count
+            - total_value
+            - sales_per_month
+            - heat_index
+            - investor_score
+            - risk_score
+          description: Which SSAS measure to forecast
+        horizon_months:
+          type: integer
+          minimum: 1
+          maximum: 24
+          example: 12
+        filters:
+          type: object
+          description: Optional dimension filters (e.g. area, property_type)
+          additionalProperties: true
+
+    PredictionPoint:
+      type: object
+      properties:
+        ds:
+          type: string
+          format: date
+          description: Forecast date (Prophet ds column)
+        yhat:
+          type: number
+          description: Predicted value
+        yhat_lower:
+          type: number
+          description: Lower confidence bound (80%)
+        yhat_upper:
+          type: number
+          description: Upper confidence bound (80%)
+
+    PredictionResponse:
+      type: object
+      properties:
+        prediction_id:
+          type: string
+          format: uuid
+        market:
+          $ref: "#/components/schemas/Market"
+        target_measure:
+          type: string
+        horizon_months:
+          type: integer
+        filters_applied:
+          type: object
+          additionalProperties: true
+        forecast:
+          type: array
+          items:
+            $ref: "#/components/schemas/PredictionPoint"
+        model_trained_at:
+          type: string
+          format: date-time
+        training_rows:
+          type: integer
+
+    # ── Chatbot ────────────────────────────────────
+    ChatMessage:
+      type: object
+      required: [role, content]
+      properties:
+        role:
+          type: string
+          enum: [user, assistant]
+        content:
+          type: string
+
+    ChatRequest:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+          example: "What is the average price per sqm in Dubai Marina in 2024?"
+        conversation_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: Continue an existing conversation; omit to start a new one
+        market:
+          $ref: "#/components/schemas/Market"
+          nullable: true
+          description: Optional market context hint
+
+    ChatResponse:
+      type: object
+      properties:
+        conversation_id:
+          type: string
+          format: uuid
+        message:
+          type: string
+          description: Assistant reply text
+        tool_used:
+          type: string
+          nullable: true
+          enum: [sql_query, none]
+          description: Whether the chatbot executed a SQL query to answer
+        sql_query:
+          type: string
+          nullable: true
+          description: The SQL executed against Azure SQL DB, if any
+        sources:
+          type: array
+          items:
+            type: string
+          description: Table/view names referenced
+        tokens_used:
+          type: integer
+
+    ConversationHistory:
+      type: object
+      properties:
+        conversation_id:
+          type: string
+          format: uuid
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChatMessage"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    # ── Monitoring ────────────────────────────────
+    PipelineRun:
+      type: object
+      properties:
+        dag_run_id:
+          type: string
+        dag_id:
+          type: string
+          enum:
+            [
+              smartmove_dubai_pipeline,
+              smartmove_egypt_pipeline,
+              monitoring_archive_dag,
+            ]
+        market:
+          $ref: "#/components/schemas/Market"
+          nullable: true
+        state:
+          type: string
+          enum: [running, success, failed, queued]
+        start_date:
+          type: string
+          format: date-time
+        end_date:
+          type: string
+          format: date-time
+          nullable: true
+        rows_loaded:
+          type: integer
+          nullable: true
+        trigger_source:
+          type: string
+          enum: [upload_api, scheduled, manual]
+
+    # ── Notifications ─────────────────────────────
+    NotificationRecord:
+      type: object
+      properties:
+        notification_id:
+          type: integer
+        type:
+          type: string
+          enum:
+            [
+              pipeline_failed,
+              pipeline_success,
+              report_ready,
+              prediction_complete,
+              alert,
+            ]
+        title:
+          type: string
+        body:
+          type: string
+        is_read:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+
+    WebSocketNotificationEvent:
+      type: object
+      description: |
+        Pushed over WebSocket at `ws://localhost:8000/ws/notifications/`
+        after authenticating with the access token cookie.
+      properties:
+        event:
+          type: string
+          enum: [notification, ping]
+        data:
+          $ref: "#/components/schemas/NotificationRecord"
+
+# ─────────────────────────────────────────────
+# PATHS
+# ─────────────────────────────────────────────
+paths:
+  # ════════════════════════════════════════════
+  # AUTH
+  # ════════════════════════════════════════════
+
+  /auth/login/:
+    post:
+      tags: [Auth]
+      summary: Log in and receive JWT tokens as httpOnly cookies
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login successful — sets access_token and refresh_token httpOnly cookies
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: "access_token=eyJ...; HttpOnly; Secure; SameSite=Strict; Path=/"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenResponse"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/logout/:
+    post:
+      tags: [Auth]
+      summary: Log out — clears JWT cookies and blacklists refresh token
+      responses:
+        "204":
+          description: Logged out successfully
+
+  /auth/refresh/:
+    post:
+      tags: [Auth]
+      summary: Refresh access token using the refresh_token cookie
+      security: []
+      responses:
+        "200":
+          description: New access_token cookie set
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenResponse"
+        "401":
+          description: Refresh token invalid or expired
+
+  /auth/register/:
+    post:
+      tags: [Auth]
+      summary: Register a new user (Admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+        "400":
+          description: Validation error (e.g. email already exists)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Admin role required
+
+  /auth/change-password/:
+    post:
+      tags: [Auth]
+      summary: Change own password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [old_password, new_password]
+              properties:
+                old_password:
+                  type: string
+                new_password:
+                  type: string
+                  minLength: 8
+      responses:
+        "204":
+          description: Password changed
+        "400":
+          description: Old password incorrect or new password too weak
+
+  # ════════════════════════════════════════════
+  # USERS
+  # ════════════════════════════════════════════
+
+  /users/me/:
+    get:
+      tags: [Users]
+      summary: Get own profile
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+          description: OK
+    patch:
+      tags: [Users]
+      summary: Update own profile (first_name, last_name)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+          description: Updated
+
+  /users/:
+    get:
+      tags: [Users]
+      summary: List all users (Admin only)
+      parameters:
+        - in: query
+          name: role
+          schema:
+            type: string
+            enum: [Admin, Analyst, Viewer]
+      responses:
+        "200":
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserProfile"
+        "403":
+          description: Admin role required
+
+  /users/{user_id}/:
+    get:
+      tags: [Users]
+      summary: Get a specific user (Admin only)
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+          description: OK
+        "404":
+          description: User not found
+    patch:
+      tags: [Users]
+      summary: Update user role (Admin only)
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role:
+                  type: string
+                  enum: [Admin, Analyst, Viewer]
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+          description: Updated
+    delete:
+      tags: [Users]
+      summary: Delete a user (Admin only)
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ════════════════════════════════════════════
+  # DASHBOARD
+  # ════════════════════════════════════════════
+
+  /dashboard/kpis/:
+    get:
+      tags: [Dashboard]
+      summary: Get KPI cards for the selected market and filters
+      description: |
+        Returns all SSAS-derived measures across the 4 analytical cubes.
+        Analysts and Viewers can read. Data is cached in Redis for 5 minutes.
+      parameters:
+        - in: query
+          name: market
+          required: true
+          schema:
+            $ref: "#/components/schemas/Market"
+        - in: query
+          name: year
+          schema:
+            type: integer
+            example: 2024
+        - in: query
+          name: area
+          schema:
+            type: string
+            description: Dubai area_name_en
+          example: "Dubai Marina"
+        - in: query
+          name: property_type
+          schema:
+            type: string
+          example: "Apartment"
+        - in: query
+          name: reg_type
+          schema:
+            type: string
+            description: Dubai only (New / Existing Properties)
+        - in: query
+          name: city
+          schema:
+            type: string
+            description: Egypt only
+          example: "Cairo"
+        - in: query
+          name: governorate
+          schema:
+            type: string
+            description: Egypt only
+        - in: query
+          name: listing_type
+          schema:
+            type: string
+            enum: [sale, rent]
+            description: Egypt only
+        - in: query
+          name: property_category
+          schema:
+            type: string
+            description: Egypt only (residential / commercial)
+      responses:
+        "200":
+          description: KPI metrics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardKPIs"
+        "400":
+          description: market parameter required
+
+  /dashboard/filters/:
+    get:
+      tags: [Dashboard]
+      summary: Get available filter options for dashboard dropdowns
+      parameters:
+        - in: query
+          name: market
+          required: true
+          schema:
+            $ref: "#/components/schemas/Market"
+      responses:
+        "200":
+          description: Available filter values
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardFilters"
+
+  /dashboard/timeseries/:
+    get:
+      tags: [Dashboard]
+      summary: Get time-series data for a specific measure (for line/bar charts)
+      parameters:
+        - in: query
+          name: market
+          required: true
+          schema:
+            $ref: "#/components/schemas/Market"
+        - in: query
+          name: measure
+          required: true
+          schema:
+            type: string
+            enum:
+              - avg_price_per_sqm
+              - transaction_count
+              - total_value
+              - heat_index
+              - investor_score
+              - risk_score
+              - yoy_price_growth_pct
+              - mom_price_momentum_pct
+        - in: query
+          name: granularity
+          schema:
+            type: string
+            enum: [monthly, quarterly, yearly]
+            default: monthly
+        - in: query
+          name: from_year
+          schema:
+            type: integer
+        - in: query
+          name: to_year
+          schema:
+            type: integer
+        - in: query
+          name: area
+          schema:
+            type: string
+        - in: query
+          name: property_type
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Time-series data points
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  market:
+                    $ref: "#/components/schemas/Market"
+                  measure:
+                    type: string
+                  granularity:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        period:
+                          type: string
+                          example: "2024-03"
+                        value:
+                          type: number
+
+  /dashboard/map/:
+    get:
+      tags: [Dashboard]
+      summary: Get geographic aggregates for the map view
+      description: Returns avg_price_per_sqm and transaction_count grouped by area/city
+      parameters:
+        - in: query
+          name: market
+          required: true
+          schema:
+            $ref: "#/components/schemas/Market"
+        - in: query
+          name: measure
+          schema:
+            type: string
+            enum: [avg_price_per_sqm, transaction_count, heat_index]
+            default: avg_price_per_sqm
+        - in: query
+          name: year
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Geographic aggregates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    area_name:
+                      type: string
+                    value:
+                      type: number
+                    lat:
+                      type: number
+                      nullable: true
+                    lng:
+                      type: number
+                      nullable: true
+
+  /dashboard/powerbi-token/:
+    get:
+      tags: [Dashboard]
+      summary: Get an Azure AD embed token for the PowerBI report (server-side)
+      description: |
+        Django calls the PowerBI REST API using the Azure AD service principal
+        and returns a short-lived embed token and embed URL to the frontend.
+        The frontend passes these directly to powerbi-client-react.
+      responses:
+        "200":
+          description: PowerBI embed configuration
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  embed_token:
+                    type: string
+                  embed_url:
+                    type: string
+                  report_id:
+                    type: string
+                  expires_at:
+                    type: string
+                    format: date-time
+        "502":
+          description: Failed to obtain token from Azure AD / PowerBI
+
+  # ════════════════════════════════════════════
+  # UPLOAD
+  # ════════════════════════════════════════════
+
+  /upload/file/:
+    post:
+      tags: [Upload]
+      summary: Upload a local CSV/Excel file — triggers the Airflow pipeline
+      description: |
+        Accepts multipart form data. Django runs pandera validation first.
+        If valid, uploads to Azure Blob `raw/` container and triggers the
+        appropriate Airflow DAG (`smartmove_dubai_pipeline` or
+        `smartmove_egypt_pipeline`).
+
+        **Expected columns:**
+
+        *Dubai CSV:* transaction_id, procedure_id, trans_group_id,
+        trans_group_en, procedure_name_en, instance_date, property_type_id,
+        property_type_en, property_usage_en, reg_type_id, reg_type_en,
+        area_id, area_name_en, has_parking, procedure_area, actual_worth,
+        meter_sale_price, no_of_parties_role_1, no_of_parties_role_2
+
+        *Egypt CSV:* id, area_sqm, date, price_total, price_currency,
+        price_per_sqm, listing_type, property_type, property_category,
+        compound_name, floor_number, furnished, city, governorate
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, market]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: CSV or Excel file
+                market:
+                  $ref: "#/components/schemas/Market"
+      responses:
+        "202":
+          description: File accepted — pipeline triggered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadStatus"
+        "400":
+          description: Validation failed (wrong columns, pandera errors, wrong file type)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  validation_errors:
+                    type: array
+                    items:
+                      type: string
+        "413":
+          description: File too large (max 50 MB)
+
+  /upload/status/{upload_id}/:
+    get:
+      tags: [Upload]
+      summary: Poll the status of an upload and its pipeline run
+      parameters:
+        - in: path
+          name: upload_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Upload and pipeline status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadStatus"
+        "404":
+          description: Upload not found
+
+  /upload/history/:
+    get:
+      tags: [Upload]
+      summary: List all uploads by the current user
+      parameters:
+        - in: query
+          name: market
+          schema:
+            $ref: "#/components/schemas/Market"
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: page_size
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Upload history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  meta:
+                    $ref: "#/components/schemas/PaginatedMeta"
+                  results:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/UploadStatus"
+
+  # ════════════════════════════════════════════
+  # REPORTS
+  # ════════════════════════════════════════════
+
+  /reports/:
+    post:
+      tags: [Reports]
+      summary: Request a new report (async generation via Celery)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReportRequest"
+      responses:
+        "202":
+          description: Report generation queued
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReportRecord"
+    get:
+      tags: [Reports]
+      summary: List all reports for the current user
+      parameters:
+        - in: query
+          name: market
+          schema:
+            $ref: "#/components/schemas/Market"
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [generating, ready, failed]
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+      responses:
+        "200":
+          description: Report list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  meta:
+                    $ref: "#/components/schemas/PaginatedMeta"
+                  results:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ReportRecord"
+
+  /reports/{report_id}/:
+    get:
+      tags: [Reports]
+      summary: Get status and download URL for a specific report
+      parameters:
+        - in: path
+          name: report_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Report record with download_url when ready
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReportRecord"
+        "404":
+          description: Report not found
+
+  # ════════════════════════════════════════════
+  # PREDICTIONS
+  # ════════════════════════════════════════════
+
+  /predictions/:
+    post:
+      tags: [Predictions]
+      summary: Run a Prophet forecast for a target SSAS measure
+      description: |
+        Trains (or loads cached) a Prophet model on historical SSAS measure data
+        from Azure SQL Database and returns a forecast with confidence bounds.
+        Available target measures mirror the SSAS cubes for both markets.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PredictionRequest"
+      responses:
+        "200":
+          description: Forecast result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PredictionResponse"
+        "400":
+          description: Invalid measure or horizon
+        "422":
+          description: Not enough historical data for the requested filters
+
+  /predictions/history/:
+    get:
+      tags: [Predictions]
+      summary: List recent prediction runs for the current user
+      parameters:
+        - in: query
+          name: market
+          schema:
+            $ref: "#/components/schemas/Market"
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+      responses:
+        "200":
+          description: Prediction history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PredictionResponse"
+
+  /predictions/{prediction_id}/:
+    get:
+      tags: [Predictions]
+      summary: Retrieve a specific saved forecast
+      parameters:
+        - in: path
+          name: prediction_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PredictionResponse"
+          description: OK
+        "404":
+          description: Prediction not found
+
+  # ════════════════════════════════════════════
+  # CHATBOT
+  # ════════════════════════════════════════════
+
+  /chatbot/chat/:
+    post:
+      tags: [Chatbot]
+      summary: Send a message to the AI chatbot
+      description: |
+        LangChain + OpenAI agent with two tools:
+        1. **RAG** — retrieves context from vector embeddings of market documents
+        2. **sql_query** — executes read-only SQL against Azure SQL Database
+           when the question requires specific data
+
+        The chatbot can answer both general market questions and specific
+        data queries about either the Dubai or Egypt market.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatRequest"
+      responses:
+        "200":
+          description: Chatbot reply
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatResponse"
+        "429":
+          description: Rate limit exceeded (30 messages/minute per user)
+
+  /chatbot/conversations/:
+    get:
+      tags: [Chatbot]
+      summary: List the current user's conversations
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+      responses:
+        "200":
+          description: Conversation list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    conversation_id:
+                      type: string
+                      format: uuid
+                    preview:
+                      type: string
+                      description: First message truncated to 100 chars
+                    created_at:
+                      type: string
+                      format: date-time
+                    updated_at:
+                      type: string
+                      format: date-time
+
+  /chatbot/conversations/{conversation_id}/:
+    get:
+      tags: [Chatbot]
+      summary: Get full message history for a conversation
+      parameters:
+        - in: path
+          name: conversation_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConversationHistory"
+          description: OK
+        "404":
+          description: Conversation not found
+    delete:
+      tags: [Chatbot]
+      summary: Delete a conversation
+      parameters:
+        - in: path
+          name: conversation_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Deleted
+
+  # ════════════════════════════════════════════
+  # MONITORING (Admin only)
+  # ════════════════════════════════════════════
+
+  /monitoring/pipeline-runs/:
+    get:
+      tags: [Monitoring]
+      summary: List Airflow DAG runs (Admin only)
+      parameters:
+        - in: query
+          name: market
+          schema:
+            $ref: "#/components/schemas/Market"
+        - in: query
+          name: state
+          schema:
+            type: string
+            enum: [running, success, failed, queued]
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: page_size
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: List of pipeline runs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  meta:
+                    $ref: "#/components/schemas/PaginatedMeta"
+                  results:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/PipelineRun"
+        "403":
+          description: Admin role required
+
+  /monitoring/pipeline-runs/{dag_run_id}/:
+    get:
+      tags: [Monitoring]
+      summary: Get detail for a specific DAG run including task logs
+      parameters:
+        - in: path
+          name: dag_run_id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: DAG run detail
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PipelineRun"
+                  - type: object
+                    properties:
+                      tasks:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            task_id:
+                              type: string
+                            state:
+                              type: string
+                            start_date:
+                              type: string
+                              format: date-time
+                            end_date:
+                              type: string
+                              format: date-time
+                            log_url:
+                              type: string
+        "404":
+          description: DAG run not found
+
+  /monitoring/logs/:
+    get:
+      tags: [Monitoring]
+      summary: Query application logs from Grafana Loki / Azure Blob archive
+      description: |
+        Returns logs merged from Grafana Loki (last 14 days) and
+        Azure Blob archive (older). Supports full-text search.
+      parameters:
+        - in: query
+          name: service
+          schema:
+            type: string
+            enum: [django, celery, airflow, dbt, nginx]
+        - in: query
+          name: level
+          schema:
+            type: string
+            enum: [DEBUG, INFO, WARNING, ERROR, CRITICAL]
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: from
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: to
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: page_size
+          schema:
+            type: integer
+            default: 50
+      responses:
+        "200":
+          description: Log entries
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  meta:
+                    $ref: "#/components/schemas/PaginatedMeta"
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        timestamp:
+                          type: string
+                          format: date-time
+                        service:
+                          type: string
+                        level:
+                          type: string
+                        message:
+                          type: string
+
+  /monitoring/grafana-embed-url/:
+    get:
+      tags: [Monitoring]
+      summary: Get a Grafana panel embed URL for the admin monitoring page
+      parameters:
+        - in: query
+          name: panel
+          required: true
+          schema:
+            type: string
+            enum: [infrastructure, data_quality, user_activity, chatbot_logs]
+      responses:
+        "200":
+          description: Grafana panel embed URL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  embed_url:
+                    type: string
+                  panel_title:
+                    type: string
+
+  # ════════════════════════════════════════════
+  # NOTIFICATIONS
+  # ════════════════════════════════════════════
+
+  /notifications/:
+    get:
+      tags: [Notifications]
+      summary: List notifications for the current user
+      parameters:
+        - in: query
+          name: is_read
+          schema:
+            type: boolean
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+      responses:
+        "200":
+          description: Notification list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  meta:
+                    $ref: "#/components/schemas/PaginatedMeta"
+                  unread_count:
+                    type: integer
+                  results:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/NotificationRecord"
+
+  /notifications/{notification_id}/read/:
+    post:
+      tags: [Notifications]
+      summary: Mark a notification as read
+      parameters:
+        - in: path
+          name: notification_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationRecord"
+          description: OK
+
+  /notifications/read-all/:
+    post:
+      tags: [Notifications]
+      summary: Mark all notifications as read
+      responses:
+        "204":
+          description: All marked as read
+
+  # ════════════════════════════════════════════
+  # SCHEMA / DOCS (drf-spectacular auto-generated)
+  # ════════════════════════════════════════════
+
+  /schema/:
+    get:
+      tags: [Auth]
+      summary: Download the raw OpenAPI YAML schema
+      security: []
+      responses:
+        "200":
+          description: OpenAPI 3.0 YAML
+
+  /docs/:
+    get:
+      tags: [Auth]
+      summary: Interactive Swagger UI (browser)
+      security: []
+      responses:
+        "200":
+          description: Swagger UI HTML
+
+  /redoc/:
+    get:
+      tags: [Auth]
+      summary: ReDoc documentation (browser)
+      security: []
+      responses:
+        "200":
+          description: ReDoc HTML
+
+  # ════════════════════════════════════════════
+  # WEBSOCKET (documented here for reference)
+  # ════════════════════════════════════════════
+
+  /ws/notifications/:
+    get:
+      tags: [Notifications]
+      summary: |
+        WebSocket endpoint for real-time push notifications.
+        Connect via: ws://localhost:8000/ws/notifications/
+        The access_token cookie is used for authentication automatically.
+        The server pushes WebSocketNotificationEvent objects as JSON.
+      responses:
+        "101":
+          description: WebSocket upgrade accepted

@@ -1,0 +1,146 @@
+# ==============================================================================
+# SmartMove — Django Backend Deployment & Service
+# ==============================================================================
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: smartmove-prod
+  labels:
+    app.kubernetes.io/name: backend
+    app.kubernetes.io/part-of: smartmove
+spec:
+  replicas: 2 # The HPA will dynamically change this number later
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+        app.kubernetes.io/name: backend
+    spec:
+      containers:
+        - name: backend
+          image: smartmoveacr.azurecr.io/smartmove-backend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+              name: http
+          envFrom:
+            - configMapRef:
+                name: smartmove-config
+          env:
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: smartmove-secrets
+                  key: SECRET_KEY
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: smartmove-secrets
+                  key: DB_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: smartmove-secrets
+                  key: DB_PASSWORD
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: smartmove-secrets
+                  key: REDIS_PASSWORD
+            - name: REDIS_URL
+              value: "redis://:$(REDIS_PASSWORD)@$(REDIS_HOST):$(REDIS_PORT)"
+            - name: LEMON_SQUEEZY_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: smartmove-secrets
+                  key: LEMON_SQUEEZY_API_KEY
+            - name: LEMON_SQUEEZY_STORE_ID
+              valueFrom:
+                secretKeyRef:
+                  name: smartmove-secrets
+                  key: LEMON_SQUEEZY_STORE_ID
+            - name: LEMON_SQUEEZY_WEBHOOK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: smartmove-secrets
+                  key: LEMON_SQUEEZY_WEBHOOK_SECRET
+            - name: EMAIL_HOST_USER
+              valueFrom:
+                secretKeyRef:
+                  name: smartmove-secrets
+                  key: EMAIL_HOST_USER
+            - name: EMAIL_HOST_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: smartmove-secrets
+                  key: EMAIL_HOST_PASSWORD
+            - name: MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: smartmove-secrets
+                  key: MINIO_ACCESS_KEY
+            - name: MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: smartmove-secrets
+                  key: MINIO_SECRET_KEY
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1" # 1 full vCPU core maximum per pod
+              memory: 1Gi
+          readinessProbe:
+            httpGet:
+              path: /admin/login/
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /admin/login/
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            timeoutSeconds: 5
+
+      # ── The 60% Spillover Logic (Node Affinity) ──
+      # This tells Kubernetes: "Heavily prefer placing these pods on Server 1.
+      # ONLY schedule them on Server 2 (tier=overflow) if Server 1 is completely out of CPU."
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: tier
+                    operator: NotIn
+                    values:
+                      - overflow
+
+---
+# ── Service ──
+# The internal load balancer that Nginx talks to
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+  namespace: smartmove-prod
+  labels:
+    app.kubernetes.io/name: backend
+    app.kubernetes.io/part-of: smartmove
+spec:
+  type: ClusterIP
+  selector:
+    app: backend
+  ports:
+    - port: 8000
+      targetPort: 8000
+      protocol: TCP

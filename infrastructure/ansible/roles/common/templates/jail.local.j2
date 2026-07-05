@@ -1,0 +1,13 @@
+# infrastructure/ansible/roles/common/templates/jail.local.j2
+[DEFAULT]
+bantime  = 86400
+findtime = 600
+maxretry = 3
+banaction = ufw
+
+[sshd]
+enabled = true
+port    = ssh
+filter  = sshd
+logpath = /var/log/auth.log
+maxretry = 3

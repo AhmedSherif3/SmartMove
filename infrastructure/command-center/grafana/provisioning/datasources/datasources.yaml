@@ -1,0 +1,58 @@
+# ==============================================================================
+# Grafana — Datasource Provisioning for SmartMove SOC
+# Auto-configures Mimir, Loki, Tempo, and Alertmanager on first boot.
+# ==============================================================================
+
+apiVersion: 1
+
+datasources:
+  # ── Mimir (Prometheus-compatible) ───────────────────────────
+  - name: Mimir
+    type: prometheus
+    access: proxy
+    url: http://mimir:9009/prometheus
+    isDefault: true
+    editable: false
+    jsonData:
+      httpMethod: POST
+      prometheusType: Mimir
+
+  # ── Loki (Logs) ────────────────────────────────────────────
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    editable: false
+    jsonData:
+      derivedFields:
+        - datasourceUid: tempo
+          matcherRegex: '"trace_id":"(\w+)"'
+          name: TraceID
+          url: "$${__value.raw}"
+
+  # ── Tempo (Traces) ─────────────────────────────────────────
+  - name: Tempo
+    type: tempo
+    access: proxy
+    uid: tempo
+    url: http://tempo:3200
+    editable: false
+    jsonData:
+      tracesToLogsV2:
+        datasourceUid: loki
+        filterByTraceID: true
+      tracesToMetrics:
+        datasourceUid: mimir
+      serviceMap:
+        datasourceUid: mimir
+      nodeGraph:
+        enabled: true
+
+  # ── Alertmanager ────────────────────────────────────────────
+  - name: Alertmanager
+    type: alertmanager
+    access: proxy
+    url: http://alertmanager:9093
+    editable: false
+    jsonData:
+      implementation: prometheus

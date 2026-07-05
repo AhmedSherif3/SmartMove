@@ -1,0 +1,29 @@
+---
+# ==============================================================================
+# Playbook 05: Deploy K3s Kubernetes Cluster
+# ==============================================================================
+
+- name: Phase 5A - Deploy Kubernetes Control Plane (Server 1)
+  hosts: control_plane
+  become: true
+  gather_facts: true
+  roles:
+    - k3s_master
+
+- name: Phase 5B - Deploy Kubernetes Workers (Server 4 Engine)
+  hosts: engine_nodes
+  become: true
+  gather_facts: true
+  roles:
+    - k3s_worker
+
+- name: Phase 5C - Deploy Kubernetes Workers (Server 2 60% Overflow)
+  hosts: k3s_workers
+  become: true
+  gather_facts: true
+  roles:
+    - k3s_worker
+  vars:
+    # This label tells the K8s scheduler to reserve this node for overflow traffic
+    k3s_worker_node_labels:
+      - "tier=overflow"

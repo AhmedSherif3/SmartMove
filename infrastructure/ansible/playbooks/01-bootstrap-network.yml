@@ -1,0 +1,8 @@
+---
+- name: Phase 1 - Bootstrap Network and Security Foundation
+  hosts: all
+  become: true
+  gather_facts: true
+  roles:
+    - common
+    - stay_alive

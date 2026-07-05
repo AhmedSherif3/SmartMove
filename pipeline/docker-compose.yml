@@ -1,0 +1,417 @@
+# ============================================================
+# SmartMove Master Orchestrator (CeleryExecutor Upgraded)
+# Boots all 3 Regional Data Pipelines and exposes ML builds
+# ============================================================
+version: '3.8'
+
+x-airflow-common-env: &airflow-common-env
+  AIRFLOW__CORE__EXECUTOR: CeleryExecutor
+  AIRFLOW__CORE__FERNET_KEY: "${AIRFLOW_FERNET_KEY}"
+  AIRFLOW__WEBSERVER__SECRET_KEY: "${AIRFLOW_WEBSERVER_SECRET_KEY}"
+  AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+  AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
+  AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: "postgresql+psycopg2://airflow:airflow@postgres-shared/airflow"
+  AIRFLOW__CELERY__RESULT_BACKEND: "db+postgresql://airflow:airflow@postgres-shared/airflow"
+  # Pulling global variables from the root .env
+  AIRFLOW__SMTP__SMTP_HOST: "${SMTP_HOST}"
+  AIRFLOW__SMTP__SMTP_PORT: "${SMTP_PORT:-587}"
+  AIRFLOW__SMTP__SMTP_USER: "${SMTP_USER}"
+  AIRFLOW__SMTP__SMTP_PASSWORD: "${SMTP_PASSWORD}"
+  AIRFLOW__SMTP__SMTP_MAIL_FROM: "${SMTP_MAIL_FROM}"
+  AIRFLOW_CONN_POSTGRES_DJANGO: "postgresql://${DJANGO_DB_USER}:${DJANGO_DB_PASSWORD}@${DJANGO_DB_HOST}:5432/${DJANGO_DB_NAME}"
+
+services:
+  # ── 1. Shared Metadata Database ────────────────────────────────────
+  postgres-shared:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres-db-master:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+
+  # ===================================================================
+  # ── 2. Dubai Microservice ──────────────────────────────────────────
+  # ===================================================================
+  redis-dubai:
+    image: redis:7.2-bookworm
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 30s
+      retries: 50
+      start_period: 30s
+    restart: always
+
+  dubai-scheduler:
+    command: scheduler
+    build:
+      context: ./Airflow/Dubai
+      dockerfile: Dockerfile
+    image: smartmove-dubai-airflow:latest
+    env_file: .env
+    environment:
+      <<: *airflow-common-env
+      AIRFLOW__CELERY__BROKER_URL: "redis://:@redis-dubai:6379/0"
+      AIRFLOW__CORE__DAGS_FOLDER: "/opt/airflow/Dubai/dags"
+      PYTHONPATH: "/opt/airflow/Dubai:/opt/airflow/utils"
+    volumes:
+      - ./Airflow/Dubai:/opt/airflow/Dubai
+      - ./Airflow/utils:/opt/airflow/utils
+      - ~/.kube/config:/home/airflow/.kube/config:ro
+    depends_on:
+      postgres-shared:
+        condition: service_healthy
+      redis-dubai:
+        condition: service_healthy
+
+  dubai-webserver:
+    command: webserver
+    build:
+      context: ./Airflow/Dubai
+      dockerfile: Dockerfile
+    image: smartmove-dubai-airflow:latest
+    env_file: .env
+    environment:
+      <<: *airflow-common-env
+      AIRFLOW__CELERY__BROKER_URL: "redis://:@redis-dubai:6379/0"
+      AIRFLOW__CORE__DAGS_FOLDER: "/opt/airflow/Dubai/dags"
+      PYTHONPATH: "/opt/airflow/Dubai:/opt/airflow/utils"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./Airflow/Dubai:/opt/airflow/Dubai
+      - ./Airflow/utils:/opt/airflow/utils
+    depends_on:
+      postgres-shared:
+        condition: service_healthy
+
+  dubai-worker:
+    build:
+      context: ./Airflow/Dubai
+      dockerfile: Dockerfile
+    image: smartmove-dubai-airflow:latest
+    command: celery worker
+    env_file: .env
+    environment:
+      <<: *airflow-common-env
+      AIRFLOW__CELERY__BROKER_URL: "redis://:@redis-dubai:6379/0"
+      AIRFLOW__CORE__DAGS_FOLDER: "/opt/airflow/Dubai/dags"
+      PYTHONPATH: "/opt/airflow/Dubai:/opt/airflow/utils"
+      DUMB_INIT_SETSID: "0"
+    volumes:
+      - ./Airflow/Dubai:/opt/airflow/Dubai
+      - ./Airflow/utils:/opt/airflow/utils
+      - ~/.kube/config:/home/airflow/.kube/config:ro
+    depends_on:
+      postgres-shared:
+        condition: service_healthy
+      redis-dubai:
+        condition: service_healthy
+
+  dubai-triggerer:
+    build:
+      context: ./Airflow/Dubai
+      dockerfile: Dockerfile
+    image: smartmove-dubai-airflow:latest
+    command: triggerer
+    env_file: .env
+    environment:
+      <<: *airflow-common-env
+      AIRFLOW__CELERY__BROKER_URL: "redis://:@redis-dubai:6379/0"
+      AIRFLOW__CORE__DAGS_FOLDER: "/opt/airflow/Dubai/dags"
+      PYTHONPATH: "/opt/airflow/Dubai:/opt/airflow/utils"
+    volumes:
+      - ./Airflow/Dubai:/opt/airflow/Dubai
+      - ./Airflow/utils:/opt/airflow/utils
+    depends_on:
+      postgres-shared:
+        condition: service_healthy
+
+  dubai-flower:
+    build:
+      context: ./Airflow/Dubai
+      dockerfile: Dockerfile
+    image: smartmove-dubai-airflow:latest
+    command: celery flower
+    env_file: .env
+    environment:
+      <<: *airflow-common-env
+      AIRFLOW__CELERY__BROKER_URL: "redis://:@redis-dubai:6379/0"
+      AIRFLOW__CORE__DAGS_FOLDER: "/opt/airflow/Dubai/dags"
+      PYTHONPATH: "/opt/airflow/Dubai:/opt/airflow/utils"
+    ports:
+      - "5555:5555"
+    depends_on:
+      postgres-shared:
+        condition: service_healthy
+      redis-dubai:
+        condition: service_healthy
+
+  # ===================================================================
+  # ── 3. England Microservice ────────────────────────────────────────
+  # ===================================================================
+  redis-england:
+    image: redis:7.2-bookworm
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 30s
+      retries: 50
+      start_period: 30s
+    restart: always
+
+  england-scheduler:
+    command: scheduler
+    build:
+      context: ./Airflow/England
+      dockerfile: Dockerfile
+    image: smartmove-england-airflow:latest
+    env_file: .env
+    environment:
+      <<: *airflow-common-env
+      AIRFLOW__CELERY__BROKER_URL: "redis://:@redis-england:6379/0"
+      AIRFLOW__CORE__DAGS_FOLDER: "/opt/airflow/England/dags"
+      PYTHONPATH: "/opt/airflow/England:/opt/airflow/utils"
+    volumes:
+      - ./Airflow/England:/opt/airflow/England
+      - ./Airflow/utils:/opt/airflow/utils
+      - ~/.kube/config:/home/airflow/.kube/config:ro
+    depends_on:
+      postgres-shared:
+        condition: service_healthy
+      redis-england:
+        condition: service_healthy
+
+  england-webserver:
+    command: webserver
+    build:
+      context: ./Airflow/England
+      dockerfile: Dockerfile
+    image: smartmove-england-airflow:latest
+    env_file: .env
+    environment:
+      <<: *airflow-common-env
+      AIRFLOW__CELERY__BROKER_URL: "redis://:@redis-england:6379/0"
+      AIRFLOW__CORE__DAGS_FOLDER: "/opt/airflow/England/dags"
+      PYTHONPATH: "/opt/airflow/England:/opt/airflow/utils"
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./Airflow/England:/opt/airflow/England
+      - ./Airflow/utils:/opt/airflow/utils
+    depends_on:
+      postgres-shared:
+        condition: service_healthy
+
+  england-worker:
+    build:
+      context: ./Airflow/England
+      dockerfile: Dockerfile
+    image: smartmove-england-airflow:latest
+    command: celery worker
+    env_file: .env
+    environment:
+      <<: *airflow-common-env
+      AIRFLOW__CELERY__BROKER_URL: "redis://:@redis-england:6379/0"
+      AIRFLOW__CORE__DAGS_FOLDER: "/opt/airflow/England/dags"
+      PYTHONPATH: "/opt/airflow/England:/opt/airflow/utils"
+      DUMB_INIT_SETSID: "0"
+    volumes:
+      - ./Airflow/England:/opt/airflow/England
+      - ./Airflow/utils:/opt/airflow/utils
+      - ~/.kube/config:/home/airflow/.kube/config:ro
+    depends_on:
+      postgres-shared:
+        condition: service_healthy
+      redis-england:
+        condition: service_healthy
+
+  england-triggerer:
+    build:
+      context: ./Airflow/England
+      dockerfile: Dockerfile
+    image: smartmove-england-airflow:latest
+    command: triggerer
+    env_file: .env
+    environment:
+      <<: *airflow-common-env
+      AIRFLOW__CELERY__BROKER_URL: "redis://:@redis-england:6379/0"
+      AIRFLOW__CORE__DAGS_FOLDER: "/opt/airflow/England/dags"
+      PYTHONPATH: "/opt/airflow/England:/opt/airflow/utils"
+    volumes:
+      - ./Airflow/England:/opt/airflow/England
+      - ./Airflow/utils:/opt/airflow/utils
+    depends_on:
+      postgres-shared:
+        condition: service_healthy
+
+  england-flower:
+    build:
+      context: ./Airflow/England
+      dockerfile: Dockerfile
+    image: smartmove-england-airflow:latest
+    command: celery flower
+    env_file: .env
+    environment:
+      <<: *airflow-common-env
+      AIRFLOW__CELERY__BROKER_URL: "redis://:@redis-england:6379/0"
+      AIRFLOW__CORE__DAGS_FOLDER: "/opt/airflow/England/dags"
+      PYTHONPATH: "/opt/airflow/England:/opt/airflow/utils"
+    ports:
+      - "5556:5555"
+    depends_on:
+      postgres-shared:
+        condition: service_healthy
+      redis-england:
+        condition: service_healthy
+
+
+  # ===================================================================
+  # ── 4. Egypt Microservice ──────────────────────────────────────────
+  # ===================================================================
+  redis-egypt:
+    image: redis:7.2-bookworm
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 30s
+      retries: 50
+      start_period: 30s
+    restart: always
+
+  egypt-scheduler:
+    command: scheduler
+    build:
+      context: ./Airflow/Egypt
+      dockerfile: Dockerfile
+    image: smartmove-egypt-airflow:latest
+    env_file: .env
+    environment:
+      <<: *airflow-common-env
+      AIRFLOW__CELERY__BROKER_URL: "redis://:@redis-egypt:6379/0"
+      AIRFLOW__CORE__DAGS_FOLDER: "/opt/airflow/Egypt/dags"
+      PYTHONPATH: "/opt/airflow/Egypt:/opt/airflow/utils"
+    volumes:
+      - ./Airflow/Egypt:/opt/airflow/Egypt
+      - ./Airflow/utils:/opt/airflow/utils
+      - ~/.kube/config:/home/airflow/.kube/config:ro
+    depends_on:
+      postgres-shared:
+        condition: service_healthy
+      redis-egypt:
+        condition: service_healthy
+
+  egypt-webserver:
+    command: webserver
+    build:
+      context: ./Airflow/Egypt
+      dockerfile: Dockerfile
+    image: smartmove-egypt-airflow:latest
+    env_file: .env
+    environment:
+      <<: *airflow-common-env
+      AIRFLOW__CELERY__BROKER_URL: "redis://:@redis-egypt:6379/0"
+      AIRFLOW__CORE__DAGS_FOLDER: "/opt/airflow/Egypt/dags"
+      PYTHONPATH: "/opt/airflow/Egypt:/opt/airflow/utils"
+    ports:
+      - "8082:8080"
+    volumes:
+      - ./Airflow/Egypt:/opt/airflow/Egypt
+      - ./Airflow/utils:/opt/airflow/utils
+    depends_on:
+      postgres-shared:
+        condition: service_healthy
+
+  egypt-worker:
+    build:
+      context: ./Airflow/Egypt
+      dockerfile: Dockerfile
+    image: smartmove-egypt-airflow:latest
+    command: celery worker
+    env_file: .env
+    environment:
+      <<: *airflow-common-env
+      AIRFLOW__CELERY__BROKER_URL: "redis://:@redis-egypt:6379/0"
+      AIRFLOW__CORE__DAGS_FOLDER: "/opt/airflow/Egypt/dags"
+      PYTHONPATH: "/opt/airflow/Egypt:/opt/airflow/utils"
+      DUMB_INIT_SETSID: "0"
+    volumes:
+      - ./Airflow/Egypt:/opt/airflow/Egypt
+      - ./Airflow/utils:/opt/airflow/utils
+      - ~/.kube/config:/home/airflow/.kube/config:ro
+    depends_on:
+      postgres-shared:
+        condition: service_healthy
+      redis-egypt:
+        condition: service_healthy
+
+  egypt-triggerer:
+    build:
+      context: ./Airflow/Egypt
+      dockerfile: Dockerfile
+    image: smartmove-egypt-airflow:latest
+    command: triggerer
+    env_file: .env
+    environment:
+      <<: *airflow-common-env
+      AIRFLOW__CELERY__BROKER_URL: "redis://:@redis-egypt:6379/0"
+      AIRFLOW__CORE__DAGS_FOLDER: "/opt/airflow/Egypt/dags"
+      PYTHONPATH: "/opt/airflow/Egypt:/opt/airflow/utils"
+    volumes:
+      - ./Airflow/Egypt:/opt/airflow/Egypt
+      - ./Airflow/utils:/opt/airflow/utils
+    depends_on:
+      postgres-shared:
+        condition: service_healthy
+
+  egypt-flower:
+    build:
+      context: ./Airflow/Egypt
+      dockerfile: Dockerfile
+    image: smartmove-egypt-airflow:latest
+    command: celery flower
+    env_file: .env
+    environment:
+      <<: *airflow-common-env
+      AIRFLOW__CELERY__BROKER_URL: "redis://:@redis-egypt:6379/0"
+      AIRFLOW__CORE__DAGS_FOLDER: "/opt/airflow/Egypt/dags"
+      PYTHONPATH: "/opt/airflow/Egypt:/opt/airflow/utils"
+    ports:
+      - "5557:5555"
+    depends_on:
+      postgres-shared:
+        condition: service_healthy
+      redis-egypt:
+        condition: service_healthy
+
+  # ── 5. Machine Learning Build Targets ──────────────────────────────
+  # These do not run as permanent services. They are here so you can 
+  # compile all three models at once by running `docker compose build`.
+  ml-build-dubai:
+    build:
+      context: ./ml/Dubai
+    image: ghcr.io/smartmove/ml-forecaster-dubai:latest
+    profiles: ["ml-build-only"]
+
+  ml-build-england:
+    build:
+      context: ./ml/England
+    image: ghcr.io/smartmove/ml-forecaster-england:latest
+    profiles: ["ml-build-only"]
+
+  ml-build-egypt:
+    build:
+      context: ./ml/Egypt
+    image: ghcr.io/smartmove/ml-forecaster-egypt:latest
+    profiles: ["ml-build-only"]
+
+volumes:
+  postgres-db-master:

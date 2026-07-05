@@ -1,0 +1,59 @@
+# ==============================================================================
+# Tempo — Distributed Tracing Configuration for SmartMove SOC
+# ==============================================================================
+
+server:
+  http_listen_port: 3200
+
+# ── Distributor ───────────────────────────────────────────────
+distributor:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+
+# ── Ingester ──────────────────────────────────────────────────
+ingester:
+  max_block_duration: 5m
+
+# ── Compactor ─────────────────────────────────────────────────
+compactor:
+  compaction:
+    block_retention: 336h # 14 days
+
+# ── Storage & Offloaded Caching (VM 4) ────────────────────────
+storage:
+  trace:
+    backend: local
+    local:
+      path: /var/tempo/traces
+    wal:
+      path: /var/tempo/wal
+    # Offload trace caching to VM 4
+    cache: redis
+    redis:
+      endpoint: "100.111.232.64:6379"
+      timeout: 500ms
+
+# ── Metrics Generator ────────────────────────────────────────
+metrics_generator:
+  registry:
+    external_labels:
+      source: tempo
+      cluster: smartmove-soc
+  storage:
+    path: /var/tempo/generator/wal
+    remote_write:
+      - url: http://mimir:9009/api/v1/push
+        send_exemplars: true
+
+# ── Overrides ─────────────────────────────────────────────────
+overrides:
+  defaults:
+    metrics_generator:
+      processors:
+        - service-graphs
+        - span-metrics

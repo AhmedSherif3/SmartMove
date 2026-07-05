@@ -1,0 +1,87 @@
+# ==============================================================================
+# Prometheus — Scrape Configurations for SmartMove SOC
+# ==============================================================================
+
+# ─────────────────────────────────────────────────────────────
+# Server 1: App & Control Plane
+# ─────────────────────────────────────────────────────────────
+- job_name: django_backend
+  scrape_interval: 30s
+  metrics_path: /metrics
+  static_configs:
+    # Points to Server 1 Tailscale IP
+    - targets: ["100.100.100.11:8000"]
+      labels:
+        environment: production
+        service: smartmove-backend
+
+# ─────────────────────────────────────────────────────────────
+# Server 2: Support & Scale (Data Layer)
+# ─────────────────────────────────────────────────────────────
+- job_name: redis
+  scrape_interval: 30s
+  static_configs:
+    # Points to Server 2 Tailscale IP
+    - targets: ["100.111.232.64:9121"]
+      labels:
+        environment: production
+        service: smartmove-redis
+
+- job_name: postgres
+  scrape_interval: 30s
+  static_configs:
+    # Points to Server 2 Tailscale IP
+    - targets: ["100.111.232.64:9187"]
+      labels:
+        environment: production
+        service: smartmove-postgres
+
+# ─────────────────────────────────────────────────────────────
+# Server 4: Feature Engine & User Analytics
+# ─────────────────────────────────────────────────────────────
+- job_name: analytics_pro_engine
+  scrape_interval: 30s
+  static_configs:
+    # Points to Server 4 Tailscale IP
+    - targets: ["100.100.100.14:8001"]
+      labels:
+        environment: production
+        service: analytics-pro-engine
+
+- job_name: minio_storage
+  scrape_interval: 30s
+  metrics_path: /minio/v2/metrics/cluster
+  static_configs:
+    # Points to Server 4 Tailscale IP
+    - targets: ["100.100.100.14:9000"]
+      labels:
+        environment: production
+        service: minio
+
+# ─────────────────────────────────────────────────────────────
+# Server 3: Command Center (Local Self-Monitoring)
+# ─────────────────────────────────────────────────────────────
+- job_name: cloudflare_waf
+  scrape_interval: 30s
+  static_configs:
+    # Queries the local docker network
+    - targets: ["cloudflare_exporter:8080"]
+      labels:
+        environment: production
+        service: cloudflare
+
+- job_name: mimir
+  scrape_interval: 60s
+  static_configs:
+    - targets: ["mimir:9009"]
+      labels:
+        environment: production
+        service: mimir
+
+- job_name: alertmanager
+  scrape_interval: 60s
+  static_configs:
+    - targets: ["alertmanager:9093"]
+      labels:
+        environment: production
+        service: alertmanager

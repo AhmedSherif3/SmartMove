@@ -1,0 +1,57 @@
+version: 2
+
+models:
+  - name: dim_date
+    columns:
+      - name: date_id
+        tests: [not_null, unique]
+
+  - name: dim_area
+    columns:
+      - name: area_id
+        tests: [not_null, unique]
+
+  - name: dim_property
+    columns:
+      - name: property_type_id
+        tests: [not_null, unique]
+
+  - name: dim_procedure
+    columns:
+      - name: procedure_id
+        tests: [not_null, unique]
+
+  - name: dim_registration
+    columns:
+      - name: reg_type_id
+        tests: [not_null, unique]
+
+  - name: fact_transactions
+    columns:
+      - name: transaction_id
+        tests: [not_null, unique]
+      - name: date_id
+        tests:
+          - relationships:
+              to: ref('dim_date')
+              field: date_id
+      - name: area_id
+        tests:
+          - relationships:
+              to: ref('dim_area')
+              field: area_id
+      - name: property_type_id
+        tests:
+          - relationships:
+              to: ref('dim_property')
+              field: property_type_id
+      - name: procedure_id
+        tests:
+          - relationships:
+              to: ref('dim_procedure')
+              field: procedure_id
+      - name: reg_type_id
+        tests:
+          - relationships:
+              to: ref('dim_registration')
+              field: reg_type_id

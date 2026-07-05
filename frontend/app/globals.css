@@ -1,0 +1,276 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --ui-surface-page: #f3f6fb;
+  --ui-surface-card: #ffffff;
+  --ui-surface-muted: #e7eef7;
+  --ui-border-subtle: #d3ddeb;
+
+  --ui-content-strong: #0f172a;
+  --ui-content-primary: #334155;
+  --ui-content-secondary: #64748b;
+  --ui-content-muted: #6b7fa8;
+  --ui-content-on-brand: #ffffff;
+
+  --ui-brand-primary: #3b82f6;
+  --ui-brand-secondary: #2dd4bf;
+  --ui-brand-accent: #8b5cf6;
+
+  --ui-status-success: #10d879;
+  --ui-status-error: #ef4444;
+  --ui-status-warning: #f5a623;
+  --ui-status-alert: #f97316;
+
+  --ui-shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
+  --ui-glow-primary: 0 0 20px rgba(59, 130, 246, 0.15);
+  --ui-portal-accent: var(--ui-brand-primary);
+  --ui-kpi-accent: var(--ui-portal-accent);
+
+  /* New Design System Variables */
+  --ui-warp-ripple: rgba(59, 130, 246, 0.4);
+  --ui-magnetic-glow: rgba(59, 130, 246, 0.1);
+  --ui-country-ribbon: linear-gradient(90deg, #3b82f6, #2dd4bf);
+
+  --ui-overlay-backdrop: rgba(15, 23, 42, 0.4);
+
+  --ui-font-base: "DM Sans", sans-serif;
+  --reactor-opacity: 0.45;
+
+  /* England Dashboard Colors (Optimized for Light Mode) */
+  --dashboard-england-overview: #4A154B;
+  --dashboard-england-investment: #B11A1A;
+  --dashboard-england-risk: #2E5A27;
+  --dashboard-england-trends: #0B132B;
+
+  /* Egypt Dashboard Colors (Optimized for Light Mode) */
+  --dashboard-egypt-color1: #4f46e5;
+  --dashboard-egypt-color2: #7c3aed;
+  --dashboard-egypt-color3: #db2777;
+  --dashboard-egypt-color4: #0d9488;
+  --dashboard-egypt-color5: #d97706;
+  --dashboard-egypt-color6: #0284c7;
+  --dashboard-egypt-color7: #e11d48;
+  --dashboard-egypt-color8: #059669;
+  --dashboard-egypt-color9: #ea580c;
+  --dashboard-egypt-color10: #818cf8;
+
+  /* Dubai Dashboard Colors (Light Mode) */
+  --dashboard-dubai-primary: #d4af37;
+  --dashboard-dubai-secondary: #1f2937;
+  --dashboard-dubai-accent: #b8860b;
+}
+
+@theme inline {
+  --color-surface-page: var(--ui-surface-page);
+  --color-surface-card: var(--ui-surface-card);
+  --color-surface-muted: var(--ui-surface-muted);
+  --color-border-subtle: var(--ui-border-subtle);
+
+  --color-content-strong: var(--ui-content-strong);
+  --color-content-primary: var(--ui-content-primary);
+  --color-content-secondary: var(--ui-content-secondary);
+  --color-content-muted: var(--ui-content-muted);
+  --color-content-on-brand: var(--ui-content-on-brand);
+
+  --color-brand-primary: var(--ui-brand-primary);
+  --color-brand-secondary: var(--ui-brand-secondary);
+  --color-brand-accent: var(--ui-brand-accent);
+
+  --color-status-success: var(--ui-status-success);
+  --color-status-error: var(--ui-status-error);
+  --color-status-warning: var(--ui-status-warning);
+  --color-status-alert: var(--ui-status-alert);
+  --color-overlay-backdrop: var(--ui-overlay-backdrop);
+
+  --font-base: var(--ui-font-base);
+  --font-sans: var(--ui-font-base);
+  --font-logo: var(--ui-font-logo);
+}
+
+.dark {
+  --ui-surface-page: #080e1a;
+  --ui-surface-card: #0d1525;
+  --ui-surface-muted: #1a2333;
+  --ui-border-subtle: #1a2333;
+
+  --ui-content-strong: #ffffff;
+  --ui-content-primary: #cbd5e1;
+  --ui-content-secondary: #94a3b8;
+  --ui-content-muted: #6b7fa8;
+  --ui-content-on-brand: #ffffff;
+
+  --ui-brand-primary: #3b82f6;
+  --ui-brand-secondary: #2dd4bf;
+  --ui-brand-accent: #8b5cf6;
+
+  --ui-status-success: #10d879;
+  --ui-status-error: #ef4444;
+  --ui-status-warning: #f5a623;
+  --ui-status-alert: #f97316;
+
+  --ui-warp-ripple: rgba(59, 130, 246, 0.3);
+  --ui-magnetic-glow: rgba(255, 255, 255, 0.05);
+
+  --reactor-opacity: 1;
+
+  /* England Dashboard Colors (Optimized for Dark Mode) */
+  --dashboard-england-overview: #be7dbd;
+  --dashboard-england-investment: #eb8080;
+  --dashboard-england-risk: #91d192;
+  --dashboard-england-trends: #a3d2f1;
+
+  /* Egypt Dashboard Colors (Optimized for Dark Mode) */
+  --dashboard-egypt-color1: #6366f1;
+  --dashboard-egypt-color2: #8b5cf6;
+  --dashboard-egypt-color3: #ec4899;
+  --dashboard-egypt-color4: #14b8a6;
+  --dashboard-egypt-color5: #f59e0b;
+  --dashboard-egypt-color6: #0ea5e9;
+  --dashboard-egypt-color7: #f43f5e;
+  --dashboard-egypt-color8: #10b981;
+  --dashboard-egypt-color9: #f97316;
+  --dashboard-egypt-color10: #a78bfa;
+
+  /* Dubai Dashboard Colors (Dark Mode) */
+  --dashboard-dubai-primary: #f3e5ab;
+  --dashboard-dubai-secondary: #cbd5e1;
+  --dashboard-dubai-accent: #ffd700;
+}
+
+/* Country Specific Styles (Injected via JS but referenced here) */
+[data-country="uk"] {
+  --ui-country-ribbon: linear-gradient(90deg, #00247d 0%, #ffffff 50%, #cf142b 100%);
+}
+[data-country="uae"] {
+  --ui-country-ribbon: linear-gradient(90deg, #ff0000 0%, #00732f 33%, #ffffff 66%, #000000 100%);
+}
+[data-country="egypt"] {
+  --ui-country-ribbon: linear-gradient(90deg, #ce1126 0%, #ffffff 50%, #000000 100%);
+}
+
+.reactor-content {
+  position: relative;
+  z-index: 3;
+}
+
+.dark .glass-card {
+  background: rgba(13, 21, 37, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(59, 130, 246, 0.12);
+}
+
+body {
+  background: var(--ui-surface-page);
+  color: var(--ui-content-primary);
+  font-family: var(--ui-font-base), sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--ui-font-logo), sans-serif;
+  font-weight: 700;
+}
+
+[data-portal="user"] {
+  --ui-portal-accent: var(--ui-status-success);
+}
+
+[data-portal="analyst"] {
+  --ui-portal-accent: var(--ui-brand-primary);
+}
+
+[data-portal="admin"] {
+  --ui-portal-accent: var(--ui-status-warning);
+}
+
+.card,
+.card-shell,
+div.bg-surface-card,
+section.bg-surface-card,
+article.bg-surface-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  box-shadow: var(--ui-shadow-card);
+}
+
+.card::before,
+.card-shell::before,
+div.bg-surface-card::before,
+section.bg-surface-card::before,
+article.bg-surface-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 2px;
+  width: 100%;
+  background: var(--ui-portal-accent);
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+}
+
+.kpi-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-glow::after {
+  content: "";
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  height: 180px;
+  width: 180px;
+  background: radial-gradient(circle, var(--ui-kpi-accent) 0%, transparent 70%);
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+.glow-primary {
+  box-shadow: var(--ui-glow-primary);
+}
+
+button,
+a[role="button"] {
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+button:active,
+a[role="button"]:active {
+  transform: scale(0.95);
+}
+
+button:disabled,
+button[disabled],
+a[aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+button[class*="bg-brand-primary"],
+button[class*="bg-status-success"],
+button[class*="bg-status-warning"],
+a[class*="bg-brand-primary"],
+a[class*="bg-status-success"],
+a[class*="bg-status-warning"],
+button.btn-primary,
+a.btn-primary {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+table tbody tr:hover {
+  background: rgba(59, 130, 246, 0.04);
+  transition: background 0.2s ease;
+}

@@ -1,0 +1,83 @@
+<!--
+  ==============================================================================
+  Wazuh Manager — SmartMove Custom Rulesets
+  Path on Wazuh Manager: /var/ossec/etc/rules/local_rules.xml
+  ==============================================================================
+  These rules extend Wazuh's built-in detection with SmartMove-specific logic.
+  Rule IDs 100000–100999 are reserved for custom rules.
+-->
+
+<group name="smartmove,">
+
+  <!-- ─────────────────────────────────────────────────────────
+       Brute-Force Login Detection
+       Fires when 5+ failed login attempts occur within 120s
+       from the same source IP.
+  ───────────────────────────────────────────────────────────── -->
+  <rule id="100001" level="10" frequency="5" timeframe="120">
+    <if_matched_sid>60122</if_matched_sid>
+    <same_source_ip />
+    <description>SmartMove: Brute-force login attempt detected (5+ failures in 2 min)</description>
+    <group>authentication_failures,brute_force,</group>
+    <options>alert_by_email</options>
+  </rule>
+
+  <!-- ─────────────────────────────────────────────────────────
+       API Rate-Limit Abuse
+       Fires when Django returns 10+ HTTP 429 responses within 60s.
+  ───────────────────────────────────────────────────────────── -->
+  <rule id="100002" level="8" frequency="10" timeframe="60">
+    <if_matched_sid>31100</if_matched_sid>
+    <match>status_code": 429</match>
+    <description>SmartMove: API rate-limit abuse — excessive 429 responses</description>
+    <group>api_abuse,rate_limiting,</group>
+  </rule>
+
+  <!-- ─────────────────────────────────────────────────────────
+       Privilege Escalation Attempt
+       Fires when a non-admin user attempts to access admin endpoints.
+  ───────────────────────────────────────────────────────────── -->
+  <rule id="100003" level="12">
+    <if_sid>31100</if_sid>
+    <url>/admin/|/api/users/.*role</url>
+    <match>status_code": 403</match>
+    <description>SmartMove: Privilege escalation attempt — unauthorized admin access</description>
+    <group>privilege_escalation,access_control,</group>
+    <options>alert_by_email</options>
+  </rule>
+
+  <!-- ─────────────────────────────────────────────────────────
+       Suspicious JWT Token Usage
+       Fires on blacklisted token reuse attempts.
+  ───────────────────────────────────────────────────────────── -->
+  <rule id="100004" level="10">
+    <if_sid>31100</if_sid>
+    <match>Token is blacklisted</match>
+    <description>SmartMove: Blacklisted JWT token reuse detected</description>
+    <group>authentication_failures,token_abuse,</group>
+  </rule>
+
+  <!-- ─────────────────────────────────────────────────────────
+       File Integrity Monitoring — Backend Code Changes
+       Fires when critical backend files are modified on disk.
+  ───────────────────────────────────────────────────────────── -->
+  <rule id="100005" level="7">
+    <if_sid>550</if_sid>
+    <match>/app/apps/|/app/config/</match>
+    <description>SmartMove: Critical backend source file modified</description>
+    <group>file_integrity,syscheck,</group>
+  </rule>
+
+  <!-- ─────────────────────────────────────────────────────────
+       Self-Healing Trigger Audit
+       Logs when a self-healing runbook is triggered via webhook.
+  ───────────────────────────────────────────────────────────── -->
+  <rule id="100006" level="5">
+    <if_sid>31100</if_sid>
+    <url>/api/monitoring/webhook/alertmanager/</url>
+    <match>status_code": 200</match>
+    <description>SmartMove: Self-healing runbook triggered via Alertmanager webhook</description>
+    <group>self_healing,monitoring,</group>
+  </rule>
+
+</group>

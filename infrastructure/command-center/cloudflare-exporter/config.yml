@@ -1,0 +1,15 @@
+# ==============================================================================
+# Cloudflare Exporter Configuration
+# NOTE: The actual API Token and Email are securely injected via the .env file.
+# ==============================================================================
+
+listen: ":8080"
+metrics_path: "/metrics"
+
+# You will get this Zone ID from your Cloudflare Dashboard (Overview -> API section on the bottom right)
+zones:
+  - id: "028ede2262e7ae5325cff858c3ef9342"
+
+# Scrape WAF events and bandwidth analytics
+scrape_waf: true
+scrape_analytics: true

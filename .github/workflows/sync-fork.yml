@@ -1,0 +1,34 @@
+name: Sync Fork to Vercel
+
+on:
+    push:
+        branches: [development]
+        paths:
+            - "frontend/**"
+            - "backend/**"
+            - "pipeline/**" # The ETL/Data Engineering code
+            - "infrastructure/**" # Docker & Cloud configs
+
+jobs:
+    sync:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Force Push to Personal Fork
+              env:
+                  TOKEN: ${{ secrets.FORK_TOKEN }}
+              run: |
+                  if [ -z "$TOKEN" ]; then
+                    echo "🚨 ERROR: FORK_TOKEN is missing from Repository Secrets."
+                    exit 1
+                  fi
+
+                  # Clear background credentials to let our token work
+                  git config --local --unset-all http.https://github.com/.extraheader || true
+
+                  # Force sync to your personal fork
+                  git remote add fork https://AhmedSherif3:${TOKEN}@github.com/AhmedSherif3/SmartMove.git
+                  git push fork development:main --force

@@ -1,0 +1,228 @@
+# ==============================================================================
+# Prometheus — SmartMove Alerting Rules
+# ==============================================================================
+
+groups:
+  # ────────────────────────────────────────────────────────────
+  # 1. Infrastructure & Security (Command Center Additions)
+  # ────────────────────────────────────────────────────────────
+  - name: smartmove_infra_security
+    rules:
+      - alert: HostCompletelyDown
+        expr: up{job!="django"} == 0
+        for: 3m
+        labels:
+          severity: fatal
+        annotations:
+          summary: "Host {{ $labels.instance }} is completely down."
+          description: "Server has been unreachable for 3 minutes. Verify Tailscale tunnel and OCI console immediately."
+
+      - alert: DiskFillingUpFast
+        expr: predict_linear(node_filesystem_free_bytes{fstype=~"ext4|xfs"}[1h], 4 * 3600) < 0
+        for: 10m
+        labels:
+          severity: fatal
+        annotations:
+          summary: "Disk on {{ $labels.instance }} will be full in < 4 hours."
+          description: "Current write rate will crash the server. Clear logs or expand Block Storage."
+
+      - alert: MalwareDetected
+        expr: increase(clamav_malware_detected_total[5m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Malware blocked on {{ $labels.instance }}."
+          description: "ClamAV intercepted an infected CSV upload. Airflow DAG has quarantined the file."
+
+  # ────────────────────────────────────────────────────────────
+  # 2. Backend Health & Availability (Your Original Rules)
+  # ────────────────────────────────────────────────────────────
+  - name: smartmove_backend
+    rules:
+      - alert: DjangoBackendDown
+        expr: up{job="django"} == 0
+        for: 2m
+        labels:
+          severity: fatal
+          service: backend
+        annotations:
+          summary: "Django backend is unreachable"
+          description: "The Django backend target has been down for more than 2 minutes."
+          runbook: "restart_celery_workers"
+
+      - alert: HighRequestLatency
+        expr: |
+          histogram_quantile(0.95,
+            rate(django_http_requests_latency_seconds_bucket{job="django"}[5m])
+          ) > 2.0
+        for: 5m
+        labels:
+          severity: warning
+          service: backend
+        annotations:
+          summary: "P95 request latency exceeds 2s"
+          description: "The 95th percentile latency for Django HTTP requests has exceeded 2 seconds for 5 minutes."
+
+      - alert: HighErrorRate
+        expr: |
+          (
+            sum(rate(django_http_responses_total_by_status_total{status=~"5.."}[5m]))
+            /
+            sum(rate(django_http_responses_total_by_status_total[5m]))
+          ) > 0.05
+        for: 3m
+        labels:
+          severity: critical
+          service: backend
+        annotations:
+          summary: "Backend 5xx error rate exceeds 5%"
+          description: "More than 5% of all HTTP responses are returning server errors."
+
+  # ────────────────────────────────────────────────────────────
+  # 3. Celery Workers
+  # ────────────────────────────────────────────────────────────
+  - name: smartmove_celery
+    rules:
+      - alert: CeleryWorkerDown
+        expr: celery_workers_active == 0
+        for: 3m
+        labels:
+          severity: critical
+          service: celery
+        annotations:
+          summary: "No active Celery workers detected"
+          description: "All Celery workers have been offline for more than 3 minutes."
+          runbook: "restart_celery_workers"
+
+      - alert: CeleryQueueBacklog
+        expr: celery_task_queue_length > 500
+        for: 5m
+        labels:
+          severity: warning
+          service: celery
+        annotations:
+          summary: "Celery task queue backlog exceeding 500 tasks"
+          description: "The Celery task queue has had more than 500 pending tasks for 5 minutes."
+
+  # ────────────────────────────────────────────────────────────
+  # 4. Redis
+  # ────────────────────────────────────────────────────────────
+  - name: smartmove_redis
+    rules:
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 1m
+        labels:
+          severity: fatal
+          service: redis
+        annotations:
+          summary: "Redis instance is down"
+          description: "Redis has been unreachable for more than 1 minute."
+
+      - alert: RedisHighMemory
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.85
+        for: 5m
+        labels:
+          severity: warning
+          service: redis
+        annotations:
+          summary: "Redis memory usage above 85%"
+          description: "Redis is using more than 85% of its configured max memory."
+
+  # ────────────────────────────────────────────────────────────
+  # 5. PostgreSQL
+  # ────────────────────────────────────────────────────────────
+  - name: smartmove_postgres
+    rules:
+      - alert: PostgresDown
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: fatal
+          service: postgres
+        annotations:
+          summary: "PostgreSQL is down"
+          description: "PostgreSQL has been unreachable for more than 1 minute."
+
+      - alert: PostgresHighConnections
+        expr: |
+          sum(pg_stat_activity_count) /
+          pg_settings_max_connections > 0.80
+        for: 5m
+        labels:
+          severity: warning
+          service: postgres
+        annotations:
+          summary: "PostgreSQL connections above 80% capacity"
+          description: "Active connections are approaching the max_connections limit."
+
+  # ────────────────────────────────────────────────────────────
+  # 6. FinOps — OpenAI Token Spend
+  # ────────────────────────────────────────────────────────────
+  - name: smartmove_finops
+    rules:
+      - alert: OpenAITokenBudgetExceeded
+        expr: increase(openai_tokens_total[1h]) > 100000
+        for: 0m
+        labels:
+          severity: warning
+          service: finops
+        annotations:
+          summary: "OpenAI token consumption exceeded 100k in the last hour"
+          description: "Token spend is unusually high — review chatbot and prediction pipelines."
+
+  # ────────────────────────────────────────────────────────────
+  # 7. Subscriptions & Billing (Lemon Squeezy)
+  # ────────────────────────────────────────────────────────────
+  - name: smartmove_subscriptions
+    rules:
+      - alert: LemonSqueezyWebhookFailure
+        expr: increase(django_http_responses_total_by_status_total{view=~".*LemonSqueezyWebhook.*", status=~"5.."}[5m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+          service: billing
+        annotations:
+          summary: "Lemon Squeezy Webhook failed"
+          description: "A subscription or billing event webhook from Lemon Squeezy resulted in a server error."
+
+  # ────────────────────────────────────────────────────────────
+  # 8. WebSockets (Django Channels)
+  # ────────────────────────────────────────────────────────────
+  - name: smartmove_websockets
+    rules:
+      - alert: HighWebSocketDisconnectRate
+        expr: increase(django_channels_disconnects_total[5m]) > 100
+        for: 5m
+        labels:
+          severity: warning
+          service: websockets
+        annotations:
+          summary: "High WebSocket disconnect rate"
+          description: "More than 100 WebSocket disconnections occurred in the last 5 minutes. Check ASGI servers or Nginx proxies."
+
+  # ────────────────────────────────────────────────────────────
+  # 9. Micro-VM Observability
+  # ────────────────────────────────────────────────────────────
+  - name: smartmove_micro_vms
+    rules:
+      - alert: WatchdogOffline
+        expr: up{instance=~"vm3_watchdog.*"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: watchdog
+        annotations:
+          summary: "Watchdog Micro-VM is down"
+          description: "vm3_watchdog is unreachable. External uptime checks may be failing."
+
+      - alert: CacheVMEvictionHigh
+        expr: increase(cache_evictions_total{instance=~"vm4_tempo_cache|vm5_mimir_cache|vm6_loki_cache"}[5m]) > 1000
+        for: 5m
+        labels:
+          severity: warning
+          service: caching
+        annotations:
+          summary: "High cache eviction rate on Observability Micro-VM"
+          description: "A cache VM is evicting data rapidly. Consider scaling cache limits on the VM."

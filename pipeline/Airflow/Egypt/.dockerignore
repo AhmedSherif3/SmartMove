@@ -1,0 +1,17 @@
+# Airflow runtime logs + symlinks (causes build errors on Windows)
+logs/
+# Local data files – not needed in image
+data/
+# Python cache
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+# Git
+.git/
+.gitignore
+# Env file (secrets – never bake into image)
+.env
+# Docker artifacts
+*.tar

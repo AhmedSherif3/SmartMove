@@ -1,0 +1,15 @@
+# ==============================================================================
+# Grafana — Dashboard Provisioning for SmartMove SOC
+# ==============================================================================
+apiVersion: 1
+
+providers:
+  - name: "SmartMove Infrastructure Dashboards"
+    orgId: 1
+    folder: "Observability"
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    options:
+      # This path matches the volume mount in your docker-compose.yml
+      path: /etc/grafana/provisioning/dashboards

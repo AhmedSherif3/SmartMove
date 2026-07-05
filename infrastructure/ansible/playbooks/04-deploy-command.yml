@@ -1,0 +1,8 @@
+---
+- name: Phase 4 - Configure the Command Center and Agents
+  hosts: all
+  become: true
+  gather_facts: true
+  roles:
+    - wazuh_agent
+    - alloy_monitor
