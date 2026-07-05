@@ -1,4 +1,7 @@
-# Redirect to the render-specific requirements file.
-# This file exists because Render's auto-detector looks for requirements.txt
-# in the root directory of the service.
+# This file includes all requirement files from the requirements/ folder.
+# Created for Render deployment which looks for requirements.txt by default.
+-r requirements/base.txt
+-r requirements/production.txt
 -r requirements/render.txt
+-r requirements/development.txt
+-r requirements/testing.txt
