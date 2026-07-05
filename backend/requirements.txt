@@ -1,0 +1,4 @@
+# Redirect to the render-specific requirements file.
+# This file exists because Render's auto-detector looks for requirements.txt
+# in the root directory of the service.
+-r requirements/render.txt
