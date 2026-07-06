@@ -6,8 +6,12 @@ const nextConfig: NextConfig = {
     const backendUrl = (process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000/api").replace(/\/$/, "");
     return [
       {
+        source: "/api/:path*/",
+        destination: `${backendUrl}/:path*/`,
+      },
+      {
         source: "/api/:path*",
-        destination: `${backendUrl}/:path*`,
+        destination: `${backendUrl}/:path*/`,
       },
     ];
   },
