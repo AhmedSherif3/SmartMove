@@ -76,7 +76,7 @@ If you did not request this change, please secure your account immediately.
     def _send():
         api_key = getattr(settings, 'BREVO_API_KEY', '')
         if not api_key:
-            print(f"SMTP Error: BREVO_API_KEY not configured. OTP was: {otp_code}")
+            print(f"SMTP Error: BREVO_API_KEY not configured. OTP was: {otp_code}", flush=True)
             return
             
         try:
@@ -96,8 +96,9 @@ If you did not request this change, please secure your account immediately.
                 html_content=f"<p>{html_body}</p>"
             )
             api.send_transac_email(email)
+            print(f"Successfully sent email to {user.email}", flush=True)
         except Exception as e:
-            print(f"Brevo API Error: {e}")
+            print(f"Brevo API Error: {e}", flush=True)
             
     import threading
     threading.Thread(target=_send).start()
