@@ -11,23 +11,9 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
 USE_X_FORWARDED_PORT = True
 
-# We use the CompletelyOpenCSRFMiddleware similar to production to handle cross-origin
-# from Vercel to Render easily.
-class CompletelyOpenCSRFMiddleware:
-    def __init__(self, get_response):
-        self.get_response = get_response
-    def __call__(self, request):
-        host = request.get_host()
-        scheme = request.scheme
-        request.META['HTTP_ORIGIN'] = f"{scheme}://{host}"
-        if 'HTTP_REFERER' in request.META:
-            request.META['HTTP_REFERER'] = f"{scheme}://{host}/"
-        return self.get_response(request)
-
-MIDDLEWARE.insert(
-    MIDDLEWARE.index('django.middleware.csrf.CsrfViewMiddleware'),
-    'config.settings.render.CompletelyOpenCSRFMiddleware'
-)
+# --- CSRF & Cookies ---
+# We use standard Django CSRF middleware, relying on CSRF_TRUSTED_ORIGINS
+# being properly set in the environment or base.py.
 
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
