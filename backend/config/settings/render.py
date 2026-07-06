@@ -3,7 +3,7 @@ from .base import env
 
 DEBUG = False
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['smartmove-backend.onrender.com', 'smartmoveanalytics.me', 'www.smartmoveanalytics.me'])
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['.onrender.com', 'smartmoveanalytics.me', 'www.smartmoveanalytics.me'])
 
 # --- Security ---
 SECURE_SSL_REDIRECT = True
