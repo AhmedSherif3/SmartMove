@@ -1,7 +1,6 @@
-# This file includes all requirement files from the requirements/ folder.
-# Created for Render deployment which looks for requirements.txt by default.
+# Install only what's needed for the Render deployment.
+# development.txt and testing.txt are excluded to save memory
+# (pytest, black, flake8, ipython, coverage aren't needed on a live server).
 -r requirements/base.txt
--r requirements/production.txt
 -r requirements/render.txt
--r requirements/development.txt
--r requirements/testing.txt
+-r requirements/production.txt
