@@ -21,6 +21,20 @@ CSRF_COOKIE_SAMESITE = 'None'
 AUTH_COOKIE_SAMESITE = env('AUTH_COOKIE_SAMESITE', default='None')
 AUTH_COOKIE_SECURE = env.bool('AUTH_COOKIE_SECURE', default=True)
 
+# --- Cross-origin JWT Cookie Fix ---
+# Frontend (smartmoveanalytics.me) and backend (smartmove-1.onrender.com) are on different
+# domains. Browsers silently block SameSite=Lax cookies on cross-origin requests.
+# We MUST set SameSite=None + Secure so the access_token cookie is actually sent.
+SIMPLE_JWT = {
+    **SIMPLE_JWT,  # Inherit all base SIMPLE_JWT settings
+    'AUTH_COOKIE_SAMESITE': 'None',    # CRITICAL: was 'Lax' in base.py — blocked cross-origin
+    'AUTH_COOKIE_SECURE': True,        # Required when SameSite=None
+}
+
+# CSRF cookie must be readable by JavaScript (csrf.ts reads document.cookie).
+# Django does NOT set httponly on CSRF cookies by default, but be explicit:
+CSRF_COOKIE_HTTPONLY = False
+
 # --- Static files ---
 MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'

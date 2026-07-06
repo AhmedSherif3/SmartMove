@@ -50,7 +50,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [isPathAllowed, isSessionReady, rolePrefix, router, session]);
 
-  if (!isSessionReady || !session || !isPathAllowed) {
+  if (!isSessionReady || !session) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-transparent">
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-brand-primary border-t-transparent" />
