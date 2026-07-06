@@ -41,14 +41,8 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # --- Database ---
-import dj_database_url
-DATABASES = {
-    'default': dj_database_url.config(
-        default=env('DATABASE_URL', default=''),
-        conn_max_age=600,
-        conn_health_checks=True,
-    )
-}
+# Inheriting DATABASES from base.py since we are using individual DB_HOST, DB_NAME variables 
+# in Render instead of a single DATABASE_URL string.
 
 # Preserve Azure Analytics Database connection if USE_AZURE_DB is True
 if env.bool('USE_AZURE_DB', default=False):
