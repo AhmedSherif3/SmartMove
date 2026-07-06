@@ -77,7 +77,7 @@ export default function LoginPage() {
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
       const rolePath = normalizeRole(response.role);
-      router.push(`/${rolePath}`);
+      window.location.href = `/${rolePath}`;
     } catch (err: unknown) {
       setIsOrbLocked(false);
       setOrbState("error");
