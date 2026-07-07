@@ -72,15 +72,7 @@ def run_agentic_swarm(session_id: str, user_prompt: str, user_id: int):
             cur_res = curator.curate_dashboard(instructions, analysis_report, workspace_id, user)
             ui_contract = cur_res["ui_contract"]
 
-            if pusher: pusher.trigger(channel, 'agentic-message', {'type': 'agent_status', 'message': 'Exporter formatting view-only PDF report...'})
-            pdf_bytes = ReportExporterTool.generate_pdf_report(ui_contract)
-            file_key = f"temp_report_{session.id}.pdf"
-            
-            from django.core.files.storage import default_storage
-            from django.core.files.base import ContentFile
-            if default_storage.exists(file_key):
-                default_storage.delete(file_key)
-            default_storage.save(file_key, ContentFile(pdf_bytes))
+
 
             # pyrefly: ignore [missing-attribute]
             AgentMessage.objects.create(session=session, role=AgentMessage.RoleChoices.ASSISTANT, content=json.dumps(ui_contract))
@@ -90,11 +82,7 @@ def run_agentic_swarm(session_id: str, user_prompt: str, user_id: int):
                     'type': 'hybrid_dashboard',
                     'ui_payload': ui_contract.get('ui_payload', ui_contract)
                 })
-                pusher.trigger(channel, 'agentic-message', {
-                    'type': 'pdf_ready',
-                    'file_key': file_key,
-                    'message': 'View-only PDF is ready.'
-                })
+
         else:
             if pusher: pusher.trigger(channel, 'agentic-message', {'type': 'agent_status', 'message': f'Routing to {target}...'})
             # fallback

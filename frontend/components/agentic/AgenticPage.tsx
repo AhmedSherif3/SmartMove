@@ -66,7 +66,6 @@ export default function AgenticPage() {
 
   // Result payloads
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
-  const [pdfFileKey, setPdfFileKey] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
   const [historyList, setHistoryList] = useState<HistorySession[]>([]);
   const [showHistory, setShowHistory] = useState(false);
@@ -95,7 +94,6 @@ export default function AgenticPage() {
       const data = await getAgentSessionDetail(id);
       if (data.ui_contract) {
         setDashboardData(data.ui_contract.ui_payload || data.ui_contract);
-        setPdfFileKey(`temp_report_${id}.pdf`);
         setSessionId(id);
         setSteps([{ id: 'history', text: "Loaded from history.", status: "done", isFinal: true }]);
         setShowHistory(false);
@@ -148,21 +146,6 @@ export default function AgenticPage() {
         setIsRunning(false);
         setRobotMode("success");
         setTimeout(() => setRobotMode("idle"), 2500); // Return to idle after a few seconds
-      } else if (data.type === "pdf_ready") {
-        setPdfFileKey(data.file_key);
-        setSteps((prev) => {
-          const updated = prev.map(s => s.status === "running" ? { ...s, status: "done" as StepStatus } : s);
-          return [...updated, { id: Date.now().toString(), text: data.message || "PDF report prepared.", status: "done", isFinal: true }];
-        });
-      } else if (data.type === "download_link_ready") {
-        if (typeof window !== "undefined") {
-          const a = document.createElement("a");
-          a.href = data.url;
-          a.download = "SmartMove_Agent_Report.pdf";
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-        }
       } else if (data.type === "upgrade_required") {
         if (typeof window !== "undefined") {
           window.alert(data.message || "Please upgrade your plan to access this feature.");
