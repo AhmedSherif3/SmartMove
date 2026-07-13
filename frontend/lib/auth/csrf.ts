@@ -10,6 +10,8 @@ function hasCsrfCookie() {
     .some((cookie) => cookie.trim().startsWith("csrftoken="));
 }
 
+let csrfPromise: Promise<void> | null = null;
+
 export function getCsrfToken() {
   if (typeof document === "undefined") {
     return null;
@@ -32,9 +34,17 @@ export async function ensureCsrfCookie() {
     return;
   }
 
-  const baseUrl = getApiBaseUrl();
-  await fetch(`${baseUrl}/auth/csrf/`, {
-    method: "GET",
-    credentials: "include",
-  });
+  if (!csrfPromise) {
+    const baseUrl = getApiBaseUrl();
+    csrfPromise = fetch(`${baseUrl}/auth/csrf/`, {
+      method: "GET",
+      credentials: "include",
+    })
+      .then(() => {})
+      .finally(() => {
+        csrfPromise = null;
+      });
+  }
+
+  await csrfPromise;
 }
