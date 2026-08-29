@@ -26,7 +26,7 @@ from .serializers import (
     ChangePasswordVerifySerializer, UpdateRegionSerializer,
     UpdateUserRoleSerializer, SocialAuthRegionSerializer
 )
-from .otp_utils import generate_otp, verify_otp
+from .otp_utils import generate_otp, verify_otp, verify_otp_mark_used, consume_verified_otp
 from .email_utils import send_otp_email
 
 User = get_user_model()
@@ -322,7 +322,8 @@ class VerifyForgotOTPView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        valid, error = verify_otp(
+        # Mark the OTP as used (without deleting) so ResetPasswordView can still consume it
+        valid, error = verify_otp_mark_used(
             user,
             serializer.validated_data['code'],
             'reset_password'
@@ -356,8 +357,9 @@ class ResetPasswordView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        # Verify OTP one more time for security
-        valid, error = verify_otp(
+        # Consume the already-verified OTP (marked is_used=True by VerifyForgotOTPView).
+        # We still require the code to match so no third party can complete the reset.
+        valid, error = consume_verified_otp(
             user,
             serializer.validated_data['code'],
             'reset_password'

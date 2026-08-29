@@ -1,4 +1,4 @@
-import random
+import secrets
 from django.utils import timezone
 from datetime import timedelta
 from django.conf import settings
@@ -7,14 +7,12 @@ from .models import OTP
 
 
 def generate_otp(user, purpose):
-    # Invalidate existing unused OTPs for same purpose
-    OTP.objects.filter(
-        user=user,
-        purpose=purpose,
-        is_used=False
-    ).delete()
+    """Generate a cryptographically-secure 6-digit OTP, invalidating all previous ones."""
+    # Wipe ALL previous OTPs for this user+purpose (used or unused) for a clean slate
+    OTP.objects.filter(user=user, purpose=purpose).delete()
 
-    code = str(random.randint(100000, 999999))
+    # Use secrets module for cryptographically secure random number
+    code = str(secrets.randbelow(900000) + 100000)
 
     otp = OTP.objects.create(
         user=user,
@@ -28,6 +26,10 @@ def generate_otp(user, purpose):
 
 
 def verify_otp(user, code, purpose):
+    """
+    Verify and immediately CONSUME (delete) a valid OTP.
+    Used for single-step verifications: email verify, change-password.
+    """
     try:
         otp = OTP.objects.get(
             user=user,
@@ -40,3 +42,45 @@ def verify_otp(user, code, purpose):
         return True, None
     except ObjectDoesNotExist:
         return False, "Invalid or expired OTP"
+
+
+def verify_otp_mark_used(user, code, purpose):
+    """
+    Verify a valid OTP and mark it as used WITHOUT deleting it.
+    Used for multi-step flows (forgot-password) where the same code
+    must be referenced again in the following step (ResetPasswordView).
+    """
+    try:
+        otp = OTP.objects.get(
+            user=user,
+            code=code,
+            purpose=purpose,
+            is_used=False,
+            expires_at__gt=timezone.now()
+        )
+        otp.is_used = True
+        otp.save(update_fields=['is_used'])
+        return True, None
+    except ObjectDoesNotExist:
+        return False, "Invalid or expired OTP"
+
+
+def consume_verified_otp(user, code, purpose):
+    """
+    Consume a previously-verified (is_used=True) OTP that matches the code.
+    Used as the final security gate in ResetPasswordView after VerifyForgotOTPView
+    has already validated and marked the OTP.
+    The code must still match so no other party can complete the reset.
+    """
+    try:
+        otp = OTP.objects.get(
+            user=user,
+            code=code,
+            purpose=purpose,
+            is_used=True,
+            expires_at__gt=timezone.now()
+        )
+        otp.delete()
+        return True, None
+    except ObjectDoesNotExist:
+        return False, "OTP session expired or not verified. Please restart the password reset flow."

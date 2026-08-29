@@ -1,7 +1,7 @@
 import axios, { AxiosHeaders } from "axios";
 import { clearAuthSession, extendSession } from "./session";
 import { getApiBaseUrl } from "@/lib/urls/apiBase";
-import { ensureCsrfCookie, getCsrfToken } from "@/lib/auth/csrf";
+import { ensureCsrfCookie, getCsrfToken, invalidateCsrfCache } from "@/lib/auth/csrf";
 
 // This variable will hold the current refresh promise to avoid multiple simultaneous refresh calls.
 let refreshPromise: Promise<unknown> | null = null;
@@ -111,7 +111,25 @@ export async function getProfile() {
 authApi.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.config as (typeof error.config & { _retry?: boolean }) | undefined;
+    const originalRequest = error.config as (typeof error.config & { _retry?: boolean; _csrfRetry?: boolean }) | undefined;
+
+    // ── CSRF failure (403): invalidate stale cookie, re-fetch, retry once ──
+    if (error.response?.status === 403 && originalRequest && !originalRequest._csrfRetry) {
+      originalRequest._csrfRetry = true;
+      try {
+        invalidateCsrfCache();
+        await ensureCsrfCookie(true); // force=true bypasses hasCsrfCookie check
+        const freshToken = getCsrfToken();
+        if (freshToken) {
+          const headers = AxiosHeaders.from(originalRequest.headers || {});
+          headers.set("X-CSRFToken", freshToken);
+          originalRequest.headers = headers;
+        }
+        return authApi(originalRequest);
+      } catch {
+        return Promise.reject(error);
+      }
+    }
 
     // If it's not a 401 or we don't have the original request info, just reject.
     if (error.response?.status !== 401 || !originalRequest) {
