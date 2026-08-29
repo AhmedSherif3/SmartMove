@@ -79,18 +79,93 @@ def sql_query_tool(query: str) -> str:
       - Instead, rely on WHERE filters (like date ranges or specific regions) to reduce rows before aggregating.
       - SINGLE COUNTRY: If asked about ONE specific country (e.g. Egypt only), use 'SELECT TOP 1000' and include a WHERE clause for that country.
       - MULTIPLE COUNTRIES (COMPARISON): If asked to COMPARE countries or for ALL countries, filter the query to the most recent 6 months using a WHERE clause on the date column.
-    - STRICT SCHEMA COMPLIANCE: You MUST ONLY query the tables and columns explicitly listed in the schema.
+    - STRICT SCHEMA COMPLIANCE: You MUST ONLY query the tables and columns explicitly listed in the schema below. DO NOT GUESS OR INVENT column names.
     - CRITICAL DATE TABLE RULE: For Dubai use `dim_date_dubai`, for Egypt use `dim_date_egypt`. For England, there is NO `dim_date_england` — you MUST use `dim_date` instead.
     - EXACT REGION VALUES: When filtering by country in the 'region' column, you MUST use exactly one of these string values: 'Dubai', 'Egypt', 'England'.
     - Only SELECT statements are allowed.
     - Results are automatically limited to 500 rows using TOP.
     - All monetary values are stored in their local currency.
 
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    HARDCODED TABLE SCHEMA — YOU MUST FOLLOW THIS EXACTLY
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+    ── DUBAI STAR SCHEMA ─────────────────────────────────────────
+    fact_transactions_dubai:
+      Columns: transaction_id, date_id, property_type_id, area_id, procedure_id, reg_type_id, procedure_area, actual_worth, meter_sale_price, no_of_parties_role_1, no_of_parties_role_2
+      Valid JOINs:
+        → dim_date_dubai ON fact_transactions_dubai.date_id = dim_date_dubai.date_id
+        → dim_area_dubai ON fact_transactions_dubai.area_id = dim_area_dubai.area_id
+        → dim_property_dubai ON fact_transactions_dubai.property_type_id = dim_property_dubai.property_type_id
+        → dim_procedure ON fact_transactions_dubai.procedure_id = dim_procedure.procedure_id
+        → dim_registration ON fact_transactions_dubai.reg_type_id = dim_registration.reg_type_id
+
+    dim_date_dubai: date_id, full_date, year, month, month_name, quarter
+    dim_area_dubai: area_id, area_name_en
+    dim_property_dubai: property_type_id, property_type_en, property_sub_type_en
+    dim_procedure: procedure_id, procedure_name_en
+    dim_registration: reg_type_id, reg_type_en
+
+    ── EGYPT STAR SCHEMA ─────────────────────────────────────────
+    fact_property_listings_egypt:
+      Columns: listing_id, date_id, location_id, property_id, listing_type_key, price_total, price_per_sqm, area_sqm
+      Valid JOINs:
+        → dim_date_egypt ON fact_property_listings_egypt.date_id = dim_date_egypt.date_id
+        → dim_location_egypt ON fact_property_listings_egypt.location_id = dim_location_egypt.location_id
+        → dim_property_egypt ON fact_property_listings_egypt.property_id = dim_property_egypt.property_id
+        → dim_listing_type_egypt ON fact_property_listings_egypt.listing_type_key = dim_listing_type_egypt.listing_type_key
+
+    dim_date_egypt: date_id, full_date, year, month, month_name, quarter
+    dim_location_egypt: location_id, city, governorate
+    dim_property_egypt: property_id, property_type, property_category, listing_type, furnished, compound_name
+    dim_listing_type_egypt: listing_type_key, listing_type_name
+
+    ── ENGLAND STAR SCHEMA ───────────────────────────────────────
+    fact_transactions_england:
+      Columns: transaction_id, date_id, property_type_id, area_id, procedure_area, actual_worth
+      Valid JOINs:
+        → dim_date ON fact_transactions_england.date_id = dim_date.date_id  (NOTE: England uses 'dim_date', NOT 'dim_date_england')
+        → dim_area_england ON fact_transactions_england.area_id = dim_area_england.area_id
+        → dim_property_england ON fact_transactions_england.property_type_id = dim_property_england.property_type_id
+
+    dim_date: date_id, full_date, year, month, month_name, quarter
+    dim_area_england: area_id, area_name_en
+    dim_property_england: property_type_id, property_type_en
+
+    ── PREDICTION / FORECAST TABLES (ML output) ──────────────────
+    CRITICAL: These tables are STANDALONE. They do NOT have area_id, location_id,
+    or any foreign key to dimension tables. DO NOT JOIN them with dim_area or dim_location.
+    They represent country-level aggregated forecasts, NOT area-level predictions.
+
+    fact_predictions_dubai:
+      Columns: ds (date), price_yhat, price_lower, price_upper, rent_yhat, rent_lower, rent_upper, projected_roi_pct, prediction_id, target_date_id, is_latest_forecast, generated_at
+      NO JOINs available. Query this table directly.
+      Filter: WHERE is_latest_forecast = 1 to get the most recent forecast batch.
+
+    fact_predictions_egypt:
+      Columns: ds (date), price_yhat, price_lower, price_upper, rent_yhat, rent_lower, rent_upper, projected_roi_pct, prediction_id, target_date_id, is_latest_forecast, generated_at
+      NO JOINs available. Query this table directly.
+      Filter: WHERE is_latest_forecast = 1 to get the most recent forecast batch.
+
+    fact_predictions_england:
+      Columns: ds (date), price_yhat, price_lower, price_upper, rent_yhat, rent_lower, rent_upper, projected_roi_pct, prediction_id, target_date_id, is_latest_forecast, generated_at
+      NO JOINs available. Query this table directly.
+      Filter: WHERE is_latest_forecast = 1 to get the most recent forecast batch.
+
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    CRITICAL RULES:
+    1. NEVER JOIN a fact_predictions_* table with ANY dimension table. They have NO foreign keys.
+    2. When asked about "best area" with predictions, explain that predictions are country-level only.
+    3. For area-level data, use fact_transactions_* tables which DO have area_id.
+    4. ALWAYS check this schema BEFORE writing a query. If a column is NOT listed above, it does NOT exist.
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
     Args:
         query: A valid MSSQL SELECT statement.
 
     Returns:
         JSON string of the query results (list of dicts), or an error message.
+
     """
     import json
 
