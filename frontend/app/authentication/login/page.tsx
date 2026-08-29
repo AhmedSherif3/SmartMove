@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import { login } from "../../../lib/auth/api";
 import { saveAuthSession } from "../../../lib/auth/session";
 import { useState } from "react";
@@ -22,7 +21,6 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const router = useRouter();
   const [isOrbLocked, setIsOrbLocked] = useState(false);
   const [showFusionLoader, setShowFusionLoader] = useState(false);
   const { setOrbState } = useOrbLogin();
@@ -77,7 +75,7 @@ export default function LoginPage() {
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
       const rolePath = normalizeRole(response.role);
-      window.location.href = `/${rolePath}`;
+      window.location.assign(`/${rolePath}`);
     } catch (err: unknown) {
       setIsOrbLocked(false);
       setOrbState("error");
