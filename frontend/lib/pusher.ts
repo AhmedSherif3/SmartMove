@@ -3,7 +3,7 @@ import { getApiBaseUrl } from './urls/apiBase';
 import { engineApi } from './engineApi';
 
 export function getPusherClient() {
-    return new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY || '', {
+    return new Pusher(process.env.NEXT_PUBLIC_PUSHER || '', {
         cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER || 'eu',
         authorizer: (channel, options) => {
             return {
